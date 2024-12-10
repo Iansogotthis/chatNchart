@@ -12,10 +12,20 @@ export default function ProfilePage() {
 
   const { data: profile } = useQuery({
     queryKey: [`/api/users/${username}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${username}`);
+      if (!response.ok) throw new Error('Failed to fetch profile');
+      return response.json();
+    }
   });
 
   const { data: friends } = useQuery({
     queryKey: [`/api/users/${username}/friends`],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${username}/friends`);
+      if (!response.ok) throw new Error('Failed to fetch friends');
+      return response.json();
+    }
   });
 
   const handleMessage = (friendId: number) => {

@@ -251,24 +251,36 @@ export function ChartVisualization() {
         />
       </div>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Edit Square</DialogTitle>
-          </DialogHeader>
-          {selectedSquare && (
-            <SquareForm
-              squareData={{
-                title: selectedSquare.class,
-                parent_id: selectedSquare.parent,
-                type: `Depth: ${selectedSquare.depth}`,
-              }}
-              onSubmit={handleFormSubmit}
-              className="py-4"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {selectedSquare && (
+        <SquareModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleFormSubmit}
+          initialData={{
+            title: selectedSquare.class,
+            priority: {
+              density: 2,
+              durability: 'single',
+              decor: '#000000',
+            },
+            urgency: 'black',
+            aesthetic: {
+              impact: {
+                bold: false,
+                italic: false,
+                underline: false,
+              },
+              affect: {
+                fontFamily: 'Arial',
+                fontSize: 16,
+              },
+              effect: {
+                color: '#000000',
+              },
+            },
+          }}
+        />
+      )}
     </div>
   );
 }

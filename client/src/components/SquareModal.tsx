@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Popover,
@@ -52,6 +51,11 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
   
   const handleSave = () => {
     onSave(data);
+    onClose();
+  };
+
+  const handleViewChange = (mode: SquareData['viewMode']) => {
+    setData({ ...data, viewMode: mode });
     onClose();
   };
 
@@ -268,6 +272,18 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
 
         <div className="flex justify-end mt-4">
           <Button onClick={handleSave}>Save Changes</Button>
+        </div>
+
+        <div className="flex justify-between mt-4">
+          <Button onClick={() => handleViewChange('scaled')} variant="outline" className="flex-1 mx-1">
+            Scaled View
+          </Button>
+          <Button onClick={() => handleViewChange('scoped')} variant="outline" className="flex-1 mx-1">
+            Scoped View
+          </Button>
+          <Button onClick={() => handleViewChange('included-build')} variant="outline" className="flex-1 mx-1">
+            Include Build
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

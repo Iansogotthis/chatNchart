@@ -1,0 +1,958 @@
+
+Sure, let's go through a step-by-step process to ensure that the entire project works as intended. This process will include setting up your environment, running the server, creating the necessary React components, and ensuring that everything is linked and functional. The walkthrough will also help you understand the architecture and flow of the application.
+
+Step-by-Step Tutorial WalkthroughStep 1: Project Setup
+
+Create Project DirectoryCopymkdir square-data-management
+cd square-data-management
+
+Initialize Node ProjectCopynpm init -y
+
+Install Required PackagesCopynpm install express body-parser mariadb cors dotenv
+
+npx create-react-app client cd client npm install d3 d3-tip
+
+Copy- Express for the backend server
+- MariaDB for database interaction
+- React and related packages for the frontend
+Setting up the project in the directory structure mentioned in the conversation:
+
+CopyCopysquare-data-management/
+│
+├── client/
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── scaled_view.html
+│   │   ├── scoped_view.html
+│   │   ├── included_build.html
+│   │   └── styles.css
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Chart.js
+│   │   │   ├── FormModal.js
+│   │   │   ├── Modal.js
+│   │   │   └── form_page.jsx
+│   │   ├── index.js
+│   │   └── App.js
+│   ├── .env
+│   └── package.json
+│
+├── server.js
+├── .env
+└── package.json
+
+Step 2: Backend Setup
+
+Create server.js in the project root and populate it with the content provided:Copy// Import required packages
+const express = require("express"); const bodyParser = require("body-parser"); const mariadb = require("mariadb"); const cors = require("cors"); const path = require("path"); require("dotenv").config(); // Load environment variables from .env file
+
+// Initialize Express application const app = express(); const port = process.env.PORT || 3000; // Define the port for the server
+
+// Middleware setup app.use(cors()); // Enable Cross-Origin Resource Sharing app.use(bodyParser.json()); // Parse incoming request bodies in JSON format
+
+// Serve static files from the 'public' directory app.use(express.static(path.join(__dirname, "client", "public")));
+
+// Setup MariaDB connection pool const pool = mariadb.createPool({ host: process.env.DB_HOST, // Database host user: process.env.DB_USER, // Database user password: process.env.DB_PASSWORD, // Database password database: process.env.DB_NAME, // Database name port: process.env.DB_PORT, // Database port connectionLimit: 5 // Maximum number of connections in the pool });
+
+// API Routes
+
+/**
+
+Route to create a new square
+This endpoint creates a new square in the database with the provided data.
+*/ app.post("/squares", async (req, res) => { const { title, plane, purpose, delineator, notations, details, extraData, class: squareClass, parent, depth, name, size, color, type, parent_id } = req.body; const query = INSERT INTO squares (title, plane, purpose, delineator, notations, details, extraData, class, parent, depth, name, size, color, type, parent_id)                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); try { const conn = await pool.getConnection(); // Get a connection from the pool const result = await conn.query(query, [ title, plane, purpose, delineator, notations, details, extraData, squareClass, parent, depth, name, size, color, type, parent_id ]); conn.release(); // Release the connection back to the pool res.status(201).json({ id: result.insertId }); // Respond with the ID of the created square } catch (err) { console.error('Error creating square:', err); // Log the error for debugging purposes res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status } });
+
+/**
+
+Route to get all squares
+This endpoint retrieves and returns all squares from the database.
+*/ app.get("/squares", async (req, res) => { const query = "SELECT * FROM squares"; try { const conn = await pool.getConnection(); // Get a connection from the pool const results = await conn.query(query); // Execute the query to retrieve all squares conn.release(); // Release the connection back to the pool res.status(200).json(results); // Respond with the retrieved squares } catch (err) { console.error('Error fetching squares:', err); // Log the error for debugging purposes res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status } });
+
+/**
+
+Route to get a single square by ID
+This endpoint retrieves a square from the database based on the provided ID.
+*/ app.get("/squares/:id", async (req, res) => { const { id } = req.params; const query = "SELECT * FROM squares WHERE id = ?"; try { const conn = await pool.getConnection(); // Get a connection from the pool const results = await conn.query(query, [id]); // Execute the query to retrieve the square by ID conn.release(); // Release the connection back to the pool if (results.length === 0) { return res.status(404).json({ error: "Square not found" }); // Respond with a 404 status if the square is not found } res.status(200).json(results[0]); // Respond with the retrieved square } catch (err) { console.error('Error fetching square by ID:', err); // Log the error for debugging purposes res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status } });
+
+/**
+
+Route to update a square
+This endpoint updates an existing square in the database based on the provided ID and data.
+*/ app.put("/squares/:id", async (req, res) => { const { id } = req.params; const { title, plane, purpose, delineator, notations, details, extraData, class: squareClass, parent, depth, name, size, color, type, parent_id } = req.body; const query =     UPDATE squares      SET title = ?, plane = ?, purpose = ?, delineator = ?, notations = ?, details = ?, extraData = ?, class = ?, parent = ?, depth = ?, name = ?, size = ?, color = ?, type = ?, parent_id = ?     WHERE id = ?  ; try { const conn = await pool.getConnection(); // Get a connection from the pool await conn.query(query, [ title, plane, purpose, delineator, notations, details, extraData, squareClass, parent, depth, name, size, color, type, parent_id, id ]); // Execute the update query conn.release(); // Release the connection back to the pool res.status(200).json({ message: "Square updated successfully" }); // Respond with a success message } catch (err) { console.error('Error updating square:', err); // Log the error for debugging purposes res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status } });
+
+/**
+
+Route to delete a square
+This endpoint deletes a square from the database based on the provided ID.
+*/ app.delete("/squares/:id", async (req, res) => { const { id } = req.params; const query = "DELETE FROM squares WHERE id = ?"; try { const conn = await pool.getConnection(); // Get a connection from the pool await conn.query(query, [id]); // Execute the delete query conn.release(); // Release the connection back to the pool res.status(200).json({ message: "Square deleted successfully" }); // Respond with a success message } catch (err) { console.error('Error deleting square:', err); // Log the error for debugging purposes res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status } });
+
+// Serve static HTML pages
+
+/**
+
+Route to serve the scaled view page
+This route serves the scaled_view.html file from the 'public' directory.
+*/ app.get("/scaled_view.html", (req, res) => { res.sendFile(path.join(__dirname, "client", "public", "scaled_view.html")); });
+
+/**
+
+Route to serve the scoped view page
+This route serves the scoped_view.html file from the 'public' directory.
+*/ app.get("/scoped_view.html", (req, res) => { res.sendFile(path.join(__dirname, "client", "public", "scoped_view.html")); });
+
+/**
+
+Route to serve the form page
+This route serves the form_page.html file from the 'public' directory.
+*/ app.get("/form_page.html", (req, res) => { res.sendFile(path.join(__dirname, "client", "public", "form_page.html")); });
+
+/**
+
+Default Route
+This route serves the index.html file from the 'public' directory.
+*/ app.get("/", (req, res) => { res.sendFile(path.join(__dirname, "client", "public", "index.html")); });
+
+// Start the server and listen on the defined port app.listen(port, () => { console.log(Server is running on http://localhost:${port}); });
+
+Step 3: Environment Variables
+
+Create .env File in the project root and populate it with the following content:CopyPORT=3000
+DB_HOST=your_database_host DB_USER=your_database_user DB_PASSWORD=your_database_password DB_NAME=your_database_name DB_PORT=3306
+
+Step 4: Frontend Setup
+
+Create index.html in client/public and populate it with the content provided:Copy
+Copy.root {
+  fill: lightblue; /* Color for root */
+}
+
+.branch {
+  fill: lightgray; /* Color for branches */
+}
+
+.leaf {
+  fill: lightgreen; /* Color for leaves */
+}
+
+.fruit {
+  fill: lightcoral; /* Color for fruits */
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  overflow: hidden;
+}
+
+svg {
+  width: 90vw;
+  height: 90vh;
+  display: block;
+  margin: auto;
+}
+
+/* Modal styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-button {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#returnMain {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+Create scaled_view.html in client/public and populate it:Copy(refer to the scaled_view.html content provided in the initial conversation)
+
+Create scoped_view.html in client/public and populate it:Copy(refer to the scoped_view.html content provided in the initial conversation)
+
+Create included_build.html in client/public and populate it:Copy(refer to the included_build.html content provided in the initial conversation)
+
+Create styles.css in client/public and populate it:Copy/* Modern Minimalist Color Scheme */
+
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+
+.App { text-align: center; }
+
+.square { stroke: black; stroke-width: 2px; cursor: pointer; }
+
+.root { fill: lightblue; }
+
+.branch { fill: lightgray; }
+
+.leaf { fill: lightgreen; }
+
+.fruit { fill: lightcoral; opacity: 0.3; /* Set default opacity to lower value */ }
+
+.fruit:hover { opacity: 1; /* Ensure fruit is fully opaque when directly hovered over */ }
+
+svg { width: 90vw; height: 90vh; display: block; margin: auto; }
+
+/* Modal (background) / .modal { display: none; / Hidden by default / position: fixed; / Stay in place / z-index: 1; / Sit on top / left: 0; top: 0; width: 100%; / Full width / height: 100%; / Full height / overflow: auto; / Enable scroll if needed / background-color: rgb(0,0,0); / Fallback color / background-color: rgba(0,0,0,0.4); / Black w/ opacity / justify-content: center; / Center horizontally / align-items: center; / Center vertically */ }
+
+/* Modal Content / .modal-content { background-color: #fefefe; margin: 15% auto; / 15% from the top and centered / padding: 20px; border: 1px solid #888; width: 80%; / Could be more or less, depending on screen size / max-width: 400px; / Added this line to ensure consistent styling */ text-align: center; }
+
+/* The Close Button */ .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+
+.close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+
+.modal-button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+
+Create React Components
+Chart.jsCopyimport React, { useEffect, useRef } from "react";
+import * as d3 from "d3";
+
+const Chart = ({ onSquareClick, viewBox }) => { const chartRef = useRef();
+
+useEffect(() => { const svg = d3.select(chartRef.current) .attr("viewBox",
+
+GPT-4oIan
+
+continue answering, from wherever exactly you stopped, and continue the perfect walkthrough; as though undisturbed
+
+💻Web Dev Agent
+
+Certainly! Let's continue from where we left off, building the Chart.js component and other required React components to ensure the entire project works seamlessly.
+
+Step 5: Create React ComponentsChart.js
+
+Create Chart.js in client/src/components and populate it with the provided content:Copyimport React, { useEffect, useRef } from "react";
+import * as d3 from "d3";
+
+const Chart = ({ onSquareClick, viewBox }) => { const chartRef = useRef();
+
+useEffect(() => { const svg = d3.select(chartRef.current) .attr("viewBox", viewBox) .attr("preserveAspectRatio", "xMidYMid meet");
+
+Copyconst width = window.innerWidth * 0.9;
+const height = window.innerHeight * 0.9;
+const centerX = width / 2;
+const centerY = height / 2;
+const centerSquareSize = Math.min(width, height) / 2;
+const smallSquareSize = centerSquareSize / 2;
+const smallestSquareSize = smallSquareSize / 2;
+const tinySquareSize = smallestSquareSize / 2;
+
+const drawSquare = (x, y, size, color, className, depth, parentText) => {
+  const rect = svg.append("rect")
+    .attr("x", x - size / 2)
+    .attr("y", y - size / 2)
+    .attr("width", size)
+    .attr("height", size)
+    .attr("class", `square ${className}`)
+    .attr("fill", color)
+    .on("click", () => { onSquareClick(className); });
+
+  svg.append("text")
+    .attr("x", x)
+    .attr("y", y)
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .attr("font-size", size / 5)
+    .attr("pointer-events", "none")
+    .text(className);
+};
+
+const initializeVisualization = (data) => {
+  drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root", 1, "Center");
+
+  const corners = [
+    [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+    [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+    [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+    [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+  ];
+
+  drawSquares(corners, smallSquareSize, 1, "root", "Root");
+};
+
+const drawSquares = (corners, size, depth, className, parentText) => {
+  if (depth > 3) return;
+
+  const colors = {
+    root: "lightblue",
+    branch: "lightgray",
+    leaf: "lightgreen",
+    fruit: "lightcoral",
+  };
+
+  corners.forEach(([x, y], index) => {
+    let currentClassName;
+    if (depth === 1) {
+      currentClassName = "branch";
+    } else if (depth === 2) {
+      currentClassName = "leaf";
+    } else if (depth === 3) {
+      currentClassName = "fruit";
+    }
+
+    drawSquare(
+      x,
+      y,
+      size,
+      colors[currentClassName] || "",
+      currentClassName || "",
+      depth,
+      parentText
+    );
+
+    if (size > tinySquareSize) {
+      const nextSize = size / 2;
+      const nextCorners = [
+        [x - size / 2, y - size / 2],
+        [x + size / 2, y - size / 2],
+        [x - size / 2, y + size / 2],
+        [x + size / 2, y + size / 2],
+      ];
+
+      requestAnimationFrame(() => {
+        drawSquares(
+          nextCorners,
+          nextSize,
+          depth + 1,
+          currentClassName || "",
+          `${parentText}_${index + 1}`
+        );
+      });
+    }
+  });
+};
+
+initializeVisualization(data);
+}, [onSquareClick, viewBox]);
+
+return ; };
+
+export default Chart;
+
+FormModal.js
+
+Create FormModal.js in client/src/components and populate it with the provided content:Copyimport React from 'react';
+import FormPage from './form_page.jsx';
+
+const FormModal = ({ isOpen, onClose, onSubmit, mode }) => { if (!isOpen) return null;
+
+return ( ×
+
+Copy    {mode === 'include' ? (
+      <FormPage />
+    ) : (
+      <form onSubmit={onSubmit}>
+        <h2>Exclude Data</h2>
+        <label htmlFor="data">Data:</label>
+        <input type="text" id="data" name="data" required /><br /><br />
+        <button type="submit">Submit</button>
+      </form>
+    )}
+  </div>
+</div>
+); };
+
+export default FormModal;
+
+Modal.js
+
+Create Modal.js in client/src/components and populate it with the provided content:Copyimport React from "react";
+const Modal = ({ isOpen, onClose, onSave, label, setLabel, onScaledView, onScopedView, onInclude, }) => { if (!isOpen) return null;
+
+return ( × Edit Label: <input type="text" value={label} onChange={(e) => setLabel(e.target.value)} /> SaveCancelScaled ViewScoped ViewInclude ); };
+
+export default Modal;
+
+form_page.jsx
+
+Create form_page.jsx in client/src/components and populate it with the provided content:Copyimport React, { useState } from 'react';
+const FormPage = () => { const [formData, setFormData] = useState({ title: '', plane: '', purpose: '', delineator: '', notations: '', details: '', extraData: '', name: '', size: '', color: '', type: '', parent_id: '' });
+
+const handleChange = (e) => { const { id, value } = e.target; setFormData({ ...formData, [id]: value }); };
+
+const saveFormData = () => { const urlParams = new URLSearchParams(window.location.search); const data = { ...formData, class: urlParams.get('class'), parent: urlParams.get('parent'), depth: urlParams.get('depth') };
+
+Copyfetch('/squares', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(data)
+})
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    window.location.href = 'included_build.html'; // Redirect or update the state as needed
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to save data. Please try again.');
+  });
+};
+
+return ( <div style={{ fontFamily: 'Arial, sans-serif', margin: 0, padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}> Form Page {['title', 'plane', 'purpose', 'delineator', 'notations', 'name', 'size', 'color', 'type', 'parent_id'].map((field, index) => ( <div className="form-group" key={field} style={{ marginBottom: '15px', width: '100%', maxWidth: '500px' }}> {${field.charAt(0).toUpperCase() + field.slice(1)}:} <input type="text" id={field} value={formData[field]} onChange={handleChange} style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} /> ))} <div className="form-group" style={{ marginBottom: '15px', width: '100%', maxWidth: '500px' }}> Details: <textarea id="details" value={formData.details} onChange={handleChange} style={{ width: '100%', padding: '8px', boxSizing: 'border-box', height: '100px' }}> <div className="form-group" style={{ marginBottom: '15px', width: '100%', maxWidth: '500px' }}> Extra Data: <textarea id="extraData" value={formData.extraData} onChange={handleChange} style={{ width: '100%', padding: '8px', boxSizing: 'border-box', height: '100px' }}> <div className="form-group" style={{ marginBottom: '15px', width: '100%', maxWidth: '500px' }}> <button type="button" id="save" onClick={saveFormData} style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>Save ); };
+
+export default FormPage;
+
+Step 6: Connecting the Components in App.js
+
+Create App.js in client/src and populate it to connect all the components:Copyimport React, { useState } from 'react';
+import Chart from './components/Chart'; import Modal from './components/Modal'; import FormModal from './components/FormModal';
+
+const App = () => { const [modalOpen, setModalOpen] = useState(false); const [formModalOpen, setFormModalOpen] = useState(false); const [label, setLabel] = useState(''); const [viewBox, setViewBox] = useState('0 0 800 600');
+
+const handleSquareClick = (className) => { setModalOpen(true); setLabel(className); };
+
+const handleSave = () => { // Save functionality setModalOpen(false); };
+
+const handleClose = () => { setModalOpen(false); };
+
+const handleScaledView = () => { window.location.href = '/scaled_view.html'; };
+
+const handleScopedView = () => { window.location.href = '/scoped_view.html'; };
+
+const handleInclude = () => { setFormModalOpen(true); setModalOpen(false); };
+
+const handleFormClose = () => { setFormModalOpen(false); };
+
+const handleFormSubmit = (e) => { e.preventDefault(); // Form submit functionality setFormModalOpen(false); };
+
+return ( ); };
+
+export default App;
+
+Step 7: Running the Application
+
+Running the Backend ServerOpen a terminal and navigate to the project root:Copynode server.js
+
+Running the FrontendOpen another terminal and navigate to the client directory:Copynpm start
+
+Summary
+
+By following these steps, we have set up a full-stack application with a React frontend and an Express backend. The application allows users to interact with a hierarchy of squares, edit labels, navigate through different views, and include/exclude data. We have structured the project to ensure modularity and scalability.
+
+Feel free to expand and customize the project further based on your requirements. Happy coding!
+
+"
+
+💻
+Web Dev Agent
+Great! Now that we have all the steps laid out, let's make sure everything is set up properly and run through a final check.
+
+Final Project Checklist
+Project Directory Structure:
+
+Ensure the structure of your project matches the one outlined in the steps.
+Backend Setup:
+
+server.js should contain all your Express server configurations and routes.
+.env file should have your database credentials.
+Frontend Setup:
+
+index.html, scaled_view.html, scoped_view.html, included_build.html, and styles.css in client/public.
+Chart.js, FormModal.js, Modal.js, and form_page.jsx in client/src/components.
+App.js in client/src.
+index.js in client/src.
+React Components:
+
+Ensure Chart.js is correctly importing and using D3 to draw the squares.
+FormModal.js and Modal.js should be set up to handle form submission and modal display.
+form_page.jsx should correctly handle form data input and submission.
+Scripts:
+
+Verify that scripts in index.html and other HTML files in client/public are correctly referenced and loaded.
+Running the Application:
+
+Start the backend server with node server.js.
+Start the React frontend by navigating to client/ and running npm start.
+Troubleshooting Tips
+Check Console for Errors:
+
+Use the browser's Developer Tools console to check for any errors related to scripts or network requests.
+API Endpoints:
+
+Verify that your backend API endpoints are working by testing them with tools like Postman or cURL.
+Component States and Props:
+
+Ensure that states and props are correctly passed and managed in your React components.
+Once you've gone through the checklist and troubleshooting steps, your application should be fully functional.
+
+Next Steps
+Feature Enhancements:
+Add additional features or improve the UI as needed.
+Deployment:
+Once satisfied with the local setup, consider deploying your application using services like Heroku for the backend and Netlify or Vercel for the frontend.
+Final Words
+This setup provides a robust foundation for a dynamic data visualization application using D3.js and React. The separation of concerns between the backend and frontend ensures that your application is scalable and maintainable.
+
+If you encounter any specific issues or need further assistance, feel free to reach out. Happy coding!
+
+GPT-4o
+Ian
+Ian
+no i want you to walkthrough creating the dreamt of app
+
+💻
+Web Dev Agent
+Alright, let's go through a step-by-step walkthrough to create the application envisioned in this project. We'll start from setting up the project directory, move through creating the backend and frontend components, and finally, get it all running together.
+
+Step 1: Project Setup
+Create Project Directory:
+
+Copymkdir square-data-management
+cd square-data-management
+Initialize Node Project:
+
+Copynpm init -y
+Install Required Packages:
+
+Copynpm install express body-parser mariadb cors dotenv
+npx create-react-app client
+cd client
+npm install d3 d3-tip
+Project Directory Structure:
+
+Copysquare-data-management/
+├── client/
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── scaled_view.html
+│   │   ├── scoped_view.html
+│   │   ├── included_build.html
+│   │   └── styles.css
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Chart.js
+│   │   │   ├── FormModal.js
+│   │   │   ├── Modal.js
+│   │   │   └── form_page.jsx
+│   │   ├── index.js
+│   │   └── App.js
+├── .env
+├── server.js
+└── package.json
+Step 2: Backend Setup
+Create server.js:
+
+Copy// Import required packages
+const express = require("express");
+const bodyParser = require("body-parser");
+const mariadb = require("mariadb");
+const cors = require("cors");
+const path = require("path");
+require("dotenv").config(); // Load environment variables from .env file
+
+// Initialize Express application
+const app = express();
+const port = process.env.PORT || 3000; // Define the port for the server
+
+// Middleware setup
+app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(bodyParser.json()); // Parse incoming request bodies in JSON format
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "client", "public")));
+
+// Setup MariaDB connection pool
+const pool = mariadb.createPool({
+  host: process.env.DB_HOST, // Database host
+  user: process.env.DB_USER, // Database user
+  password: process.env.DB_PASSWORD, // Database password
+  database: process.env.DB_NAME, // Database name
+  port: process.env.DB_PORT, // Database port
+  connectionLimit: 5 // Maximum number of connections in the pool
+});
+
+// API Routes
+app.post("/squares", async (req, res) => {
+  const {
+    title, plane, purpose, delineator, notations, details, extraData,
+    class: squareClass, parent, depth, name, size, color, type, parent_id
+  } = req.body;
+  const query = `INSERT INTO squares (title, plane, purpose, delineator, notations, details, extraData, class, parent, depth, name, size, color, type, parent_id)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    const result = await conn.query(query, [
+      title, plane, purpose, delineator, notations, details, extraData,
+      squareClass, parent, depth, name, size, color, type, parent_id
+    ]);
+    conn.release(); // Release the connection back to the pool
+    res.status(201).json({ id: result.insertId }); // Respond with the ID of the created square
+  } catch (err) {
+    console.error('Error creating square:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.get("/squares", async (req, res) => {
+  const query = "SELECT * FROM squares";
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    const results = await conn.query(query); // Execute the query to retrieve all squares
+    conn.release(); // Release the connection back to the pool
+    res.status(200).json(results); // Respond with the retrieved squares
+  } catch (err) {
+    console.error('Error fetching squares:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.get("/squares/:id", async (req, res) => {
+  const { id } = req.params;
+  const query = "SELECT * FROM squares WHERE id = ?";
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    const results = await conn.query(query, [id]); // Execute the query to retrieve the square by ID
+    conn.release(); // Release the connection back to the pool
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Square not found" }); // Respond with a 404 status if the square is not found
+    }
+    res.status(200).json(results[0]); // Respond with the retrieved square
+  } catch (err) {
+    console.error('Error fetching square by ID:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.put("/squares/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    title, plane, purpose, delineator, notations, details, extraData,
+    class: squareClass, parent, depth, name, size, color, type, parent_id
+  } = req.body;
+  const query = `
+    UPDATE squares 
+    SET title = ?, plane = ?, purpose = ?, delineator = ?, notations = ?, details = ?, extraData = ?, class = ?, parent = ?, depth = ?, name = ?, size = ?, color = ?, type = ?, parent_id = ?
+    WHERE id = ?
+  `;
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    await conn.query(query, [
+      title, plane, purpose, delineator, notations, details, extraData,
+      squareClass, parent, depth, name, size, color, type, parent_id, id
+    ]); // Execute the update query
+    conn.release(); // Release the connection back to the pool
+    res.status(200).json({ message: "Square updated successfully" }); // Respond with a success message
+  } catch (err) {
+    console.error('Error updating square:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.delete("/squares/:id", async (req, res) => {
+  const { id } = req.params;
+  const query = "DELETE FROM squares WHERE id = ?";
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    await conn.query(query, [id]); // Execute the delete query
+    conn.release(); // Release the connection back to the pool
+    res.status(200).json({ message: "Square deleted successfully" }); // Respond with a success message
+  } catch (err) {
+    console.error('Error deleting square:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+// Serve static HTML pages
+app.get("/scaled_view.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "scaled_view.html"));
+});
+
+app.get("/scoped_view.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "scoped_view.html"));
+});
+
+app.get("/form_page.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "form_page.html"));
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "index.html"));
+});
+
+// Start the server and listen on the defined port
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+Create .env File in the project root:
+
+CopyPORT=3000
+DB_HOST=your_database_host
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
+DB_PORT=3306
+Step 3: Frontend Setup
+Create index.html in client/public:
+
+Copy<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Square Data Management App</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .square {
+      stroke: black;
+      stroke-width: 2px;
+      cursor: pointer;
+    }
+    .root {
+      fill: lightblue;
+    }
+    .branch {
+      fill: lightgray;
+    }
+    .leaf {
+      fill: lightgreen;
+    }
+    .fruit {
+      fill: lightcoral;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    svg {
+      width: 90vw;
+      height: 90vh;
+      display: block;
+      margin: auto;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover, .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .modal-button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #returnMain {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="returnMain" onclick="window.location.href='index.html';">Return to Main</button>
+  <svg id="chart"></svg>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p id="modal-text">Edit Label:</p>
+      <input type="text" id="label-input" />
+      <button id="save-label" class="modal-button">Save</button>
+      <button id="cancel" class="modal-button">Cancel</button>
+      <br>
+      <button id="view-scale" class="modal-button">Scaled View</button>
+      <button id="view-scope" class="modal-button">Scoped View</button>
+      <button id="include" class="modal-button">Include/Exclude</button>
+    </div>
+  </div>
+
+  <script type="module" src="script.js" defer></script>
+</body>
+</html>
+Create scaled_view.html in client/public:
+
+Copy<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scaled View</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .square { stroke: black; stroke-width: 2px; cursor: pointer; }
+        .root { fill: lightblue; }
+        .branch { fill: lightgray; }
+        .leaf { fill: lightgreen; }
+        .fruit { fill: lightcoral; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+        svg { width: 90vw; height: 90vh; display: block; margin: auto; }
+        .back-button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; text-align: center; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+        .modal-button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">Back to Main View</button>
+    <svg id="chart"></svg>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-text">Edit Label:</p>
+            <input type="text" id="label-input" />
+            <button id="save-label" class="modal-button">Save</button>
+            <button id="cancel" class="modal-button">Cancel</button>
+            <br>
+            <button id="view-scale" class="modal-button">Scaled View</button>
+            <button id="view-scope" class="modal-button">Scoped View</button>
+        </div>
+    </div>
+
+    <script>
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 4;
+        const smallSquareSize = centerSquareSize / 2;
+        const smallestSquareSize = smallSquareSize / 2;
+        const tinySquareSize = smallestSquareSize / 2;
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        const modal = document.getElementById("myModal");
+        const modalText = document.getElementById("modal-text");
+        const btnClose = document.getElementsByClassName("close")[0];
+        const btnSaveLabel = document.getElementById("save-label");
+        const btnViewScale = document.getElementById("view-scale");
+        const btnViewScope = document.getElementById("view-scope");
+        const btnCancel = document.getElementById("cancel");
+        const labelInput = document.getElementById("label-input");
+        let currentUrl = "";
+        let currentTextElement = null;
+        let currentClassName = "";
+
+        function openModal(url, className, textElement) {
+            modal.style.display = "flex";
+            currentUrl = url;
+            currentTextElement = textElement;
+            currentClassName = className;
+            labelInput.value = textElement.textContent;
+        }
+
+        btnClose.onclick = function () { modal.style.display = "none"; };
+        window.onclick = function (event) { if (event.target === modal) modal.style.display = "none"; };
+        btnSaveLabel.onclick = function () { if (currentTextElement) currentTextElement.textContent = labelInput.value; modal.style.display = "none"; };
+        btnViewScale.onclick = function () {
+            const newUrl = `scaled_view.html?root=${currentClassName}`;
+            window.location.href = newUrl;
+        };
+        btnViewScope.onclick = function () {
+            const newUrl = `scoped_view.html?root=${currentClassName}`;
+            window.location.href = newUrl;
+        };
+        btnCancel.onclick = function () { modal.style.display = "none"; };
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function drawSquare(x, y, size, color, className, depth) {
+            const rect = svg.append("rect")
+                .attr("x", x - size / 2)
+                .attr("
+GPT-4o
+Ian
+Ian
+continue exactly from where you left off, as though undeterred and unperturbable.
+
+💻
+Web Dev Agent
+Certainly! Let's continue from where we left off with the scaled_view.html content, ensuring it is fully implemented.
+

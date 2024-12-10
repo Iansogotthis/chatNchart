@@ -1,0 +1,3249 @@
+
+
+Here is the full, completed walkthrough for creating a Square Data Management App with D3.js, incorporating a modern, minimalist color scheme, subtle shadows, rounded corners, clean fonts, and elegant hover effects.
+
+## Comprehensive Tutorial: Creating a Square Data Management App with D3.js
+
+This tutorial is designed to guide even the most novice programmers through building a feature-rich and visually appealing Square Data Management App using D3.js. We will cover every step from setting up your project to creating interactive elements.
+
+**Prerequisites**
+
+- Basic understanding of HTML, CSS, and JavaScript.
+- Familiarity with the fundamentals of the D3.js library concepts.
+
+**Step 1: Project Setup**
+
+**1.1 Create Project Directory:**
+
+Create a new directory for your project.
+
+**1.2 Create Essential Files:**
+
+Inside the directory, create the following files:
+
+index.html: Main HTML file for the app.
+
+data.js: JavaScript file containing your square data structure.
+
+styles.css: CSS file for styling your visualization.
+
+script.js: JavaScript file with the core D3.js logic.
+
+**Step 2: Define Data Structure (data.js)**
+
+Your data.js file will hold the hierarchical data representing your squares. Here's an example structure:
+
+const data = {
+
+  "name": "Root Square",
+
+  "size": 100,
+
+  "color": "#ffffe0",
+
+  "children": \[
+
+    {
+
+      "name": "Branch 1",
+
+      "size": 80,
+
+      "color": "#fafac5",
+
+      "children": \[
+
+        { "name": "Leaf 1.1", "size": 50, "color": "#f0e68c" },
+
+        { "name": "Leaf 1.2", "size": 40, "color": "#f5f3b0" }
+
+      ]
+
+    },
+
+    {
+
+      "name": "Branch 2",
+
+      "size": 70,
+
+      "color": "#d7ccc8",
+
+      "children": \[
+
+        { "name": "Leaf 2.1", "size": 60, "color": "#c0bbb4" }
+
+      ]
+
+    }
+
+  ]
+
+};
+
+**Step 3: HTML Structure (index.html)**
+
+Create the basic HTML structure for your app, including a \<head> for loading libraries and styles, and a \<body> for the visualization container:
+
+\<!DOCTYPE html>
+
+\<html lang="en">
+
+\<head>
+
+  \<meta charset="UTF-8">
+
+  \<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  \<title>Square Data Management App\</title>
+
+  \<link rel="stylesheet" href="styles.css">
+
+  \<script src="https://d3js.org/d3.v7.min.js"></script>
+
+  \<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
+
+  \<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  \<script src="data.js">\</script>
+
+  \<script src="script.js">\</script>
+
+\</head>
+
+\<body>
+
+  \<h1>Square Data Management App\</h1>
+
+  \<div id="chart">\</div>
+
+  \<div id="myModal" class="modal">
+
+    \<div class="modal-content">
+
+      \<span class="close">\&times;\</span>
+
+      \<p id="modal-text">Edit Label:\</p>
+
+      \<input type="text" id="label-input">
+
+      \<button id="save-label" class="modal-button">Save\</button>
+
+      \<button id="cancel" class="modal-button">Cancel\</button>
+
+      \<br>
+
+      \<button id="view-scale" class="modal-button">Scaled View\</button>
+
+      \<button id="view-scope" class="modal-button">Scoped View\</button>
+
+      \<button id="include" class="modal-button">Include\</button>
+
+    \</div>
+
+  \</div>
+
+\</body>
+
+\</html>
+
+**Step 4: D3.js Square Rendering (script.js)**
+
+**4.1 Initialize Visualization:**
+
+Initialize the main visualization:
+
+function initializeVisualization() {
+
+  const svg = d3.select("#chart")
+
+    .append("svg")
+
+    .attr("width", "100%")
+
+    .attr("height", 500);
+
+
+
+  drawSquare(svg, data, 300, 50, 100, getColor(data.class), data.depth);
+
+}
+
+
+
+initializeVisualization();
+
+**4.2 Draw Squares:**
+
+Draw the squares recursively based on your data:
+
+function getColor(className) {
+
+  const colors = {
+
+    root: "lightblue",
+
+    branch: "lightgray",
+
+    leaf: "lightgreen",
+
+    fruit: "lightcoral"
+
+  };
+
+  return colors\[className] || "lightgrey";
+
+}
+
+
+
+function drawSquare(svg, square, x, y, size, color, depth) {
+
+  const iconClass = {
+
+    root: 'fa-home',
+
+    branch: 'fa-tree',
+
+    leaf: 'fa-leaf',
+
+    fruit: 'fa-apple-alt'
+
+  };
+
+
+
+  svg.append("rect")
+
+    .attr("x", x)
+
+    .attr("y", y)
+
+    .attr("width", size)
+
+    .attr("height", size)
+
+    .attr("fill", color)
+
+    .attr("opacity", square.included ? 1 : 0.3)
+
+    .attr("rx", 4)
+
+    .attr("ry", 4)
+
+    .on("click", function() {
+
+      showSquareModal(square);
+
+    });
+
+
+
+  svg.append('text')
+
+    .attr('x', x + size / 4)
+
+    .attr('y', y + size / 2 + 5)
+
+    .attr('font-family', 'Font Awesome 5 Free')
+
+    .attr('class', \`fa ${iconClass\[square.class]}\`)
+
+    .attr('font-size', '24px')
+
+    .attr('fill', '#333');
+
+
+
+  if (square.children) {
+
+    const childSize = size / 2;
+
+    const childSpacing = size / 3;
+
+    let childX = x + size / 2 - (square.children.length \* (childSize + childSpacing)) / 2;
+
+    let childY = y + size + childSpacing;
+
+
+
+    for (const child of square.children) {
+
+      drawSquare(svg, child, childX, childY, childSize, getColor(child.class), depth + 1);
+
+      childX += childSize + childSpacing;
+
+    }
+
+  }
+
+}
+
+**4.3 Display Tooltip:**
+
+Display tooltips when hovering over squares:
+
+const tip = d3.tip()
+
+  .attr('class', 'd3-tip')
+
+  .offset(\[-10, 0])
+
+  .html(function(d) {
+
+    return \`\<b>${d.title}\</b>\`;
+
+  });
+
+
+
+d3.select("#chart").call(tip);
+
+
+
+d3.selectAll("rect")
+
+  .on('mouseover', function(d) {
+
+    tip.show(d.title, this);
+
+  })
+
+  .on('mouseout', tip.hide);
+
+**4.4 Modal Window Functionality:**
+
+Display and hide the modal window:
+
+function showSquareModal(square) {
+
+  const modal = document.getElementById("myModal");
+
+  const modalText = document.getElementById("modal-text");
+
+  const labelInput = document.getElementById("label-input");
+
+  const saveButton = document.getElementById("save-label");
+
+
+
+  modal.style.display = "block";
+
+  modalText.innerText = \`Edit Square: ${square.title}\`;
+
+  labelInput.value = square.title;
+
+
+
+  saveButton.onclick = function() {
+
+    square.title = labelInput.value;
+
+    closeModal();
+
+    initializeVisualization();
+
+  };
+
+
+
+  document.getElementById("cancel").onclick = function() {
+
+    closeModal();
+
+  };
+
+}
+
+
+
+function closeModal() {
+
+  document.getElementById("myModal").style.display = "none";
+
+}
+
+
+
+document.getElementsByClassName("close")\[0].onclick = function() {
+
+  closeModal();
+
+};
+
+**Step 5: Interaction and Functionality**
+
+**5.1 Square Editing:**
+
+Upon saving changes in the modal, update the corresponding square's title and re-render the visualization.
+
+initializeVisualization(filteredData);
+
+**5.2 View Scale:**
+
+Implement zooming functionality with D3 transitions:
+
+document.getElementById("view-scale").onclick = function() {
+
+  const zoomScale = 2;
+
+  const svg = d3.select("svg");
+
+  const translateX = svg.attr("width") / 2;
+
+  const translateY = svg.attr("height") / 2;
+
+
+
+  svg.transition()
+
+    .duration(300)
+
+    .attr("transform", \`translate(${translateX}, ${translateY}) scale(${zoomScale})\`);
+
+};
+
+**5.3 Filtering:**
+
+Implement a filtering mechanism using the "Filter" button:
+
+document.getElementById("view-scope").onclick = function() {
+
+  const selectedClass = prompt("Enter class to filter (e.g., leaf, fruit):");
+
+  const filteredData = filterSquares(squareData, selectedClass);
+
+  
+
+  initializeVisualization(filteredData);
+
+};
+
+
+
+function filterSquares(data, className) {
+
+  const filterRecursive = (data) => {
+
+    if (data.class === className) {
+
+      return data;
+
+    }
+
+
+
+    if (data.children) {
+
+      data.children = data.children.map(filterRecursive).filter(Boolean);
+
+      return data.children.length ? data : null;
+
+    }
+
+
+
+    return null;
+
+  };
+
+
+
+  return filterRecursive(data);
+
+}
+
+**5.4 Include/Exclude:**
+
+Allow users to toggle the visibility of individual squares:
+
+document.getElementById("include").onclick = function() {
+
+  const square = currentSquare;
+
+  square.included = !square.included;
+
+  initializeVisualization();
+
+};
+
+**Step 6: Data Persistence (Optional)**
+
+**6.1 Saving Data:**
+
+Save the current state of the data:
+
+function saveData() {
+
+  if (squareData) {
+
+    localStorage.setItem("squareData", JSON.stringify(squareData));
+
+  } else {
+
+    console.error("No data to save");
+
+  }
+
+}
+
+
+
+window\.addEventListener("beforeunload", saveData);
+
+**6.2 Loading Data:**
+
+Load the saved state of the data:
+
+function loadData() {
+
+  const storedData = localStorage.getItem("squareData");
+
+  if (storedData) {
+
+    try {
+
+      squareData = JSON.parse(storedData);
+
+    } catch (error) {
+
+      console.error("Error parsing stored data:", error);
+
+      squareData = {};
+
+    }
+
+  } else {
+
+    squareData = {};
+
+  }
+
+}
+
+
+
+window\.addEventListener("load", loadData);
+
+**Step 7: Visual Appeal (CSS)**
+
+**7.1 Basic Styling (styles.css):**
+
+Define the styles for your app:
+
+/\* Modern Minimalist Color Scheme \*/
+
+body {
+
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+
+  margin: 0;
+
+  padding: 0;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  height: 100vh;
+
+  background-color: #F9F9F9;
+
+  color: #333333;
+
+}
+
+
+
+\#chart {
+
+  width: 100%;
+
+  height: 80vh;
+
+}
+
+
+
+.modal {
+
+  display: none;
+
+  position: fixed;
+
+  z-index: 1;
+
+  padding-top: 60px;
+
+  left: 0;
+
+  top: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  background-color: rgba(0, 0, 0, 0.4);
+
+}
+
+
+
+.modal-content {
+
+  background-color: #FFFFFF;
+
+  margin: 5% auto;
+
+  padding: 20px;
+
+  border: 1px solid #888;
+
+  width: 80%;
+
+  border-radius: 10px; /\* Rounded corners \*/
+
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /\* Subtle shadow \*/
+
+}
+
+
+
+.close {
+
+  color: #AAA;
+
+  float: right;
+
+  font-size: 28px;
+
+  font-weight: bold;
+
+}
+
+
+
+.close:hover,
+
+.close:focus {
+
+  color: #333333;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+}
+
+
+
+.modal-button {
+
+  background-color: #1E90FF; /\* Primary color \*/
+
+  border: none;
+
+  color: #FFF;
+
+  padding: 15px 32px;
+
+  text-align: center;
+
+  display: inline-block;
+
+  font-size: 16px;
+
+  margin: 4px 2px;
+
+  cursor: pointer;
+
+  border-radius: 4px;
+
+}
+
+
+
+.modal-button:hover {
+
+  background-color: #FF6347; /\* Secondary color for hover effect \*/
+
+}
+
+
+
+rect {
+
+  fill-opacity: 0.7;
+
+  stroke: #E0E0E0;
+
+  stroke-width: 1px;
+
+  rx: 10; /\* Rounded corners \*/
+
+  ry: 10; /\* Rounded corners \*/
+
+  transition: all 0.3s ease; /\* Smooth transition on hover \*/
+
+}
+
+
+
+rect:hover {
+
+  fill-opacity: 1;
+
+  stroke: #1E90FF; /\* Primary color on hover \*/
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /\* Subtle shadow on hover \*/
+
+}
+
+
+
+text {
+
+  font-size: 14px;
+
+  text-anchor: middle;
+
+  fill: #333333; /\* Text color \*/
+
+}
+
+**7.2 Enhancing the Visual Appeal:**
+
+Apply a modern, minimalist color scheme using a tool like Coolors. Utilize subtle shadows and rounded corners for squares and modal windows. Design clean and readable fonts for icons and potential text labels (e.g., modal window). Implement elegant hover effects for interactive elements.
+
+**Step 8: Error Handling**
+
+Incorporate robust error handling for user input (e.g., validation checks), data structure issues, or API calls:
+
+function handleErrors(error) {
+
+  console.error("An error occurred:", error);
+
+  alert("Oops! Something went wrong. Please try again.");
+
+}
+
+
+
+fetch('data.json')
+
+  .then(response => {
+
+    if (!response.ok) {
+
+      throw new Error("Network response was not ok " + response.statusText);
+
+    }
+
+    return response.json();
+
+  })
+
+  .then(data => {
+
+    squareData = data;
+
+    initializeVisualization();
+
+  })
+
+  .catch(handleErrors);
+
+By following these steps, you can create a comprehensive Square Data Management App that leverages D3.js for dynamic and interactive data visualizations. Happy coding!
+
+This walkthrough should provide a detailed guide to creating the Square Data Management App with D3.js, ensuring it is both functional and visually appealing.
+
+Here is the full, completed walkthrough for creating a Square Data Management App with D3.js, incorporating a modern, minimalist color scheme, subtle shadows, rounded corners, clean fonts, and elegant hover effects.
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Included Build</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .square {
+            stroke: black;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+
+        .root {
+            fill: lightblue;
+        }
+
+        .branch {
+            fill: lightgray;
+        }
+
+        .leaf {
+            fill: lightgreen;
+        }
+
+        .fruit {
+            fill: lightcoral;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 90vw;
+            height: 90vh;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <svg id="chart"></svg>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const squareClass = urlParams.get('class') || 'root';
+        const parentText = urlParams.get('parent') || 'Center';
+
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 2;
+        const smallSquareSize = centerSquareSize / 2;
+        const smallestSquareSize = smallSquareSize / 2;
+        const tinySquareSize = smallestSquareSize / 2;
+
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        function drawSquare(
+            x,
+            y,
+            size,
+            color,
+            className,
+            depth,
+            parentText,
+        ) {
+            const rect = svg
+                .append("rect")
+                .attr("x", x - size / 2)
+                .attr("y", y - size / 2)
+                .attr("width", size)
+                .attr("height", size)
+                .attr("class", `square ${className}`)
+                .attr("fill", color)
+                .on("click", function () {
+                    window.location.href = `form_page.html?class=${className}&parent=${parentText}&depth=${depth}`;
+                });
+
+            svg.append("text")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .attr("font-size", size / 5)
+                .attr("pointer-events", "none")
+                .text(className);
+        }
+
+        drawSquare(
+            centerX,
+            centerY,
+            centerSquareSize,
+            "lightblue",
+            squareClass,
+            1,
+            parentText,
+        );
+
+        const corners = [
+            [
+                centerX - centerSquareSize / 2,
+                centerY - centerSquareSize / 2,
+            ],
+            [
+                centerX + centerSquareSize / 2,
+                centerY - centerSquareSize / 2,
+            ],
+            [
+                centerX - centerSquareSize / 2,
+                centerY + centerSquareSize / 2,
+            ],
+            [
+                centerX + centerSquareSize / 2,
+                centerY + centerSquareSize / 2,
+            ],
+        ];
+
+        function drawSquares(corners, size, depth, className, parentText) {
+            if (depth > 1) return;
+
+            const colors = {
+                "root": "lightblue",
+                "branch": "lightgray",
+                "leaf": "lightgreen",
+                "fruit": "lightcoral"
+            };
+
+            corners.forEach(([x, y], index) => {
+                let currentClassName = className;
+                if (depth === 0) {
+                    currentClassName = "branch";
+                } else if (depth === 1) {
+                    currentClassName = "leaf";
+                } else if (depth === 2) {
+                    currentClassName = "fruit";
+                }
+
+                drawSquare(
+                    x,
+                    y,
+                    size,
+                    colors[currentClassName] || "",
+                    currentClassName || "",
+                    depth,
+                    parentText,
+                );
+
+                if (size > tinySquareSize) {
+                    const nextSize = size / 2;
+                    const nextCorners = [
+                        [x - size / 2, y - size / 2],
+                        [x + size / 2, y - size / 2],
+                        [x - size / 2, y + size / 2],
+                        [x + size / 2, y + size / 2],
+                    ];
+
+                    requestAnimationFrame(() => {
+                        drawSquares(
+                            nextCorners,
+                            nextSize,
+                            depth + 1,
+                            currentClassName || "",
+                            `${parentText}_${index + 1}`,
+                        );
+                    });
+                }
+            });
+        }
+
+        drawSquares(corners, smallSquareSize, 0, squareClass, parentText);
+    </script>
+</body>
+</html>
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Main View</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <style>
+            .square {
+                stroke: black;
+                stroke-width: 2px;
+                cursor: pointer; /* Add cursor pointer for clickable effect */
+            }
+
+            .root {
+                fill: lightblue; /* Color for root */
+            }
+
+            .branch {
+                fill: lightgray; /* Color for branches */
+            }
+
+            .leaf {
+                fill: lightgreen; /* Color for leaves */
+            }
+
+            .fruit {
+                fill: lightcoral; /* Color for fruits */
+            }
+
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center; /* Center horizontally */
+                align-items: center; /* Center vertically */
+                overflow: hidden;
+            }
+
+            svg {
+                width: 90vw;
+                height: 90vh;
+                display: block;
+                margin: auto;
+            }
+
+            /* Modal styles */
+            .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0, 0, 0); /* Fallback color */
+                background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+                justify-content: center; /* Center horizontally */
+                align-items: center; /* Center vertically */
+            }
+
+            .modal-content {
+                background-color: #fefefe;
+                margin: auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                max-width: 400px;
+                text-align: center;
+            }
+
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .modal-button {
+                padding: 10px 20px;
+                margin: 10px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <svg id="chart"></svg>
+
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p id="modal-text">Edit Label:</p>
+                <input type="text" id="label-input" />
+                <button id="save-label" class="modal-button">Save</button>
+                <button id="cancel" class="modal-button">Cancel</button>
+                <br>
+                <button id="view-scale" class="modal-button">Scaled View</button>
+                <button id="view-scope" class="modal-button">Scoped View</button>
+            </div>
+        </div>
+
+        <script>
+            const svg = d3.select("#chart");
+            const width = window.innerWidth * 0.9;
+            const height = window.innerHeight * 0.9;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const centerSquareSize = Math.min(width, height) / 2;
+            const smallSquareSize = centerSquareSize / 2;
+            const smallestSquareSize = smallSquareSize / 2;
+            const tinySquareSize = smallestSquareSize / 2;
+
+            svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+            const modal = document.getElementById("myModal");
+            const modalText = document.getElementById("modal-text");
+            const btnClose = document.getElementsByClassName("close")[0];
+            const btnSaveLabel = document.getElementById("save-label");
+            const btnViewScale = document.getElementById("view-scale");
+            const btnViewScope = document.getElementById("view-scope");
+            const btnCancel = document.getElementById("cancel");
+            const labelInput = document.getElementById("label-input");
+            let currentUrl = "";
+            let currentTextElement = null;
+
+            // Function to open the modal
+            function openModal(url, className, textElement) {
+                modal.style.display = "flex";
+                currentUrl = url;
+                currentTextElement = textElement;
+                labelInput.value = textElement.textContent;
+                modalText.textContent = `Square ${className} clicked! Edit Label:`;
+            }
+
+            // When the user clicks on <span> (x), close the modal
+            btnClose.onclick = function () {
+                modal.style.display = "none";
+            };
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function (event) {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+            // When the user clicks on save label
+            btnSaveLabel.onclick = function () {
+                if (currentTextElement) {
+                    currentTextElement.textContent = labelInput.value;
+                }
+                modal.style.display = "none";
+            };
+
+            // When the user clicks on view scale or view scope
+            btnViewScale.onclick = function () {
+                window.location.href = "scaled_view.html";
+            };
+            btnViewScope.onclick = function () {
+                window.location.href = "scoped_view.html";
+            };
+            btnCancel.onclick = function () {
+                modal.style.display = "none";
+            };
+
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            // Function to draw a square and add as a clickable button
+            function drawSquare(
+                x,
+                y,
+                size,
+                color,
+                className,
+                depth,
+                parentText,
+            ) {
+                // Draw the square with the specified class
+                const rect = svg
+                    .append("rect")
+                    .attr("x", x - size / 2)
+                    .attr("y", y - size / 2)
+                    .attr("width", size)
+                    .attr("height", size)
+                    .attr("class", `square ${className}`)
+                    .attr("fill", color)
+                    .on("click", debounce(function () {
+                        const url = `pages/scoped_page_${parentText}_${depth}_${className}.html`;
+                        const textElement = d3.select(this.nextSibling); // Selecting the next sibling text element
+                        openModal(url, className, textElement.node());
+                    }, 200));
+
+                // Add text label
+                svg.append("text")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", "0.35em")
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", size / 5)
+                    .attr("pointer-events", "none")
+                    .text(className);
+            }
+
+            // Draw the root square
+            drawSquare(
+                centerX,
+                centerY,
+                centerSquareSize,
+                "lightblue",
+                "root",
+                1,
+                "Center",
+            );
+
+            // Coordinates for the small squares from the root square
+            const corners = [
+                [
+                    centerX - centerSquareSize / 2,
+                    centerY - centerSquareSize / 2,
+                ], // top-left
+                [
+                    centerX + centerSquareSize / 2,
+                    centerY - centerSquareSize / 2,
+                ], // top-right
+                [
+                    centerX - centerSquareSize / 2,
+                    centerY + centerSquareSize / 2,
+                ], // bottom-left
+                [
+                    centerX + centerSquareSize / 2,
+                    centerY + centerSquareSize / 2,
+                ], // bottom-right
+            ];
+
+            // Draw the squares in each layer
+            function drawSquares(corners, size, depth, className, parentText) {
+                if (depth > 3) return; // Limit the depth for better performance
+
+                const colors = {
+                    "root": "lightblue",
+                    "branch": "lightgray",
+                    "leaf": "lightgreen",
+                    "fruit": "lightcoral"
+                };
+
+                corners.forEach(([x, y], index) => {
+                    // Define the class name based on the level
+                    let currentClassName;
+                    if (depth === 1) {
+                        currentClassName = "branch";
+                    } else if (depth === 2) {
+                        currentClassName = "leaf"; // Leaf class for the second set of squares from branches
+                    } else if (depth === 3) {
+                        currentClassName = "fruit"; // Fruit class for the third set of squares from leaves
+                    }
+
+                    drawSquare(
+                        x,
+                        y,
+                        size,
+                        colors[currentClassName] || "",
+                        currentClassName || "",
+                        depth,
+                        parentText,
+                    );
+
+                    if (size > tinySquareSize) {
+                        const nextSize = size / 2;
+                        const nextCorners = [
+                            [x - size / 2, y - size / 2], // top-left
+                            [x + size / 2, y - size / 2], // top-right
+                            [x - size / 2, y + size / 2], // bottom-left
+                            [x + size / 2, y + size / 2], // bottom-right
+                        ];
+
+                        // Batch DOM updates
+                        requestAnimationFrame(() => {
+                            drawSquares(
+                                nextCorners,
+                                nextSize,
+                                depth + 1,
+                                currentClassName || "",
+                                `${parentText}_${index + 1}`,
+                            );
+                        });
+                    }
+                });
+            }
+
+            // Start drawing from the initial corners and size
+            drawSquares(corners, smallSquareSize, 1, "root", "Root");
+        </script>
+    </body>
+</html>
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main View</title>
+    
+    <!-- Include D3.js library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Include custom script file -->
+    <script src="/script.js" defer></script>
+    
+    <style>
+      /* Styling for the squares */
+      .square { stroke: black; stroke-width: 2px; cursor: pointer; }
+      .root { fill: lightblue; }
+      .branch { fill: lightgray; }
+      .leaf { fill: lightgreen; }
+      .fruit { fill: lightcoral; opacity: 0.3; }
+      .fruit:hover { opacity: 1; }
+      
+      /* Basic styling for body and svg */
+      body, html { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+      svg { width: 90vw; height: 90vh; display: block; margin: auto; }
+      
+      /* Modal styling */
+      .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; }
+      .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; text-align: center; }
+      .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+      .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+      .modal-button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <svg id="chart"></svg>
+    
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modal-text">Edit Label:</p>
+        <input type="text" id="label-input" />
+        <button id="save-label" class="modal-button">Save</button>
+        <button id="cancel" class="modal-button">Cancel</button>
+        <br />
+        <button id="view-scale" class="modal-button">Scaled View</button>
+        <button id="view-scope" class="modal-button">Scoped View</button>
+        <button id="include" class="modal-button">Include</button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Set SVG dimensions and center points
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 2;
+        const smallSquareSize = centerSquareSize / 2;
+        const smallestSquareSize = smallSquareSize / 2;
+        const tinySquareSize = smallestSquareSize / 2;
+
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        // Modal elements
+        const modal = document.getElementById("myModal");
+        const modalText = document.getElementById("modal-text");
+        const btnClose = document.getElementsByClassName("close")[0];
+        const btnSaveLabel = document.getElementById("save-label");
+        const btnViewScale = document.getElementById("view-scale");
+        const btnViewScope = document.getElementById("view-scope");
+        const btnInclude = document.getElementById("include");
+        const btnCancel = document.getElementById("cancel");
+        const labelInput = document.getElementById("label-input");
+
+        // Variables for current modal state
+        let currentUrl = "";
+        let currentTextElement = null;
+        let currentSquareClass = "";
+
+        // Function to open the modal
+        function openModal(url, className, textElement) {
+          modal.style.display = "flex";
+          currentUrl = url;
+          currentTextElement = textElement;
+          currentSquareClass = className;
+          labelInput.value = textElement.textContent;
+          modalText.textContent = `Square ${className} clicked! Edit Label:`;
+        }
+
+        // Event listener to close modal when the close button is clicked
+        btnClose.onclick = function () { modal.style.display = "none"; };
+
+        // Event listener to close modal when clicking outside of the modal
+        window.onclick = function (event) { if (event.target === modal) modal.style.display = "none"; };
+
+        // Event listener to save the label when save button is clicked
+        btnSaveLabel.onclick = function () { if (currentTextElement) currentTextElement.textContent = labelInput.value; modal.style.display = "none"; };
+
+        // Event listeners for modal action buttons
+        btnViewScale.onclick = function () { window.location.href = "scaled_view.html"; };
+        btnViewScope.onclick = function () { window.location.href = "scoped_view.html"; };
+        btnInclude.onclick = function () { window.location.href = `included_build.html?class=${currentSquareClass}&parent=${currentTextElement.textContent}`; };
+        btnCancel.onclick = function () { modal.style.display = "none"; };
+
+        // Debounce function to prevent frequent clicks
+        function debounce(func, wait) {
+          let timeout;
+          return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+          };
+        }
+
+        // Function to draw a square and add click event listener
+        function drawSquare(x, y, size, color, className, depth, parentText) {
+          const rect = svg.append("rect")
+            .attr("x", x - size / 2)
+            .attr("y", y - size / 2)
+            .attr("width", size)
+            .attr("height", size)
+            .attr("class", `square ${className}`)
+            .attr("fill", color)
+            .on("click", debounce(function () {
+              const url = `pages/scoped_page_${parentText}_${depth}_${className}.html`;
+              const textElement = d3.select(this.nextSibling);
+              openModal(url, className, textElement.node());
+            }, 200));
+
+          const text = svg.append("text")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
+            .attr("font-size", size / 5)
+            .attr("pointer-events", "none")
+            .text(className);
+        }
+
+        // Draw the root square at the center
+        drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root", 1, "Center");
+
+        // Define coordinates for small squares around the root
+        const corners = [
+          [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+          [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+          [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+          [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+        ];
+
+        // Recursive function to draw squares in a hierarchy
+        function drawSquares(corners, size, depth, className, parentText) {
+          if (depth > 3) return; // Limit the depth for better performance
+
+          const colors = { root: "lightblue", branch: "lightgray", leaf: "lightgreen", fruit: "lightcoral" };
+
+          corners.forEach(([x, y], index) => {
+            let currentClassName;
+            if (depth === 1) currentClassName = "branch";
+            else if (depth === 2) currentClassName = "leaf";
+            else if (depth === 3) currentClassName = "fruit";
+
+            drawSquare(x, y, size, colors[currentClassName] || "", currentClassName || "", depth, parentText);
+
+            if (size > tinySquareSize) {
+              const nextSize = size / 2;
+              const nextCorners = [
+                [x - size / 2, y - size / 2],
+                [x + size / 2, y - size / 2],
+                [x - size / 2, y + size / 2],
+                [x + size / 2, y + size / 2],
+              ];
+
+              requestAnimationFrame(() => {
+                drawSquares(nextCorners, nextSize, depth + 1, currentClassName || "", `${parentText}_${index + 1}`);
+              });
+            }
+          });
+        }
+
+        // Start the recursive drawing
+        drawSquares(corners, smallSquareSize, 1, "root", "Root");
+
+        // Function to adjust fruit opacity when a leaf is hovered
+        function adjustFruitOpacityOnLeafHover() {
+          const leafSquares = document.querySelectorAll('.leaf');
+          const fruitSquares = document.querySelectorAll('.fruit');
+
+          leafSquares.forEach(leaf => {
+            leaf.addEventListener('mouseover', () => {
+              fruitSquares.forEach(fruit => {
+                fruit.style.opacity = '1';
+              });
+            });
+
+            leaf.addEventListener('mouseout', () => {
+              fruitSquares.forEach(fruit => {
+                fruit.style.opacity = '0.3';
+              });
+            });
+          });
+        }
+
+        // Function to load data from the server
+        async function loadData() {
+          try {
+            const response = await fetch('https://squar-bd2bb2372583.herokuapp.com/squares');
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+
+            if (!data || data.length === 0) {
+              console.error("No data received from the server.");
+              return;
+            }
+
+            const squareData = data[0]; // Assuming the first object is the root square
+            console.log("Data loaded:", squareData);
+
+            initializeVisualization(squareData); // Initialize visualization with the fetched data
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        }
+
+        // Function to save data to the server
+        async function saveData() {
+          if (squareData) {
+            try {
+              const response = await fetch('https://squar-bd2bb2372583.herokuapp.com/squares', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(squareData)
+              });
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              const data = await response.json();
+              console.log('Data saved:', data);
+            } catch (error) {
+              console.error("Error saving data:", error);
+            }
+          } else {
+            console.error("No data to save");
+          }
+        }
+
+        window.addEventListener("beforeunload", saveData);
+        window.addEventListener("load", loadData);
+
+        // Adjust fruit opacity on leaf hover
+        adjustFruitOpacityOnLeafHover();
+      });
+    </script>
+</body>
+</html>
+```
+>> 2 included_build.html
+
+```
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Included Build</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .square {
+            stroke: black;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+
+        .root {
+            fill: lightblue;
+        }
+
+        .branch {
+            fill: lightgray;
+        }
+
+        .leaf {
+            fill: lightgreen;
+        }
+
+        .fruit {
+            fill: lightcoral;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 90vw;
+            height: 90vh;
+            display: block;
+            margin: auto;
+        }
+
+        #returnMain {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="returnMain" onclick="window.location.href='index.html';">Return to Main</button>
+    <svg id="chart"></svg>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const squareClass = urlParams.get('class') || 'root';
+        const parentText = urlParams.get('parent') || 'Center';
+
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 2;
+        const smallSquareSize = centerSquareSize / 2;
+        const smallestSquareSize = smallSquareSize / 2;
+        const tinySquareSize = smallestSquareSize / 2;
+
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        function drawSquare(
+            x,
+            y,
+            size,
+            color,
+            className,
+            depth,
+            parentText,
+        ) {
+            const rect = svg
+                .append("rect")
+                .attr("x", x - size / 2)
+                .attr("y", y - size / 2)
+                .attr("width", size)
+                .attr("height", size)
+                .attr("class", `square ${className}`)
+                .attr("fill", color)
+                .on("click", function () {
+                    window.location.href = `form_page.html?class=${className}&parent=${parentText}&depth=${depth}`;
+                });
+
+            svg.append("text")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .attr("font-size", size / 5)
+                .attr("pointer-events", "none")
+                .text(className);
+        }
+
+        drawSquare(
+            centerX,
+            centerY,
+            centerSquareSize,
+            "lightblue",
+            squareClass,
+            1,
+            parentText,
+        );
+
+        const corners = [
+            [
+                centerX - centerSquareSize / 2,
+                centerY - centerSquareSize / 2,
+            ],
+            [
+                centerX + centerSquareSize / 2,
+                centerY - centerSquareSize / 2,
+            ],
+            [
+                centerX - centerSquareSize / 2,
+                centerY + centerSquareSize / 2,
+            ],
+            [
+                centerX + centerSquareSize / 2,
+                centerY + centerSquareSize / 2,
+            ],
+        ];
+
+        function drawSquares(corners, size, depth, className, parentText) {
+            if (depth > 1) return;
+
+            const colors = {
+                "root": "lightblue",
+                "branch": "lightgray",
+                "leaf": "lightgreen",
+                "fruit": "lightcoral"
+            };
+
+            corners.forEach(([x, y], index) => {
+                let currentClassName = className;
+                if (depth === 0) {
+                    currentClassName = "branch";
+                } else if (depth === 1) {
+                    currentClassName = "leaf";
+                } else if (depth === 2) {
+                    currentClassName = "fruit";
+                }
+
+                drawSquare(
+                    x,
+                    y,
+                    size,
+                    colors[currentClassName] || "",
+                    currentClassName || "",
+                    depth,
+                    parentText,
+                );
+
+                if (size > tinySquareSize) {
+                    const nextSize = size / 2;
+                    const nextCorners = [
+                        [x - size / 2, y - size / 2],
+                        [x + size / 2, y - size / 2],
+                        [x - size / 2, y + size / 2],
+                        [x + size / 2, y + size / 2],
+                    ];
+
+                    requestAnimationFrame(() => {
+                        drawSquares(
+                            nextCorners,
+                            nextSize,
+                            depth + 1,
+                            currentClassName || "",
+                            `${parentText}_${index + 1}`,
+                        );
+                    });
+                }
+            });
+        }
+
+        drawSquares(corners, smallSquareSize, 0, squareClass, parentText);
+
+    </script>
+</body>
+</html>
+```
+
+>> 3 scaled_view.html and scoped_view.html
+
+```
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scaled View</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .square {
+            stroke: black;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+
+        .root {
+            fill: lightblue;
+        }
+
+        .branch {
+            fill: lightgray;
+        }
+
+        .leaf {
+            fill: lightgreen;
+        }
+
+        .fruit {
+            fill: lightcoral;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 90vw;
+            height: 90vh;
+            display: block;
+            margin: auto;
+        }
+
+        .back-button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">Back to Main View</button>
+    <svg id="chart"></svg>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-text">Edit Label:</p>
+            <input type="text" id="label-input" />
+            <button id="save-label" class="modal-button">Save</button>
+            <button id="cancel" class="modal-button">Cancel</button>
+            <br>
+            <button id="view-scale" class="modal-button">Scaled View</button>
+            <button id="view-scope" class="modal-button">Scoped View</button>
+        </div>
+    </div>
+
+    <script>
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 4;
+        const smallSquareSize = centerSquareSize / 2;
+        const smallestSquareSize = smallSquareSize / 2;
+        const tinySquareSize = smallestSquareSize / 2;
+
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        const modal = document.getElementById("myModal");
+        const modalText = document.getElementById("modal-text");
+        const btnClose = document.getElementsByClassName("close")[0];
+        const btnSaveLabel = document.getElementById("save-label");
+        const btnViewScale = document.getElementById("view-scale");
+        const btnViewScope = document.getElementById("view-scope");
+        const btnCancel = document.getElementById("cancel");
+        const labelInput = document.getElementById("label-input");
+        let currentUrl = "";
+        let currentTextElement = null;
+        let currentClassName = "";
+
+        function openModal(url, className, textElement) {
+            modal.style.display = "flex";
+            currentUrl = url;
+            currentTextElement = textElement;
+            currentClassName = className;
+            labelInput.value = textElement.textContent;
+        }
+
+        btnClose.onclick = function () {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        btnSaveLabel.onclick = function () {
+            if (currentTextElement) {
+                currentTextElement.textContent = labelInput.value;
+            }
+            modal.style.display = "none";
+        };
+
+        btnViewScale.onclick = function () {
+            const newUrl = `scaled_view.html?root=${currentClassName}`;
+            window.location.href = newUrl;
+        };
+
+        btnViewScope.onclick = function () {
+            const newUrl = `scoped_view.html?root=${currentClassName}`;
+            window.location.href = newUrl;
+        };
+
+        btnCancel.onclick = function () {
+            modal.style.display = "none";
+        };
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function drawSquare(x, y, size, color, className, depth) {
+            const rect = svg.append("rect")
+                .attr("x", x - size / 2)
+                .attr("y", y - size / 2)
+                .attr("width", size)
+                .attr("height", size)
+                .attr("class", `square ${className}`)
+                .attr("fill", color)
+                .on("click", debounce(function () {
+                    const url = window.location.href;
+                    const textElement = d3.select(this.nextSibling);
+                    openModal(url, className, textElement.node());
+                }, 200));
+
+            svg.append("text")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .attr("font-size", size / 5)
+                .attr("pointer-events", "none")
+                .text(className.charAt(0).toUpperCase() + className.slice(1));
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const rootClass = urlParams.get('root') || 'root';
+
+        function drawScale() {
+            if (rootClass === 'leaf') {
+                drawSquare(centerX, centerY, centerSquareSize, "lightgreen", "leaf", 2);
+                drawSquare(centerX, centerY - centerSquareSize * 1.5, smallSquareSize, "lightgray", "branch", 1);
+            } else if (rootClass === 'branch') {
+                drawSquare(centerX, centerY, centerSquareSize, "lightgray", "branch", 1);
+                drawSquare(centerX, centerY - centerSquareSize * 1.5, smallSquareSize, "lightblue", "root", 0);
+            } else if (rootClass === 'fruit') {
+                drawSquare(centerX, centerY, centerSquareSize, "lightcoral", "fruit", 3);
+                drawSquare(centerX, centerY - centerSquareSize * 1.5, smallSquareSize, "lightgreen", "leaf", 2);
+            } else {
+                drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root", 0);
+                drawSquare(centerX - centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightgray", "branch1", 1);
+                drawSquare(centerX + centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightgray", "branch2", 1);
+                drawSquare(centerX - centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightgray", "branch3", 1);
+                drawSquare(centerX + centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightgray", "branch4", 1);
+            }
+        }
+
+        drawScale();
+    </script>
+</body>
+</html>
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scoped View</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .square {
+            stroke: black;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+
+        .root {
+            fill: lightblue;
+        }
+
+        .branch {
+            fill: lightgray;
+        }
+
+        .leaf {
+            fill: lightgreen;
+        }
+
+        .fruit {
+            fill: lightcoral;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 90vw;
+            height: 90vh;
+            display: block;
+            margin: auto;
+        }
+
+        .back-button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover, .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">Back to Main View</button>
+    <svg id="chart"></svg>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-text">Edit Label:</p>
+            <input type="text" id="label-input" />
+            <button id="save-label" class="modal-button">Save</button>
+            <button id="cancel" class="modal-button">Cancel</button>
+            <br>
+            <button id="view-scale" class="modal-button">Scaled View</button>
+            <button id="view-scope" class="modal-button">Scoped View</button>
+        </div>
+    </div>
+
+    <script>
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 2;
+        const smallSquareSize = centerSquareSize / 2;
+
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        const modal = document.getElementById("myModal");
+        const modalText = document.getElementById("modal-text");
+        const btnClose = document.getElementsByClassName("close")[0];
+        const btnSaveLabel = document.getElementById("save-label");
+        const btnViewScale = document.getElementById("view-scale");
+        const btnViewScope = document.getElementById("view-scope");
+        const btnCancel = document.getElementById("cancel");
+        const labelInput = document.getElementById("label-input");
+        let currentUrl = "";
+        let currentTextElement = null;
+        let currentClassName = "";
+
+        function openModal(url, className, textElement) {
+            modal.style.display = "flex";
+            currentUrl = url;
+            currentTextElement = textElement;
+            currentClassName = className;
+            labelInput.value = textElement.textContent;
+        }
+
+        btnViewScale.onclick = function () {
+            const newUrl = `scaled_view.html?root=${currentClassName}&name=${labelInput.value}`;
+            window.location.href = newUrl;
+        };
+
+        btnViewScope.onclick = function () {
+            const newUrl = `scoped_view.html?root=${currentClassName}&name=${labelInput.value}`;
+            window.location.href = newUrl;
+        };
+
+        btnClose.onclick = function () {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        btnSaveLabel.onclick = function () {
+            if (currentTextElement) {
+                currentTextElement.textContent = labelInput.value;
+            }
+            modal.style.display = "none";
+        };
+
+        btnCancel.onclick = function () {
+            modal.style.display = "none";
+        };
+
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function drawSquare(x, y, size, color, className) {
+            const rect = svg
+                .append("rect")
+                .attr("x", x - size / 2)
+                .attr("y", y - size / 2)
+                .attr("width", size)
+                .attr("height", size)
+                .attr("class", `square ${className}`)
+                .attr("fill", color)
+                .on("click", debounce(function () {
+                    const url = window.location.href;
+                    const textElement = d3.select(this.nextSibling);
+                    openModal(url, className, textElement.node());
+                }, 200));
+
+            svg.append("text")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .attr("font-size", size / 5)
+                .attr("pointer-events", "none")
+                .text(className);
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const rootClass = urlParams.get('root') || 'branch';
+
+        function drawScope() {
+            if (rootClass === 'branch') {
+                drawSquare(centerX, centerY, centerSquareSize, "lightgray", "branch");
+                drawSquare(centerX - centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf1");
+                drawSquare(centerX + centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf2");
+                drawSquare(centerX - centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf3");
+                drawSquare(centerX + centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf4");
+            } else if (rootClass === 'leaf') {
+                drawSquare(centerX, centerY, centerSquareSize, "lightgreen", "leaf");
+                drawSquare(centerX - centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit1");
+                drawSquare(centerX + centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit2");
+                drawSquare(centerX - centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit3");
+                drawSquare(centerX + centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit4");
+            }
+        }
+
+        drawScope();
+    </script>
+</body>
+</html>
+
+```
+>> 4 script.js
+
+```
+(function () {
+  // script.js
+  let squareData = {}; // This will be populated with data from the server
+
+  const svg = d3
+    .select("#chart")
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", 500)
+    .attr("viewBox", `0 0 ${window.innerWidth * 0.9} ${window.innerHeight * 0.9}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+
+  const modal = document.getElementById("myModal");
+  const modalText = document.getElementById("modal-text");
+  const btnClose = document.getElementsByClassName("close")[0];
+  const btnSaveLabel = document.getElementById("save-label");
+  const btnViewScale = document.getElementById("view-scale");
+  const btnViewScope = document.getElementById("view-scope");
+  const btnInclude = document.getElementById("include");
+  const btnCancel = document.getElementById("cancel");
+  const labelInput = document.getElementById("label-input");
+  let currentSquare = null;
+  
+  btnClose.onclick = () => {
+    modal.style.display = "none";
+  };
+  btnCancel.onclick = () => {
+    modal.style.display = "none";
+  };
+  window.onclick = (event) => {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  // Utility Functions
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  function getColor(className) {
+    const colors = {
+      root: "lightblue",
+      branch: "lightgray",
+      leaf: "lightgreen",
+      fruit: "lightcoral"
+    };
+    return colors[className] || "lightgrey";
+  }
+
+  function filterSquares(data, className) {
+    const filterRecursive = (data) => {
+      if (data.class === className) return data;
+      if (data.children) {
+        data.children = data.children.map(filterRecursive).filter(Boolean);
+        return data.children.length ? data : null;
+      }
+      return null;
+    };
+    return filterRecursive(data);
+  }
+
+  // Main Visualization Functions
+  function drawSquare(svg, square, x, y, size, color, depth) {
+    if (!square || !square.class) {
+      console.error("Invalid square data:", square);
+      return;
+    }
+
+    const iconClass = {
+      root: "fa-home",
+      branch: "fa-tree",
+      leaf: "fa-leaf",
+      fruit: "fa-apple-alt"
+    };
+
+    svg
+      .append("rect")
+      .attr("x", x)
+      .attr("y", y)
+      .attr("width", size)
+      .attr("height", size)
+      .attr("fill", color)
+      .attr("opacity", square.included ? 1 : 0.3)
+      .attr("rx", 4)
+      .attr("ry", 4)
+      .on("click", () => {
+        currentSquare = square;
+        openModal(square);
+      });
+
+    svg
+      .append("text")
+      .attr("x", x + size / 4)
+      .attr("y", y + size / 2 + 5)
+      .attr("font-family", "Font Awesome 5 Free")
+      .attr("class", `fa ${iconClass[square.class]}`)
+      .attr("font-size", "24px")
+      .attr("fill", "#333");
+
+    if (square.children) {
+      const childSize = size / 2;
+      const childSpacing = size / 3;
+      let childX = x + size / 2 - (square.children.length * (childSize + childSpacing)) / 2;
+      let childY = y + size + childSpacing;
+
+      for (const child of square.children) {
+        drawSquare(
+          svg,
+          child,
+          childX,
+          childY,
+          childSize,
+          getColor(child.class),
+          depth + 1
+        );
+        childX += childSize + childSpacing;
+      }
+    }
+  }
+
+  function initializeVisualization(data) {
+    if (!data || !data.class) {
+      console.error("Invalid root data:", data);
+      return;
+    }
+
+    const centerX = window.innerWidth * 0.45;
+    const centerY = window.innerHeight * 0.45;
+    const centerSquareSize = Math.min(window.innerWidth, window.innerHeight) / 2;
+    drawSquare(
+      svg,
+      data,
+      centerX,
+      centerY,
+      centerSquareSize,
+      getColor(data.class),
+      data.depth
+    );
+  }
+
+  // Modal Functions
+  function openModal(square) {
+    modal.style.display = "flex";
+    labelInput.value = square.title;
+    modalText.textContent = `Edit Square: ${square.title}`;
+  }
+
+  btnSaveLabel.onclick = async () => {
+    if (currentSquare) {
+      currentSquare.title = labelInput.value;
+      try {
+        const response = await fetch(`/squares/${currentSquare.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(currentSquare)
+        });
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        console.log("Success:", data);
+        closeModal();
+        const fetchResponse = await fetch("/squares");
+        const fetchData = await fetchResponse.json();
+        svg.selectAll("*").remove(); // Clear previous svg
+        initializeVisualization(fetchData);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    modal.style.display = "none";
+  };
+
+  btnViewScope.onclick = () => {
+    const selectedClass = prompt("Enter class to filter (e.g., leaf, fruit):");
+    const filteredData = filterSquares(squareData, selectedClass);
+    svg.selectAll("*").remove(); // Clear previous svg
+    initializeVisualization(filteredData);
+  };
+
+  btnViewScale.onclick = () => {
+    const zoomScale = 2;
+    const svg = d3.select("svg");
+    const translateX = svg.attr("width") / 2;
+    const translateY = svg.attr("height") / 2;
+    svg
+      .transition()
+      .duration(300)
+      .attr(
+        "transform",
+        `translate(${translateX}, ${translateY}) scale(${zoomScale})`
+      );
+  };
+
+  btnInclude.onclick = () => {
+    currentSquare.included = !currentSquare.included;
+    initializeVisualization(squareData); // Re-render the visualization
+  };
+
+  // Load and Save Data
+  async function loadData() {
+    try {
+      const response = await fetch('cbetxkdyhwsb.us-east-1.rds.amazonaws.com');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        console.error("No data received from the server.");
+        return;
+      }
+
+      squareData = data[0]; // Assuming the first object is the root square
+      console.log("Data loaded:", squareData);
+
+      initializeVisualization(squareData); // Initialize visualization with the fetched data
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      squareData = {}; // Fallback to empty data if fetch fails
+    }
+  }
+
+  function saveData() {
+    if (squareData) {
+      localStorage.setItem("squareData", JSON.stringify(squareData));
+    } else {
+      console.error("No data to save");
+    }
+  }
+
+  window.addEventListener("beforeunload", saveData);
+  window.addEventListener("load", loadData);
+
+  // Adjust fruit opacity on leaf hover
+  function adjustFruitOpacityOnLeafHover() {
+    const leafSquares = document.querySelectorAll(".leaf");
+    const fruitSquares = document.querySelectorAll(".fruit");
+
+    leafSquares.forEach((leaf) => {
+      leaf.addEventListener("mouseover", () => {
+        fruitSquares.forEach((fruit) => {
+          fruit.style.opacity = "1";
+        });
+      });
+      leaf.addEventListener("mouseout", () => {
+        fruitSquares.forEach((fruit) => {
+          fruit.style.opacity = "0.3";
+        });
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", adjustFruitOpacityOnLeafHover);
+})();
+```
+       
+
+             .attr("y", y - size / 2)
+                    .attr("width", size)
+                    .attr("height", size)
+                    .attr("class", `square ${className}`)
+                    .attr("fill", color)
+                    .on("click", () => {
+                        const textElement = rect.selectNext('text');
+                        openModal('scaled_view.html', className, textElement.node());
+                    });
+
+                const text = svg.append("text")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "middle")
+                    .attr("class", "square-label")
+                    .text(className)
+                    .attr("pointer-events", "none");
+            }
+
+            d3.json("/squares")
+                .then(data => {
+                    const rootSquare = data.find(square => square.class === 'root');
+                    if (rootSquare) {
+                        drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                        drawChildrenSquares(rootSquare, centerX, centerY, centerSquareSize / 2, 1);
+                    }
+                });
+
+            function drawChildrenSquares(parentSquare, x, y, size, depth) {
+                const childrenSquares = data.filter(square => square.parent === parentSquare.class);
+                childrenSquares.forEach((childSquare, index) => {
+                    const angle = (index / childrenSquares.length) * Math.PI * 2;
+                    const newX = x + Math.cos(angle) * (size * 1.5);
+                    const newY = y + Math.sin(angle) * (size * 1.5);
+                    drawSquare(newX, newY, size, 'lightgray', childSquare.class, depth);
+                    if (depth < 3) {
+                        drawChildrenSquares(childSquare, newX, newY, size / 2, depth + 1);
+                    }
+                });
+            }
+
+            window.addEventListener('resize', debounce(() => {
+                svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+                svg.selectAll("*").remove();
+                drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                d3.json("/squares").then(data => {
+                    const rootSquare = data.find(square => square.class === 'root');
+                    if (rootSquare) {
+                        drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                        drawChildrenSquares(rootSquare, centerX, centerY, centerSquareSize / 2, 1);
+                    }
+                });
+            }, 250));
+        </script>
+    </body>
+    </html>
+    ```
+
+3. Create scoped_view.html in client/public:
+    ```html
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Scoped View</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <style>
+            .square { stroke: black; stroke-width: 2px; cursor: pointer; }
+            .root { fill: lightblue; }
+            .branch { fill: lightgray; }
+            .leaf { fill: lightgreen; }
+            .fruit { fill: lightcoral; }
+            body, html { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+            svg { width: 90vw; height: 90vh; display: block; margin: auto; }
+            .back-button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+            .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; }
+            .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; text-align: center; }
+            .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+            .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+            .modal-button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <button class="back-button" onclick="window.location.href='index.html'">Back to Main View</button>
+        <svg id="chart"></svg>
+
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p id="modal-text">Edit Label:</p>
+                <input type="text" id="label-input" />
+                <button id="save-label" class="modal-button">Save</button>
+                <button id="cancel" class="modal-button">Cancel</button>
+                <br>
+                <button id="view-scale" class="modal-button">Scaled View</button>
+                <button id="view-scope" class="modal-button">Scoped View</button>
+            </div>
+        </div>
+
+        <script>
+            const svg = d3.select("#chart");
+            const width = window.innerWidth * 0.9;
+            const height = window.innerHeight * 0.9;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const centerSquareSize = Math.min(width, height) / 4;
+            svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+            const modal = document.getElementById("myModal");
+            const modalText = document.getElementById("modal-text");
+            const btnClose = document.getElementsByClassName("close")[0];
+            const btnSaveLabel = document.getElementById("save-label");
+            const btnViewScale = document.getElementById("view-scale");
+            const btnViewScope = document.getElementById("view-scope");
+            const btnCancel = document.getElementById("cancel");
+            const labelInput = document.getElementById("label-input");
+            let currentUrl = "";
+            let currentTextElement = null;
+            let currentClassName = "";
+
+            function openModal(url, className, textElement) {
+                modal.style.display = "flex";
+                currentUrl = url;
+                currentTextElement = textElement;
+                currentClassName = className;
+                labelInput.value = textElement.textContent;
+            }
+
+            btnClose.onclick = function () { modal.style.display = "none"; };
+            window.onclick = function (event) { if (event.target === modal) modal.style.display = "none"; };
+            btnSaveLabel.onclick = function () { if (currentTextElement) currentTextElement.textContent = labelInput.value; modal.style.display = "none"; };
+            btnViewScale.onclick = function () {
+                const newUrl = `scaled_view.html?root=${currentClassName}`;
+                window.location.href = newUrl;
+            };
+            btnViewScope.onclick = function () {
+                const newUrl = `scoped_view.html?root=${currentClassName}`;
+                window.location.href = newUrl;
+            };
+            btnCancel.onclick = function () { modal.style.display = "none"; };
+
+            function debounce(func, wait) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            function drawSquare(x, y, size, color, className, depth) {
+                const rect = svg.append("rect")
+                    .attr("x", x - size / 2)
+                    .attr("y", y - size / 2)
+                    .attr("width", size)
+                    .attr("height", size)
+                    .attr("class", `square ${className}`)
+                    .attr("fill", color)
+                    .on("click", () => {
+                        const textElement = rect.nextElementSibling;
+                        openModal('scoped_view.html', className, textElement);
+                    });
+
+                const text = svg.append("text")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "middle")
+                    .attr("class", "square-label")
+                    .text(className)
+                    .attr("pointer-events", "none");
+            }
+
+            d3.json("/squares")
+                .then(data => {
+                    const rootSquare = data.find(square => square.class === 'root');
+                    if (rootSquare) {
+                        drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                        drawScopedSquares([rootSquare], centerX, centerY, centerSquareSize / 2, 1);
+                    }
+                });
+
+            function drawScopedSquares(parentSquares, x, y, size, depth) {
+                parentSquares.forEach((parentSquare, parentIndex) => {
+                    const childrenSquares = data.filter(square => square.parent === parentSquare.class);
+                    childrenSquares.forEach((childSquare, index) => {
+                        const angle = (index / parentSquares.length) * Math.PI * 2;
+                        const newX = x + Math.cos(angle + parentIndex) * (size * 1.5);
+                        const newY = y + Math.sin(angle + parentIndex) * (size * 1.5);
+                        drawSquare(newX, newY, size, 'lightgreen', childSquare.class, depth);
+                        if (depth < 3) {
+                            drawScopedSquares([childSquare], newX, newY, size / 2, depth + 1);
+                        }
+                    });
+                });
+            }
+
+            window.addEventListener('resize', debounce(() => {
+                svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+                svg.selectAll("*").remove();
+                d3.json("/squares").then(data => {
+                    const rootSquare = data.find(square => square.class === 'root');
+                    if (rootSquare) {
+                        drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                        drawScopedSquares([rootSquare], centerX, centerY, centerSquareSize / 2, 1);
+                    }
+                });
+            }, 250));
+        </script>
+    </body>
+    </html>
+    ```
+
+4. Create included_build.html in client/public:
+    ```html
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Included Build</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <style>
+            .square { stroke: black; stroke-width: 2px; cursor: pointer; }
+            .root { fill: lightblue; }
+            .branch { fill: lightgray; }
+            .leaf { fill: lightgreen; }
+            .fruit { fill: lightcoral; }
+            body, html { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+            svg { width: 90vw; height: 90vh; display: block; margin: auto; }
+            .back-button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+            .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; }
+            .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; text-align: center; }
+            .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+            .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+            .modal-button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <button class="back-button" onclick="window.location.href='index.html'">Back to Main View</button>
+        <svg id="chart"></svg>
+
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p id="modal-text">Edit Label:</p>
+                <input type="text" id="label-input" />
+                <button id="save-label" class="modal-button">Save</button>
+                <button id="cancel" class="modal-button">Cancel</button>
+                <br>
+                <button id="view-scale" class="modal-button">Scaled View</button>
+                <button id="view-scope" class="modal-button">Scoped View</button>
+            </div>
+        </div>
+
+        <script>
+            const svg = d3.select("#chart");
+            const width = window.innerWidth * 0.9;
+            const height = window.innerHeight * 0.9;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const centerSquareSize = Math.min(width, height) / 4;
+            svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+            const modal = document.getElementById("myModal");
+            const modalText = document.getElementById("modal-text");
+            const btnClose = document.getElementsByClassName("close")[0];
+            const btnSaveLabel = document.getElementById("save-label");
+            const btnViewScale = document.getElementById("view-scale");
+            const btnViewScope = document.getElementById("view-scope");
+            const btnCancel = document.getElementById("cancel");
+            const labelInput = document.getElementById("label-input");
+            let currentUrl = "";
+            let currentTextElement = null;
+            let currentClassName = "";
+
+            function openModal(url, className, textElement) {
+                modal.style.display = "flex";
+                currentUrl = url;
+                currentTextElement = textElement;
+                currentClassName = className;
+                labelInput.value = textElement.textContent;
+            }
+
+            btnClose.onclick = function () { modal.style.display = "none"; };
+            window.onclick = function (event) { if (event.target === modal) modal.style.display = "none"; };
+            btnSaveLabel.onclick = function () { if (currentTextElement) currentTextElement.textContent = labelInput.value; modal.style.display = "none"; };
+            btnViewScale.onclick = function () {
+                const newUrl = `scaled_view.html?root=${currentClassName}`;
+                window.location.href = newUrl;
+            };
+            btnViewScope.onclick = function () {
+                const newUrl = `scoped_view.html?root=${currentClassName}`;
+                window.location.href = newUrl;
+            };
+            btnCancel.onclick = function () { modal.style.display = "none"; };
+
+            function debounce(func, wait) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            function drawSquare(x, y, size, color, className, depth) {
+                const rect = svg.append("rect")
+                    .attr("x", x - size / 2)
+                    .attr("y", y - size / 2)
+                    .attr("width", size)
+                    .attr("height", size)
+                    .attr("class", `square ${className}`)
+                    .attr("fill", color)
+                    .on("click", () => {
+                        const textElement = rect.nextElementSibling;
+                        openModal('included_build.html', className, textElement);
+                    });
+
+                const text = svg.append("text")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "middle")
+                    .attr("class", "square-label")
+                    .text(className)
+                    .attr("pointer-events", "none");
+            }
+
+            d3.json("/squares")
+                .then(data => {
+                    const rootSquare = data.find(square => square.class === 'root');
+                    if (rootSquare) {
+                        drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                        drawIncludedBuild([rootSquare], centerX, centerY, centerSquareSize / 2, 1);
+                    }
+                });
+
+            function drawIncludedBuild(parentSquares, x, y, size, depth) {
+                parentSquares.forEach((parentSquare, parentIndex) => {
+                    const childrenSquares = data.filter(square => square.parent === parentSquare.class);
+                    childrenSquares.forEach((childSquare, index) => {
+                        const angle = (index / parentSquares.length) * Math.PI * 2;
+                        const newX = x + Math.cos(angle + parentIndex) * (size * 1.5);
+                        const newY = y + Math.sin(angle + parentIndex) * (size * 1.5);
+                        drawSquare(newX, newY, size, 'lightgreen', childSquare.class, depth);
+                        if (depth < 3) {
+                            drawIncludedBuild([childSquare], newX, newY, size / 2, depth + 1);
+                        }
+                    });
+                });
+            }
+
+            window.addEventListener('resize', debounce(() => {
+                svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+                svg.selectAll("*").remove();
+                d3.json("/squares").then(data => {
+                    const rootSquare = data.find(square => square.class === 'root');
+                    if (rootSquare) {
+                        drawSquare(centerX, centerY, centerSquareSize, 'lightblue', 'root', 0);
+                        draw
+
+Final Summary and Execution Checklist
+This comprehensive guideline will assist you in setting up an application that allows users to interact with a hierarchical structure of squares, edit labels, navigate between different views, and include/exclude data. Below is the recap to ensure everything is correctly implemented.
+
+Project Directory Structure
+Ensure your project directory looks like this:
+
+Copysquare-data-management/
+│
+├── client/
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── scaled_view.html
+│   │   ├── scoped_view.html
+│   │   ├── included_build.html
+│   │   └── styles.css
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Chart.js
+│   │   │   ├── FormModal.js
+│   │   │   ├── Modal.js
+│   │   │   └── form_page.jsx
+│   │   ├── index.js
+│   │   └── App.js
+│   ├── .env
+│   └── package.json
+│
+├── .env
+├── server.js
+└── package.json
+Step-by-Step Walkthrough
+Step 1: Project Setup
+Create Project Directory:
+
+Copymkdir square-data-management
+cd square-data-management
+Initialize Node Project:
+
+Copynpm init -y
+Install Required Packages:
+
+Copynpm install express body-parser mariadb cors dotenv
+npx create-react-app client
+cd client
+npm install d3 d3-tip
+Step 2: Backend Setup
+Create server.js in the project root:
+
+Copy// Import required packages
+const express = require("express");
+const bodyParser = require("body-parser");
+const mariadb = require("mariadb");
+const cors = require("cors");
+const path = require("path");
+require("dotenv").config(); // Load environment variables from .env file
+
+// Initialize Express application
+const app = express();
+const port = process.env.PORT || 3000; // Define the port for the server
+
+// Middleware setup
+app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(bodyParser.json()); // Parse incoming request bodies in JSON format
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "client", "public")));
+
+// Setup MariaDB connection pool
+const pool = mariadb.createPool({
+  host: process.env.DB_HOST, // Database host
+  user: process.env.DB_USER, // Database user
+  password: process.env.DB_PASSWORD, // Database password
+  database: process.env.DB_NAME, // Database name
+  port: process.env.DB_PORT, // Database port
+  connectionLimit: 5 // Maximum number of connections in the pool
+});
+
+// API Routes
+app.post("/squares", async (req, res) => {
+  const {
+    title, plane, purpose, delineator, notations, details, extraData,
+    class: squareClass, parent, depth, name, size, color, type, parent_id
+  } = req.body;
+  const query = `INSERT INTO squares (title, plane, purpose, delineator, notations, details, extraData, class, parent, depth, name, size, color, type, parent_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    const result = await conn.query(query, [
+      title, plane, purpose, delineator, notations, details, extraData,
+      squareClass, parent, depth, name, size, color, type, parent_id
+    ]);
+    conn.release(); // Release the connection back to the pool
+    res.status(201).json({ id: result.insertId }); // Respond with the ID of the created square
+  } catch (err) {
+    console.error('Error creating square:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.get("/squares", async (req, res) => {
+  const query = "SELECT * FROM squares";
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    const results = await conn.query(query); // Execute the query to retrieve all squares
+    conn.release(); // Release the connection back to the pool
+    res.status(200).json(results); // Respond with the retrieved squares
+  } catch (err) {
+    console.error('Error fetching squares:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.get("/squares/:id", async (req, res) => {
+  const { id } = req.params;
+  const query = "SELECT * FROM squares WHERE id = ?";
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    const results = await conn.query(query, [id]); // Execute the query to retrieve the square by ID
+    conn.release(); // Release the connection back to the pool
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Square not found" }); // Respond with a 404 status if the square is not found
+    }
+    res.status(200).json(results[0]); // Respond with the retrieved square
+  } catch (err) {
+    console.error('Error fetching square by ID:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.put("/squares/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    title, plane, purpose, delineator, notations, details, extraData,
+    class: squareClass, parent, depth, name, size, color, type, parent_id
+  } = req.body;
+  const query = `
+    UPDATE squares 
+    SET title = ?, plane = ?, purpose = ?, delineator = ?, notations = ?, details = ?, extraData = ?, class = ?, parent = ?, depth = ?, name = ?, size = ?, color = ?, type = ?, parent_id = ?
+    WHERE id = ?
+  `;
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    await conn.query(query, [
+      title, plane, purpose, delineator, notations, details, extraData,
+      squareClass, parent, depth, name, size, color, type, parent_id, id
+    ]); // Execute the update query
+    conn.release(); // Release the connection back to the pool
+    res.status(200).json({ message: "Square updated successfully" }); // Respond with a success message
+  } catch (err) {
+    console.error('Error updating square:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+app.delete("/squares/:id", async (req, res) => {
+  const { id } = req.params;
+  const query = "DELETE FROM squares WHERE id = ?";
+  try {
+    const conn = await pool.getConnection(); // Get a connection from the pool
+    await conn.query(query, [id]); // Execute the delete query
+    conn.release(); // Release the connection back to the pool
+    res.status(200).json({ message: "Square deleted successfully" }); // Respond with a success message
+  } catch (err) {
+    console.error('Error deleting square:', err); // Log the error for debugging purposes
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors and respond with a 500 status
+  }
+});
+
+// Serve static HTML pages
+app.get("/scaled_view.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "scaled_view.html"));
+});
+
+app.get("/scoped_view.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "scoped_view.html"));
+});
+
+app.get("/form_page.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "form_page.html"));
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "index.html"));
+});
+
+// Start the server and listen on the defined port
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+Create .env File in the project root:
+
+CopyPORT=3000
+DB_HOST=your_database_host
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
+DB_PORT=3306
+Step 3: Frontend Setup
+Create index.html in client/public:
+
+Copy<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Square Data Management App</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .square {
+      stroke: black;
+      stroke-width: 2px;
+      cursor: pointer;
+    }
+    .root {
+      fill: lightblue;
+    }
+    .branch {
+      fill: lightgray;
+    }
+    .leaf {
+      fill: lightgreen;
+    }
+    .fruit {
+      fill: lightcoral;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    svg {
+      width: 90vw;
+      height: 90vh;
+      display: block;
+      margin: auto;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover, .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .modal-button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #returnMain {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="returnMain" onclick="window.location.href='index.html';">Return to Main</button>
+  <svg id="chart"></svg>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p id="modal-text">Edit Label:</p>
+      <input type="text" id="label-input" />
+      <button id="save-label" class="modal-button">Save</button>
+      <button id="cancel" class="modal-button">Cancel</button>
+      <br>
+      <button id="view-scale" class="modal-button">Scaled View</button>
+      <button id="view-scope" class="modal-button">Scoped View</button>
+      <button id="include" class="modal-button">Include/Exclude</button>
+    </div>
+  </div>
+
+  <script type="module" src="script.js" defer></script>
+</body>
+</html>
+Create scaled_view.html in client/public:
+
+Copy<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scaled View</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .square { stroke: black; stroke-width: 2px; cursor: pointer; }
+        .root { fill: lightblue; }
+        .branch { fill: lightgray; }
+        .leaf { fill: lightgreen; }
+        .fruit { fill: lightcoral; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+        svg { width: 90vw; height: 90vh; display: block; margin: auto; }
+        .back-button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; text-align: center; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+        .modal-button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">Back to Main View</button>
+    <svg id="chart"></svg>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-text">Edit Label:</p>
+            <input type="text" id="label-input" />
+            <button id="save-label" class="modal-button">Save</button>
+            <button id="cancel" class="modal-button">Cancel</button>
+            <br>
+            <button id="view-scale" class="modal-button">Scaled View</button>
+            <button id="view-scope" class="modal-button">Scoped View</button>
+        </div>
+    </div>
+
+    <script>
+        const svg = d3.select("#chart");
+        const width = window.innerWidth * 0.9;
+        const height = window.innerHeight * 0.9;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const centerSquareSize = Math.min(width, height) / 4;
+        const smallSquareSize = centerSquareSize / 2;
+        const smallestSquareSize = smallSquareSize / 2;
+        const tinySquareSize = smallestSquareSize / 2;
+        svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+        const modal = document.getElementById("myModal");
+        const modalText = document.getElementById("modal-text");
+        const btnClose = document.getElementsByClassName("close")[0];
+        const btnSaveLabel = document.getElementById("save-label");
+        const btnViewScale = document.getElementById("view-scale");
+        const btnViewScope = document.getElementById("view-scope");
+        const btnCancel = document.getElementById("cancel");
+        const labelInput = document.getElementById("label-input");
+        let currentUrl = "";
+        let currentTextElement = null;
+        let currentClassName = "";
+
+        function openModal(url, className, textElement) {
+            modal.style.display = "flex";
+            currentUrl = url;
+            currentTextElement = textElement;
+            currentClassName = className;
+            labelInput.value = textElement.textContent;
+        }
+
+        btnClose.onclick = function () { modal.style.display = "none"; };
+        window.onclick = function (event) { if (event.target === modal) modal.style.display = "none"; };
+        btnSaveLabel.onclick = function () { if (currentTextElement) currentTextElement.textContent = labelInput.value; modal.style.display = "none"; };
+        btnViewScale.onclick = function () {
+            const newUrl = `scaled_view.html?root=${currentClassName}`;
+            window.location.href = newUrl;
+        };
+        btnViewScope.onclick = function () {
+            const newUrl = `scoped_view.html?root=${currentClassName}`;
+            window.location.href = newUrl;
+        };
+        btnCancel.onclick = function () { modal.style.display = "none"; };
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function drawSquare(x, y, size, color, className, depth) {
+            const rect = svg.append("rect")
+                .attr("x", x - size / 2)
+                .attr("y

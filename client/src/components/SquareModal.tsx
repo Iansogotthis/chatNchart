@@ -25,7 +25,7 @@ interface SquareModalProps {
 interface SquareData {
   title: string;
   priority: {
-    density: number;
+    density: 1 | 2 | 3 | 4;
     durability: 'single' | 'double' | 'dotted' | 'dashed';
     decor: string;
   };
@@ -44,6 +44,7 @@ interface SquareData {
       color: string;
     };
   };
+  viewMode?: 'scoped' | 'scaled' | 'included-build';
 }
 
 export default function SquareModal({ isOpen, onClose, onSave, initialData }: SquareModalProps) {

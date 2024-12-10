@@ -1,0 +1,68 @@
+
+  // Modal elements
+  const modal = document.getElementById("myModal");
+  const btnClose = document.querySelector(".close");
+  const btnViewScale = document.getElementById("view-scale");
+  const btnViewScope = document.getElementById("view-scope");
+  const btnInclude = document.getElementById("include");
+  const btnCancel = document.getElementById("cancel");
+
+  // Variables for current modal state
+  let currentSquareData = null;
+
+  // Function to open the modal
+  const openModal = (squareData) => {
+    currentSquareData = squareData;
+    modal.style.display = "flex";
+    renderFormModal(true, "include", currentSquareData);
+  };
+
+  // Event listener to close modal when the close button is clicked
+  btnClose.addEventListener("click", function () {
+    modal.style.display = "none";
+    renderFormModal(false);
+  });
+
+  // Event listener to close modal when clicking outside of the modal
+  window.addEventListener("click", function (event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+      renderFormModal(false);
+    }
+  });
+
+  // Event listener for the "Include" button
+  btnInclude.addEventListener("click", function () {
+    const squareData = {
+      title: "Sample Title",
+      plane: "Sample Plane",
+      purpose: "Sample Purpose",
+      delineator: "Sample Delineator",
+      notations: "Sample Notations",
+      details: "Sample Details",
+      extraData: "Sample Extra Data",
+      name: "Sample Name",
+      size: "Sample Size",
+      color: "Sample Color",
+      type: "Sample Type",
+      parent_id: "Sample Parent ID",
+    };
+    openModal(squareData);
+  });
+
+  // Function to render the FormModal component
+  const renderFormModal = (isOpen, mode = "", squareData = null) => {
+    ReactDOM.render(
+      <FormModal
+        isOpen={isOpen}
+        onClose={() => {
+          modal.style.display = "none";
+          renderFormModal(false);
+        }}
+        mode={mode}
+        squareData={squareData}
+      />,
+      document.getElementById("modal-root"),
+    );
+  };
+});

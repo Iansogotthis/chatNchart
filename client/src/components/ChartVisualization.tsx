@@ -59,9 +59,36 @@ export function ChartVisualization({ data, onSave }: ChartProps) {
     }
 
     // Draw root square
-    drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root");
+    drawSquare(centerX, centerY, centerSquareSize, "#60A5FA", "root");
 
-    // Additional visualization code would go here...
+    // Draw child squares
+    const childSize = centerSquareSize * 0.4;
+    const offset = centerSquareSize * 0.6;
+
+    // Top square
+    drawSquare(centerX, centerY - offset, childSize, "#34D399", "metrics");
+    
+    // Right square
+    drawSquare(centerX + offset, centerY, childSize, "#F472B6", "trends");
+    
+    // Bottom square
+    drawSquare(centerX, centerY + offset, childSize, "#A78BFA", "analysis");
+    
+    // Left square
+    drawSquare(centerX - offset, centerY, childSize, "#FBBF24", "data");
+
+    // Add interactivity
+    svg.selectAll(".square")
+       .style("cursor", "pointer")
+       .style("transition", "transform 0.2s")
+       .on("mouseover", function() {
+         d3.select(this)
+           .style("transform", "scale(1.1)");
+       })
+       .on("mouseout", function() {
+         d3.select(this)
+           .style("transform", "scale(1)");
+       });
     
   }, [data]);
 

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Button } from '@/components/ui/button';
+import SquareModal from '@/components/SquareModal';
 
 interface Square {
   className: string;
@@ -10,6 +11,7 @@ interface Square {
 
 export default function ScaledView() {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [selectedSquare, setSelectedSquare] = useState<{ id: string; data: any } | null>(null);
   
   useEffect(() => {
     if (!svgRef.current) return;
@@ -46,7 +48,36 @@ export default function ScaledView() {
         .attr("class", `square ${className}`)
         .attr("rx", 4)
         .attr("ry", 4)
-        .style("fill", getColor(className));
+        .style("fill", getColor(className))
+        .style("cursor", "pointer")
+        .on("click", () => {
+          setSelectedSquare({
+            id: `${x}-${y}-${depth}`,
+            data: {
+              title: className,
+              priority: {
+                density: 1,
+                durability: 'single',
+                decor: '#000000'
+              },
+              urgency: 'black',
+              aesthetic: {
+                impact: {
+                  bold: false,
+                  italic: false,
+                  underline: false
+                },
+                affect: {
+                  fontFamily: 'Arial',
+                  fontSize: 14
+                },
+                effect: {
+                  color: '#000000'
+                }
+              }
+            }
+          });
+        });
 
       group.append("text")
         .attr("dy", "0.35em")
@@ -127,20 +158,34 @@ export default function ScaledView() {
   };
 
   return (
-    <div className="relative w-full h-full">
-      <div className="absolute top-4 right-4 space-x-2">
-        <Button onClick={handleZoomIn} variant="outline" size="sm">
-          Zoom In
-        </Button>
-        <Button onClick={handleZoomOut} variant="outline" size="sm">
-          Zoom Out
-        </Button>
+    <>
+      <div className="relative w-full h-full">
+        <div className="absolute top-4 right-4 space-x-2">
+          <Button onClick={handleZoomIn} variant="outline" size="sm">
+            Zoom In
+          </Button>
+          <Button onClick={handleZoomOut} variant="outline" size="sm">
+            Zoom Out
+          </Button>
+        </div>
+        <svg 
+          ref={svgRef} 
+          className="w-full h-full" 
+          style={{ backgroundColor: '#f8fafc' }}
+        />
       </div>
-      <svg 
-        ref={svgRef} 
-        className="w-full h-full" 
-        style={{ backgroundColor: '#f8fafc' }}
-      />
-    </div>
+      {selectedSquare && (
+        <SquareModal
+          isOpen={!!selectedSquare}
+          onClose={() => setSelectedSquare(null)}
+          onSave={(data) => {
+            console.log('Saving square data:', data);
+            // TODO: Implement data saving logic
+            setSelectedSquare(null);
+          }}
+          initialData={selectedSquare.data}
+        />
+      )}
+    </>
   );
 }

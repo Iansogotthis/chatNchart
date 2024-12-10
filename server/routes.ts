@@ -6,8 +6,17 @@ import { charts, forumPosts, friends, users } from "@db/schema";
 import { eq, and } from "drizzle-orm";
 
 export function registerRoutes(app: Express) {
+  // Register auth routes and middleware first
   setupAuth(app);
   const httpServer = createServer(app);
+  
+  // Debug route to check auth status
+  app.get("/api/auth-status", (req, res) => {
+    res.json({
+      isAuthenticated: req.isAuthenticated?.(),
+      user: req.user
+    });
+  });
 
   // Chart routes
   app.get("/api/charts", async (req, res) => {

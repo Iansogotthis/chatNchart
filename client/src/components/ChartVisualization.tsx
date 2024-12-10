@@ -6,7 +6,7 @@ import IncludeBuildView from '@/pages/ChartPages/IncludeBuildView';
 
 type ViewType = 'scaled' | 'scoped' | 'include';
 
-export default function ChartVisualization() {
+export function ChartVisualization() {
   const [currentView, setCurrentView] = useState<ViewType>('scaled');
 
   const renderView = () => {

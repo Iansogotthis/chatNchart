@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import '@/styles/chart.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SquareForm } from './SquareForm';
+import SquareModal from './SquareModal';
 
 type ViewType = 'scaled' | 'scoped' | 'included-build';
 

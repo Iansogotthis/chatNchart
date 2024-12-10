@@ -38,23 +38,25 @@ export default function ProfilePage() {
   const isOwnProfile = user?.username === username;
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div>
-        <UserProfile
-          username={profile?.username || ""}
-          bio={profile?.bio}
-          funFacts={profile?.funFacts}
-          topCharts={profile?.topCharts}
-          onEditProfile={isOwnProfile ? () => {} : undefined}
-        />
-      </div>
-      
-      <div>
-        <FriendList
-          friends={friends || []}
-          onMessage={handleMessage}
-          onRemove={isOwnProfile ? () => {} : undefined}
-        />
+    <div className="container mx-auto max-w-7xl">
+      <div className="grid gap-6 md:grid-cols-2 p-4">
+        <div>
+          <UserProfile
+            username={profile?.username || ""}
+            bio={profile?.bio}
+            funFacts={profile?.funFacts}
+            topCharts={profile?.topCharts}
+            onEditProfile={isOwnProfile ? () => {} : undefined}
+          />
+        </div>
+        
+        <div>
+          <FriendList
+            friends={friends || []}
+            onMessage={handleMessage}
+            onRemove={isOwnProfile ? () => {} : undefined}
+          />
+        </div>
       </div>
     </div>
   );

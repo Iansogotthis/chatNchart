@@ -21,7 +21,7 @@ export function Forum({ posts, onCreatePost }: ForumProps) {
   const [newPost, setNewPost] = useState({ title: "", content: "" });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-4xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>Create New Post</CardTitle>

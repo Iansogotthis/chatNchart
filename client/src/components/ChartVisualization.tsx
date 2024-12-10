@@ -2,12 +2,34 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import * as d3 from 'd3';
 import '@/styles/chart.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { SquareForm } from './SquareForm';
 
 type ViewType = 'scaled' | 'scoped' | 'included-build';
 
+interface SelectedSquare {
+  class: string;
+  parent: string;
+  depth: number;
+}
+
 export function ChartVisualization() {
   const [currentView, setCurrentView] = useState<ViewType>('scaled');
+  const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const handleSquareClick = (className: string, parentText: string, depth: number) => {
+    setSelectedSquare({ class: className, parent: parentText, depth });
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = (data: any) => {
+    // Here we would save the data to your backend
+    console.log('Form submitted:', data);
+    setIsModalOpen(false);
+    setSelectedSquare(null);
+  };
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -35,9 +57,7 @@ export function ChartVisualization() {
         .attr("height", size)
         .attr("class", `square ${className}`)
         .attr("fill", color)
-        .on("click", () => {
-          window.location.href = `form_page.html?class=${className}&parent=${parentText}&depth=${depth}`;
-        });
+        .on("click", () => handleSquareClick(className, parentText, depth));
 
       svg.append("text")
         .attr("x", x)
@@ -230,6 +250,25 @@ export function ChartVisualization() {
           style={{ width: '90vw', height: '90vh', margin: 'auto', display: 'block' }}
         />
       </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Square</DialogTitle>
+          </DialogHeader>
+          {selectedSquare && (
+            <SquareForm
+              squareData={{
+                title: selectedSquare.class,
+                parent_id: selectedSquare.parent,
+                type: `Depth: ${selectedSquare.depth}`,
+              }}
+              onSubmit={handleFormSubmit}
+              className="py-4"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

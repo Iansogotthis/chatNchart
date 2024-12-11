@@ -24,11 +24,11 @@ interface SquareModalProps {
 interface SquareData {
   title: string;
   priority: {
-    density: 1 | 2 | 3 | 4;
+    density: number;
     durability: 'single' | 'double' | 'dotted' | 'dashed';
     decor: string;
   };
-  urgency: 'red' | 'yellow' | 'orange' | 'green' | 'black';
+  urgency: string;
   aesthetic: {
     impact: {
       bold: boolean;
@@ -50,15 +50,39 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
   const [data, setData] = useState<SquareData>(initialData);
   
   const handleSave = () => {
-    onSave(data);
+    // Ensure all data is properly typed before saving
+    const validatedData: SquareData = {
+      title: data.title,
+      priority: {
+        density: Number(data.priority?.density) || 1,
+        durability: data.priority?.durability || 'single',
+        decor: data.priority?.decor || '#000000'
+      },
+      urgency: data.urgency || '#000000',
+      aesthetic: {
+        impact: {
+          bold: Boolean(data.aesthetic?.impact?.bold),
+          italic: Boolean(data.aesthetic?.impact?.italic),
+          underline: Boolean(data.aesthetic?.impact?.underline)
+        },
+        affect: {
+          fontFamily: data.aesthetic?.affect?.fontFamily || 'Arial',
+          fontSize: Number(data.aesthetic?.affect?.fontSize) || 14
+        },
+        effect: {
+          color: data.aesthetic?.effect?.color || '#000000'
+        }
+      },
+      viewMode: data.viewMode
+    };
+    onSave(validatedData);
     onClose();
   };
 
   const handleViewChange = (mode: SquareData['viewMode']) => {
     const updatedData = { ...data, viewMode: mode };
     setData(updatedData);
-    onSave(updatedData);
-    onClose();
+    handleSave();
   };
 
   return (
@@ -88,11 +112,11 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
             <div className="flex space-x-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline">Density ({data.priority.density}px)</Button>
+                  <Button variant="outline">Border Width ({data.priority.density}px)</Button>
                 </PopoverTrigger>
                 <PopoverContent>
                   <div className="flex flex-col space-y-2">
-                    {[1, 2, 3, 4].map((density) => (
+                    {[1, 2, 3, 4, 5].map((density) => (
                       <Button
                         key={density}
                         variant="ghost"
@@ -100,7 +124,9 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                           ...data,
                           priority: { ...data.priority, density }
                         })}
+                        className="justify-start"
                       >
+                        <div className="w-full border-t" style={{ borderWidth: `${density}px` }} />
                         {density}px
                       </Button>
                     ))}
@@ -154,15 +180,21 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
           <div className="grid gap-2">
             <Label>Urgency</Label>
             <div className="flex flex-wrap gap-2">
-              {['red', 'yellow', 'orange', 'green', 'black'].map((color) => (
+              {[
+                { color: '#FF0000', name: 'red' },
+                { color: '#FFD700', name: 'yellow' },
+                { color: '#FFA500', name: 'orange' },
+                { color: '#00FF00', name: 'green' },
+                { color: '#000000', name: 'black' }
+              ].map(({ color, name }) => (
                 <Button
-                  key={color}
-                  variant={data.urgency === color ? 'default' : 'outline'}
-                  onClick={() => setData({ ...data, urgency: color as SquareData['urgency'] })}
-                  style={{ backgroundColor: color === data.urgency ? color : undefined }}
-                >
-                  {color}
-                </Button>
+                  key={name}
+                  variant="outline"
+                  onClick={() => setData({ ...data, urgency: color })}
+                  className={`w-12 h-12 rounded-full ${data.urgency === color ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                  style={{ backgroundColor: color }}
+                  aria-label={`Set urgency color to ${name}`}
+                />
               ))}
             </div>
           </div>
@@ -177,7 +209,7 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                 <PopoverContent>
                   <div className="flex flex-col space-y-2">
                     <Button
-                      variant="ghost"
+                      variant={data.aesthetic.impact.bold ? 'default' : 'outline'}
                       onClick={() => setData({
                         ...data,
                         aesthetic: {
@@ -185,11 +217,12 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                           impact: { ...data.aesthetic.impact, bold: !data.aesthetic.impact.bold }
                         }
                       })}
+                      className="font-bold"
                     >
-                      Bold
+                      Bold Text
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant={data.aesthetic.impact.italic ? 'default' : 'outline'}
                       onClick={() => setData({
                         ...data,
                         aesthetic: {
@@ -197,11 +230,12 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                           impact: { ...data.aesthetic.impact, italic: !data.aesthetic.impact.italic }
                         }
                       })}
+                      className="italic"
                     >
-                      Italic
+                      Italic Text
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant={data.aesthetic.impact.underline ? 'default' : 'outline'}
                       onClick={() => setData({
                         ...data,
                         aesthetic: {
@@ -209,8 +243,9 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                           impact: { ...data.aesthetic.impact, underline: !data.aesthetic.impact.underline }
                         }
                       })}
+                      className="underline"
                     >
-                      Underline
+                      Underline Text
                     </Button>
                   </div>
                 </PopoverContent>
@@ -221,36 +256,48 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                   <Button variant="outline">Affect</Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="grid gap-2">
-                    <Input
-                      type="number"
-                      value={data.aesthetic.affect.fontSize}
-                      onChange={(e) => setData({
-                        ...data,
-                        aesthetic: {
-                          ...data.aesthetic,
-                          affect: { ...data.aesthetic.affect, fontSize: parseInt(e.target.value) }
-                        }
-                      })}
-                      min="8"
-                      max="72"
-                    />
-                    <select
-                      value={data.aesthetic.affect.fontFamily}
-                      onChange={(e) => setData({
-                        ...data,
-                        aesthetic: {
-                          ...data.aesthetic,
-                          affect: { ...data.aesthetic.affect, fontFamily: e.target.value }
-                        }
-                      })}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                    >
-                      <option value="Arial">Arial</option>
-                      <option value="Helvetica">Helvetica</option>
-                      <option value="Times New Roman">Times New Roman</option>
-                      <option value="Courier New">Courier New</option>
-                    </select>
+                  <div className="grid gap-4">
+                    <div>
+                      <Label>Font Size</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          value={data.aesthetic.affect.fontSize}
+                          onChange={(e) => setData({
+                            ...data,
+                            aesthetic: {
+                              ...data.aesthetic,
+                              affect: { ...data.aesthetic.affect, fontSize: parseInt(e.target.value) || 14 }
+                            }
+                          })}
+                          min="8"
+                          max="72"
+                          className="w-20"
+                        />
+                        <span className="text-sm text-muted-foreground">px</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Font Family</Label>
+                      <select
+                        value={data.aesthetic.affect.fontFamily}
+                        onChange={(e) => setData({
+                          ...data,
+                          aesthetic: {
+                            ...data.aesthetic,
+                            affect: { ...data.aesthetic.affect, fontFamily: e.target.value }
+                          }
+                        })}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                      >
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                      </select>
+                    </div>
                   </div>
                 </PopoverContent>
               </Popover>

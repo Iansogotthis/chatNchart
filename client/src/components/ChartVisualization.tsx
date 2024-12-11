@@ -209,9 +209,9 @@ export function ChartVisualization() {
         case 2: // top-right branch
           return leafPosition !== 2; // skip bottom-left leaf
         case 3: // bottom-right branch
-          return leafPosition !== 0; // skip top-left leaf
-        case 4: // bottom-left branch
           return leafPosition !== 1; // skip top-right leaf
+        case 4: // bottom-left branch
+          return leafPosition !== 0; // skip top-left leaf
         default:
           return true;
       }

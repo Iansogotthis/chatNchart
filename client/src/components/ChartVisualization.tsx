@@ -68,7 +68,7 @@ export function ChartVisualization() {
   };
 
   const handleFormSubmit = async (data: any) => {
-    if (!selectedSquare || !chartId || !user) {
+    if (!selectedSquare || !user) {
       console.error('Missing required data for submission');
       return;
     }
@@ -77,7 +77,6 @@ export function ChartVisualization() {
     
     try {
       await squareCustomizationMutation.mutateAsync({
-        chartId,
         squareClass: selectedSquare.class,
         parentText: selectedSquare.parent,
         depth: selectedSquare.depth,
@@ -136,17 +135,24 @@ export function ChartVisualization() {
   const handleViewChange = (viewType: ViewType) => {
     if (selectedSquare) {
       if (viewType === 'included-build') {
-        // Show form for the selected square
+        // Navigate to form view using wouter
         const params = new URLSearchParams({
           class: selectedSquare.class,
           parent: selectedSquare.parent,
           depth: selectedSquare.depth.toString(),
         });
         window.location.href = `/form?${params.toString()}`;
+        setIsModalOpen(false);
       } else if (viewType === 'scaled' || viewType === 'scoped') {
         // Update current view for scaled or scoped
         setCurrentView(viewType);
         setIsModalOpen(false);
+        // Force re-render of the chart
+        if (svgRef.current) {
+          const svg = d3.select(svgRef.current);
+          svg.selectAll("*").remove();
+          // The useEffect will handle redrawing
+        }
       }
     }
   };
@@ -417,14 +423,20 @@ export function ChartVisualization() {
     <div className="flex flex-col h-full space-y-4 p-4">
       <div className="flex justify-center space-x-4">
         <Button
-          onClick={() => setCurrentView('standard')}
+          onClick={() => {
+            setCurrentView('standard');
+            setSelectedSquare(null);
+          }}
           variant={currentView === 'standard' ? 'default' : 'outline'}
           className="w-32"
         >
           Standard Build
         </Button>
         <Button
-          onClick={() => setCurrentView('delineated')}
+          onClick={() => {
+            setCurrentView('delineated');
+            setSelectedSquare(null);
+          }}
           variant={currentView === 'delineated' ? 'default' : 'outline'}
           className="w-32"
         >

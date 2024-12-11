@@ -443,6 +443,22 @@ export function ChartVisualization() {
         >
           Delineated View
         </Button>
+        <Button
+          onClick={() => selectedSquare && setCurrentView('scaled')}
+          variant={currentView === 'scaled' ? 'default' : 'outline'}
+          className="w-32"
+          disabled={!selectedSquare}
+        >
+          Scale View
+        </Button>
+        <Button
+          onClick={() => selectedSquare && setCurrentView('scoped')}
+          variant={currentView === 'scoped' ? 'default' : 'outline'}
+          className="w-32"
+          disabled={!selectedSquare}
+        >
+          Scope View
+        </Button>
       </div>
       <div className="flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <svg

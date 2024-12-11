@@ -250,76 +250,6 @@ export function ChartVisualization() {
         
         if (depth === 0) {
           currentClassName = "branch";
-        } else if (depth === 1) {
-          currentClassName = "leaf";
-        } else if (depth === 2) {
-          currentClassName = "fruit";
-        }
-
-        // Draw the current square (branch or leaf)
-        if (currentClassName === "leaf") {
-          // Only draw leaf if it should be drawn based on its position
-          const parentBranchNumber = parseInt(parentText.split('_').pop() || '0');
-          if (shouldDrawLeaf(parentBranchNumber, index)) {
-            drawSquare(
-              x,
-              y,
-              size,
-              colors[currentClassName as keyof typeof colors] || "",
-              currentClassName,
-              depth,
-              `${parentText}_${branchIndex}`
-            );
-
-            // Draw fruits for this leaf if size is sufficient
-            if (size > tinySquareSize) {
-              const fruitSize = size / 2;
-              const leafCorners = {
-                1: [x - size / 2, y - size / 2], // top-left
-                2: [x + size / 2, y - size / 2], // top-right
-                3: [x - size / 2, y + size / 2], // bottom-left
-                4: [x + size / 2, y + size / 2]  // bottom-right
-              };
-
-              // Get parent branch number and leaf position
-              const [branchNum, leafPos] = parentText.split('_').map(Number);
-              
-              // Define which corners should have fruits based on branch and leaf position
-              let fruitCorners: number[] = [];
-              
-              if (branchNum === 1) {
-                if (leafPos === 2) fruitCorners = [1, 2, 4];
-                if (leafPos === 3) fruitCorners = [1, 3, 4];
-              } else if (branchNum === 2) {
-                if (leafPos === 2) fruitCorners = [1, 2, 4];
-                if (leafPos === 4) fruitCorners = [2, 3, 4];
-              } else if (branchNum === 3) {
-                if (leafPos === 3) fruitCorners = [1, 3, 4];
-                if (leafPos === 4) fruitCorners = [2, 3, 4];
-              } else if (branchNum === 4) {
-                if (leafPos === 2) fruitCorners = [1, 2, 4];
-                if (leafPos === 3) fruitCorners = [1, 3, 4];
-                if (leafPos === 4) fruitCorners = [2, 3, 4];
-              }
-
-              // Draw fruits only on specified corners
-              fruitCorners.forEach((cornerNum, fruitIndex) => {
-                const corner = leafCorners[cornerNum as keyof typeof leafCorners];
-                if (corner) {
-                  drawSquare(
-                    corner[0],
-                    corner[1],
-                    fruitSize,
-                    colors["fruit"],
-                    "fruit",
-                    depth + 1,
-                    `${parentText}_${cornerNum}`
-                  );
-                }
-              });
-            }
-          }
-        } else if (currentClassName === "branch") {
           drawSquare(
             x,
             y,
@@ -330,24 +260,69 @@ export function ChartVisualization() {
             `${parentText}_${branchIndex}`
           );
 
-          // Continue drawing leaves if size is sufficient
+          // Draw leaves
           if (size > tinySquareSize) {
-            const nextSize = size / 2;
-            const nextCorners = [
+            const leafSize = size / 2;
+            const leafCorners = [
               [x - size / 2, y - size / 2],
               [x + size / 2, y - size / 2],
               [x - size / 2, y + size / 2],
               [x + size / 2, y + size / 2],
             ] as [number, number][];
 
-            requestAnimationFrame(() => {
-              drawSquares(
-                nextCorners,
-                nextSize,
-                depth + 1,
-                currentClassName,
-                `${parentText}_${branchIndex}`
-              );
+            leafCorners.forEach((corner, leafIndex) => {
+              if (shouldDrawLeaf(branchIndex, leafIndex)) {
+                drawSquare(
+                  corner[0],
+                  corner[1],
+                  leafSize,
+                  colors["leaf"],
+                  "leaf",
+                  depth + 1,
+                  `${parentText}_${branchIndex}_${leafIndex + 1}`
+                );
+
+                // Draw fruits for this leaf
+                const fruitSize = leafSize / 2;
+                const fruitCorners = {
+                  1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2], // top-left
+                  2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2], // top-right
+                  3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2], // bottom-left
+                  4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]  // bottom-right
+                };
+
+                // Determine which corners should have fruits based on branch and leaf position
+                let fruitCornerNumbers: number[] = [];
+                if (branchIndex === 1) {
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // corner 2
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // corner 3
+                } else if (branchIndex === 2) {
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // corner 2
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // corner 4
+                } else if (branchIndex === 3) {
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // corner 3
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // corner 4
+                } else if (branchIndex === 4) {
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // corner 2
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // corner 3
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // corner 4
+                }
+
+                fruitCornerNumbers.forEach(cornerNum => {
+                  const fruitCorner = fruitCorners[cornerNum as keyof typeof fruitCorners];
+                  if (fruitCorner) {
+                    drawSquare(
+                      fruitCorner[0],
+                      fruitCorner[1],
+                      fruitSize,
+                      colors["fruit"],
+                      "fruit",
+                      depth + 2,
+                      `${parentText}_${branchIndex}_${leafIndex + 1}_${cornerNum}`
+                    );
+                  }
+                });
+              }
             });
           }
         }

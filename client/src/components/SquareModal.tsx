@@ -270,21 +270,36 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
           </div>
         </div>
 
-        <div className="flex flex-col space-y-4 mt-4">
-          <Button onClick={handleSave} className="w-full">
+        <div className="flex flex-col space-y-4 mt-4 px-4 pb-4">
+          <Button 
+            onClick={handleSave} 
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+          >
             Save Changes
           </Button>
           
           <div className="grid grid-cols-2 gap-4">
-            <Button onClick={() => handleViewChange('scaled')} variant="outline">
+            <Button 
+              onClick={() => handleViewChange('scaled')} 
+              variant="outline"
+              className="w-full border-2 shadow-sm"
+            >
               Scale View
             </Button>
-            <Button onClick={() => handleViewChange('scoped')} variant="outline">
+            <Button 
+              onClick={() => handleViewChange('scoped')} 
+              variant="outline"
+              className="w-full border-2 shadow-sm"
+            >
               Scoped View
             </Button>
           </div>
           
-          <Button onClick={() => handleViewChange('included-build')} variant="outline" className="w-2/3 mx-auto">
+          <Button 
+            onClick={() => handleViewChange('included-build')} 
+            variant="outline" 
+            className="w-2/3 mx-auto border-2 shadow-sm hover:bg-accent"
+          >
             In/Xclude
           </Button>
         </div>

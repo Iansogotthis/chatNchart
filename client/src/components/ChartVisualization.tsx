@@ -27,48 +27,82 @@ export function ChartVisualization() {
     setIsModalOpen(true);
   };
 
-  const handleFormSubmit = (data: any) => {
-    if (selectedSquare) {
+  const handleFormSubmit = async (data: any) => {
+    if (selectedSquare && chartId) {
       const squareId = `${selectedSquare.class}_${selectedSquare.parent}_${selectedSquare.depth}`;
-      setSquareStyles(prev => ({
-        ...prev,
-        [squareId]: {
-          priority: data.priority,
-          urgency: data.urgency,
-          aesthetic: data.aesthetic
-        }
-      }));
-
-      // Update square visual properties
-      const square = d3.select(svgRef.current)
-        .selectAll(`.square.${selectedSquare.class}`)
-        .filter(function() {
-          const text = d3.select(this.nextSibling);
-          return text.text() === selectedSquare.class;
+      
+      try {
+        // Save to backend
+        await fetch('/api/square-customization', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chartId,
+            squareClass: selectedSquare.class,
+            parentText: selectedSquare.parent,
+            depth: selectedSquare.depth,
+            title: data.title,
+            priority: data.priority,
+            urgency: data.urgency,
+            aesthetic: data.aesthetic,
+          }),
         });
 
-      // Apply styles based on settings
-      square
-        .style('stroke-width', `${data.priority.density}px`)
-        .style('stroke-dasharray', data.priority.durability === 'dotted' ? '3,3' : null)
-        .style('stroke', data.priority.decor)
-        .style('fill', data.urgency);
+        // Update local state
+        setSquareStyles(prev => ({
+          ...prev,
+          [squareId]: {
+            priority: data.priority,
+            urgency: data.urgency,
+            aesthetic: data.aesthetic
+          }
+        }));
 
-      // Apply text styles
-      const text = square.nodes()[0]?.nextSibling;
-      if (text) {
-        d3.select(text)
-          .style('font-weight', data.aesthetic.impact.bold ? 'bold' : 'normal')
-          .style('font-style', data.aesthetic.impact.italic ? 'italic' : 'normal')
-          .style('text-decoration', data.aesthetic.impact.underline ? 'underline' : 'none')
-          .style('font-family', data.aesthetic.affect.fontFamily)
-          .style('font-size', `${data.aesthetic.affect.fontSize}px`)
-          .style('fill', data.aesthetic.effect.color);
+        // Update square visual properties
+        const square = d3.select(svgRef.current)
+          .selectAll(`.square.${selectedSquare.class}`)
+          .filter(function() {
+            const text = d3.select(this.nextSibling);
+            return text.text() === selectedSquare.class;
+          });
+
+        // Apply styles based on settings
+        square
+          .style('stroke-width', `${data.priority.density}px`)
+          .style('stroke-dasharray', data.priority.durability === 'dotted' ? '3,3' : null)
+          .style('stroke', data.priority.decor)
+          .style('fill', data.urgency);
+
+        // Apply text styles
+        const text = square.nodes()[0]?.nextSibling;
+        if (text) {
+          d3.select(text)
+            .style('font-weight', data.aesthetic.impact.bold ? 'bold' : 'normal')
+            .style('font-style', data.aesthetic.impact.italic ? 'italic' : 'normal')
+            .style('text-decoration', data.aesthetic.impact.underline ? 'underline' : 'none')
+            .style('font-family', data.aesthetic.affect.fontFamily)
+            .style('font-size', `${data.aesthetic.affect.fontSize}px`)
+            .style('fill', data.aesthetic.effect.color);
+        }
+      } catch (error) {
+        console.error('Error saving square customization:', error);
       }
     }
     
     setIsModalOpen(false);
     setSelectedSquare(null);
+  };
+
+  const handleViewChange = (viewType: ViewType) => {
+    if (selectedSquare) {
+      const params = new URLSearchParams({
+        view: viewType,
+        class: selectedSquare.class,
+        parent: selectedSquare.parent,
+        depth: selectedSquare.depth.toString(),
+      });
+      window.location.href = `/${viewType}?${params.toString()}`;
+    }
   };
 
   useEffect(() => {

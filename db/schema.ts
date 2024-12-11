@@ -30,6 +30,27 @@ export const charts = pgTable("charts", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Square customizations table
+export const squareCustomizations = pgTable("square_customizations", {
+  id: serial("id").primaryKey(),
+  chartId: integer("chart_id").references(() => charts.id),
+  squareClass: text("square_class").notNull(),
+  parentText: text("parent_text").notNull(),
+  depth: integer("depth").notNull(),
+  title: text("title"),
+  priority: jsonb("priority").notNull(),
+  urgency: text("urgency").notNull(),
+  aesthetic: jsonb("aesthetic").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Schema for square customizations
+export const insertSquareCustomizationSchema = createInsertSchema(squareCustomizations);
+export const selectSquareCustomizationSchema = createSelectSchema(squareCustomizations);
+
+export type SquareCustomization = typeof squareCustomizations.$inferSelect;
+
 // Forum posts table
 export const forumPosts = pgTable("forum_posts", {
   id: serial("id").primaryKey(),

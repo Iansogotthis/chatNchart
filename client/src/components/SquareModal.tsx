@@ -55,7 +55,9 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
   };
 
   const handleViewChange = (mode: SquareData['viewMode']) => {
-    setData({ ...data, viewMode: mode });
+    const updatedData = { ...data, viewMode: mode };
+    setData(updatedData);
+    onSave(updatedData);
     onClose();
   };
 

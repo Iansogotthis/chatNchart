@@ -115,6 +115,7 @@ export function ChartVisualization() {
     const squareId = `${selectedSquare.class}_${selectedSquare.parent}_${selectedSquare.depth}`;
     
     try {
+      // Save to backend
       await squareCustomizationMutation.mutateAsync({
         squareClass: selectedSquare.class,
         parentText: selectedSquare.parent,
@@ -122,18 +123,38 @@ export function ChartVisualization() {
         ...data
       });
 
-      // Update local state with all the customization data
+      // Ensure data has all required properties with proper types
+      const updatedStyles = {
+        title: data.title || selectedSquare.class,
+        priority: {
+          density: Number(data.priority?.density) || 1,
+          durability: data.priority?.durability || 'single',
+          decor: data.priority?.decor || '#000000'
+        },
+        urgency: data.urgency || 'black',
+        aesthetic: {
+          impact: {
+            bold: Boolean(data.aesthetic?.impact?.bold),
+            italic: Boolean(data.aesthetic?.impact?.italic),
+            underline: Boolean(data.aesthetic?.impact?.underline)
+          },
+          affect: {
+            fontFamily: data.aesthetic?.affect?.fontFamily || 'Arial',
+            fontSize: Number(data.aesthetic?.affect?.fontSize) || 14
+          },
+          effect: {
+            color: data.aesthetic?.effect?.color || '#000000'
+          }
+        }
+      };
+
+      // Update local state
       setSquareStyles(prev => ({
         ...prev,
-        [squareId]: {
-          title: data.title,
-          priority: data.priority,
-          urgency: data.urgency,
-          aesthetic: data.aesthetic
-        }
+        [squareId]: updatedStyles
       }));
 
-      // Force a re-render of the chart to apply new styles
+      // Force a re-render of the chart
       if (svgRef.current) {
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove();
@@ -202,7 +223,21 @@ export function ChartVisualization() {
       const squareId = `${className}_${parentText}_${depth}`;
       const customStyle = squareStyles[squareId];
 
-      const rect = svg.append("rect")
+      // Create a group for better organization and accessibility
+      const group = svg.append("g")
+        .attr("class", `square-group ${className}`)
+        .attr("role", "button")
+        .attr("tabindex", "0")
+        .attr("aria-label", `${className} square with ${customStyle?.title || 'no'} customization`)
+        .on("click", () => handleSquareClick(className, parentText, depth))
+        .on("keypress", (event: KeyboardEvent) => {
+          if (event.key === "Enter" || event.key === " ") {
+            handleSquareClick(className, parentText, depth);
+          }
+        });
+
+      // Draw the square
+      const rect = group.append("rect")
         .attr("x", x - size / 2)
         .attr("y", y - size / 2)
         .attr("width", size)
@@ -210,27 +245,45 @@ export function ChartVisualization() {
         .attr("class", `square ${className}`)
         .attr("fill", customStyle?.urgency || color)
         .attr("rx", 4)
-        .attr("ry", 4)
-        .style("stroke", customStyle?.priority?.decor || "none")
-        .style("stroke-width", customStyle?.priority?.density ? `${customStyle.priority.density}px` : "1px")
-        .style("stroke-dasharray", customStyle?.priority?.durability === "dotted" ? "3,3" : 
-               customStyle?.priority?.durability === "dashed" ? "5,5" : 
-               customStyle?.priority?.durability === "double" ? "0" : "none")
-        .on("click", () => handleSquareClick(className, parentText, depth));
+        .attr("ry", 4);
 
-      const text = svg.append("text")
+      // Apply border styles if priority is set
+      if (customStyle?.priority) {
+        rect.style("stroke", customStyle.priority.decor || "none")
+            .style("stroke-width", `${customStyle.priority.density || 1}px`)
+            .style("stroke-dasharray", (() => {
+              switch (customStyle.priority.durability) {
+                case 'dotted': return "3,3";
+                case 'dashed': return "5,5";
+                case 'double': return "8,2";
+                default: return "none";
+              }
+            })());
+      }
+
+      // Add text with all aesthetic properties
+      const text = group.append("text")
         .attr("x", x)
         .attr("y", y)
         .attr("dy", "0.35em")
         .attr("text-anchor", "middle")
-        .attr("font-size", customStyle?.aesthetic?.affect?.fontSize || size / 5)
-        .attr("font-family", customStyle?.aesthetic?.affect?.fontFamily || "Arial")
-        .style("font-weight", customStyle?.aesthetic?.impact?.bold ? "bold" : "normal")
-        .style("font-style", customStyle?.aesthetic?.impact?.italic ? "italic" : "normal")
-        .style("text-decoration", customStyle?.aesthetic?.impact?.underline ? "underline" : "none")
-        .style("fill", customStyle?.aesthetic?.effect?.color || "black")
-        .attr("pointer-events", "none")
-        .text(customStyle?.title || className);
+        .attr("pointer-events", "none");
+
+      // Apply text styles if aesthetic is set
+      if (customStyle?.aesthetic) {
+        const { impact, affect, effect } = customStyle.aesthetic;
+        text.style("font-weight", impact.bold ? "bold" : "normal")
+            .style("font-style", impact.italic ? "italic" : "normal")
+            .style("text-decoration", impact.underline ? "underline" : "none")
+            .style("font-family", affect.fontFamily || "Arial")
+            .style("font-size", `${affect.fontSize || size / 5}px`)
+            .style("fill", effect.color || "black");
+      } else {
+        text.style("font-size", `${size / 5}px`)
+            .style("fill", "black");
+      }
+
+      text.text(customStyle?.title || className);
     }
 
     function shouldDrawLeaf(branchIndex: number, leafPosition: number): boolean {

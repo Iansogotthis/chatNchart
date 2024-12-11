@@ -16,6 +16,13 @@ interface SelectedSquare {
   depth: number;
 }
 
+const colors = {
+  "root": "lightblue",
+  "branch": "lightgray",
+  "leaf": "lightgreen",
+  "fruit": "lightcoral"
+} as const;
+
 export function ChartVisualization() {
   const [currentView, setCurrentView] = useState<ViewType>('scaled');
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
@@ -136,16 +143,10 @@ export function ChartVisualization() {
           depth: selectedSquare.depth.toString(),
         });
         window.location.href = `/form?${params.toString()}`;
-      } else {
+      } else if (viewType === 'scaled' || viewType === 'scoped') {
         // Update current view for scaled or scoped
         setCurrentView(viewType);
         setIsModalOpen(false);
-        
-        // Store the selected square for rendering the specific view
-        setSelectedSquare({
-          ...selectedSquare,
-          viewType
-        });
       }
     }
   };
@@ -155,6 +156,11 @@ export function ChartVisualization() {
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+
+    // Reset view if selected square is cleared
+    if (!selectedSquare && (currentView === 'scaled' || currentView === 'scoped')) {
+      setCurrentView('standard');
+    }
 
     const width = window.innerWidth * 0.9;
     const height = window.innerHeight * 0.9;

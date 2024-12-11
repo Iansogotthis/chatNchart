@@ -5,6 +5,8 @@ import '@/styles/chart.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SquareForm } from './SquareForm';
 import SquareModal from './SquareModal';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUser } from '@/hooks/use-user';
 
 type ViewType = 'scaled' | 'scoped' | 'included-build';
 
@@ -19,8 +21,39 @@ export function ChartVisualization() {
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const queryClient = useQueryClient();
+  const { user } = useUser();
 
   const [squareStyles, setSquareStyles] = useState<Record<string, any>>({});
+
+  // Fetch current chart
+  const { data: charts } = useQuery({
+    queryKey: ['charts'],
+    queryFn: async () => {
+      const response = await fetch('/api/charts');
+      if (!response.ok) throw new Error('Failed to fetch charts');
+      return response.json();
+    },
+  });
+
+  const currentChart = charts?.[0];
+  const chartId = currentChart?.id;
+
+  // Square customization mutation
+  const squareCustomizationMutation = useMutation({
+    mutationFn: async (customization: any) => {
+      const response = await fetch('/api/square-customization', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customization),
+      });
+      if (!response.ok) throw new Error('Failed to save square customization');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['charts'] });
+    },
+  });
 
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
     setSelectedSquare({ class: className, parent: parentText, depth });
@@ -28,41 +61,41 @@ export function ChartVisualization() {
   };
 
   const handleFormSubmit = async (data: any) => {
-    if (selectedSquare && chartId) {
-      const squareId = `${selectedSquare.class}_${selectedSquare.parent}_${selectedSquare.depth}`;
-      
-      try {
-        // Save to backend
-        await fetch('/api/square-customization', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chartId,
-            squareClass: selectedSquare.class,
-            parentText: selectedSquare.parent,
-            depth: selectedSquare.depth,
-            title: data.title,
-            priority: data.priority,
-            urgency: data.urgency,
-            aesthetic: data.aesthetic,
-          }),
-        });
+    if (!selectedSquare || !chartId || !user) {
+      console.error('Missing required data for submission');
+      return;
+    }
 
-        // Update local state
-        setSquareStyles(prev => ({
-          ...prev,
-          [squareId]: {
-            priority: data.priority,
-            urgency: data.urgency,
-            aesthetic: data.aesthetic
-          }
-        }));
+    const squareId = `${selectedSquare.class}_${selectedSquare.parent}_${selectedSquare.depth}`;
+    
+    try {
+      await squareCustomizationMutation.mutateAsync({
+        chartId,
+        squareClass: selectedSquare.class,
+        parentText: selectedSquare.parent,
+        depth: selectedSquare.depth,
+        title: data.title,
+        priority: data.priority,
+        urgency: data.urgency,
+        aesthetic: data.aesthetic,
+      });
 
-        // Update square visual properties
+      // Update local state
+      setSquareStyles(prev => ({
+        ...prev,
+        [squareId]: {
+          priority: data.priority,
+          urgency: data.urgency,
+          aesthetic: data.aesthetic
+        }
+      }));
+
+      // Update square visual properties
+      if (svgRef.current) {
         const square = d3.select(svgRef.current)
           .selectAll(`.square.${selectedSquare.class}`)
           .filter(function() {
-            const text = d3.select(this.nextSibling);
+            const text = d3.select(this.nextSibling as Element);
             return text.text() === selectedSquare.class;
           });
 
@@ -84,9 +117,9 @@ export function ChartVisualization() {
             .style('font-size', `${data.aesthetic.affect.fontSize}px`)
             .style('fill', data.aesthetic.effect.color);
         }
-      } catch (error) {
-        console.error('Error saving square customization:', error);
       }
+    } catch (error) {
+      console.error('Error saving square customization:', error);
     }
     
     setIsModalOpen(false);

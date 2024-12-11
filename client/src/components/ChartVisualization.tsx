@@ -242,7 +242,7 @@ export function ChartVisualization() {
     }
 
     function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
-      if (depth > 1) return;
+      if (depth > 2) return;
 
       corners.forEach(([x, y], index) => {
         const branchIndex = index + 1;
@@ -252,6 +252,8 @@ export function ChartVisualization() {
           currentClassName = "branch";
         } else if (depth === 1) {
           currentClassName = "leaf";
+        } else if (depth === 2) {
+          currentClassName = "fruit";
         }
 
         // Draw the current square (branch or leaf)
@@ -268,8 +270,31 @@ export function ChartVisualization() {
               depth,
               `${parentText}_${branchIndex}`
             );
+
+            // Draw fruits for this leaf if size is sufficient
+            if (size > tinySquareSize) {
+              const fruitSize = size / 2;
+              const outerCorners = [
+                [x - size / 2, y - size / 2], // top-left
+                [x + size / 2, y - size / 2], // top-right
+                [x - size / 2, y + size / 2], // bottom-left
+              ];
+
+              // Draw fruits on outer corners only
+              outerCorners.forEach((corner, fruitIndex) => {
+                drawSquare(
+                  corner[0],
+                  corner[1],
+                  fruitSize,
+                  colors["fruit"],
+                  "fruit",
+                  depth + 1,
+                  `${parentText}_${branchIndex}_${fruitIndex + 1}`
+                );
+              });
+            }
           }
-        } else {
+        } else if (currentClassName === "branch") {
           drawSquare(
             x,
             y,
@@ -279,27 +304,27 @@ export function ChartVisualization() {
             depth,
             `${parentText}_${branchIndex}`
           );
-        }
 
-        // Continue drawing children if not at max depth and size is sufficient
-        if (size > tinySquareSize) {
-          const nextSize = size / 2;
-          const nextCorners = [
-            [x - size / 2, y - size / 2],
-            [x + size / 2, y - size / 2],
-            [x - size / 2, y + size / 2],
-            [x + size / 2, y + size / 2],
-          ] as [number, number][];
+          // Continue drawing leaves if size is sufficient
+          if (size > tinySquareSize) {
+            const nextSize = size / 2;
+            const nextCorners = [
+              [x - size / 2, y - size / 2],
+              [x + size / 2, y - size / 2],
+              [x - size / 2, y + size / 2],
+              [x + size / 2, y + size / 2],
+            ] as [number, number][];
 
-          requestAnimationFrame(() => {
-            drawSquares(
-              nextCorners,
-              nextSize,
-              depth + 1,
-              currentClassName,
-              `${parentText}_${branchIndex}`
-            );
-          });
+            requestAnimationFrame(() => {
+              drawSquares(
+                nextCorners,
+                nextSize,
+                depth + 1,
+                currentClassName,
+                `${parentText}_${branchIndex}`
+              );
+            });
+          }
         }
       });
     }

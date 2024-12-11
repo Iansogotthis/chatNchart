@@ -29,7 +29,29 @@ export function ChartVisualization() {
   const queryClient = useQueryClient();
   const { user } = useUser();
 
-  const [squareStyles, setSquareStyles] = useState<Record<string, any>>({});
+  const [squareStyles, setSquareStyles] = useState<Record<string, {
+    title: string;
+    priority: {
+      density: number;
+      durability: string;
+      decor: string;
+    };
+    urgency: string;
+    aesthetic: {
+      impact: {
+        bold: boolean;
+        italic: boolean;
+        underline: boolean;
+      };
+      affect: {
+        fontFamily: string;
+        fontSize: number;
+      };
+      effect: {
+        color: string;
+      };
+    };
+  }>>({});
 
   // Fetch current chart
   const { data: charts } = useQuery({
@@ -97,53 +119,27 @@ export function ChartVisualization() {
         squareClass: selectedSquare.class,
         parentText: selectedSquare.parent,
         depth: selectedSquare.depth,
-        title: data.title,
-        priority: data.priority,
-        urgency: data.urgency,
-        aesthetic: data.aesthetic,
+        ...data
       });
 
-      // Update local state
+      // Update local state with all the customization data
       setSquareStyles(prev => ({
         ...prev,
         [squareId]: {
+          title: data.title,
           priority: data.priority,
           urgency: data.urgency,
           aesthetic: data.aesthetic
         }
       }));
 
-      // Update square visual properties
+      // Force a re-render of the chart to apply new styles
       if (svgRef.current) {
-        const square = d3.select(svgRef.current)
-          .selectAll(`.square.${selectedSquare.class}`)
-          .filter(function() {
-            const sibling = this.nextElementSibling;
-            if (!sibling) return false;
-            const text = d3.select(sibling);
-            return text.text() === selectedSquare.class;
-          });
-
-        // Apply styles based on settings
-        square
-          .style('stroke-width', `${data.priority.density}px`)
-          .style('stroke-dasharray', data.priority.durability === 'dotted' ? '3,3' : '')
-          .style('stroke', data.priority.decor)
-          .style('fill', data.urgency);
-
-        // Apply text styles
-        const element = square.nodes()[0] as SVGElement;
-        const textElement = element?.nextElementSibling;
-        if (textElement) {
-          d3.select(textElement)
-            .style('font-weight', data.aesthetic.impact.bold ? 'bold' : 'normal')
-            .style('font-style', data.aesthetic.impact.italic ? 'italic' : 'normal')
-            .style('text-decoration', data.aesthetic.impact.underline ? 'underline' : 'none')
-            .style('font-family', data.aesthetic.affect.fontFamily)
-            .style('font-size', `${data.aesthetic.affect.fontSize}px`)
-            .style('fill', data.aesthetic.effect.color);
-        }
+        const svg = d3.select(svgRef.current);
+        svg.selectAll("*").remove();
+        drawChart(); // This will redraw with updated styles
       }
+
     } catch (error) {
       console.error('Error saving square customization:', error);
     }
@@ -203,25 +199,38 @@ export function ChartVisualization() {
        .attr("preserveAspectRatio", "xMidYMid meet");
 
     function drawSquare(x: number, y: number, size: number, color: string, className: string, depth: number, parentText: string) {
+      const squareId = `${className}_${parentText}_${depth}`;
+      const customStyle = squareStyles[squareId];
+
       const rect = svg.append("rect")
         .attr("x", x - size / 2)
         .attr("y", y - size / 2)
         .attr("width", size)
         .attr("height", size)
         .attr("class", `square ${className}`)
-        .attr("fill", color)
+        .attr("fill", customStyle?.urgency || color)
         .attr("rx", 4)
         .attr("ry", 4)
+        .style("stroke", customStyle?.priority?.decor || "none")
+        .style("stroke-width", customStyle?.priority?.density ? `${customStyle.priority.density}px` : "1px")
+        .style("stroke-dasharray", customStyle?.priority?.durability === "dotted" ? "3,3" : 
+               customStyle?.priority?.durability === "dashed" ? "5,5" : 
+               customStyle?.priority?.durability === "double" ? "0" : "none")
         .on("click", () => handleSquareClick(className, parentText, depth));
 
-      svg.append("text")
+      const text = svg.append("text")
         .attr("x", x)
         .attr("y", y)
         .attr("dy", "0.35em")
         .attr("text-anchor", "middle")
-        .attr("font-size", size / 5)
+        .attr("font-size", customStyle?.aesthetic?.affect?.fontSize || size / 5)
+        .attr("font-family", customStyle?.aesthetic?.affect?.fontFamily || "Arial")
+        .style("font-weight", customStyle?.aesthetic?.impact?.bold ? "bold" : "normal")
+        .style("font-style", customStyle?.aesthetic?.impact?.italic ? "italic" : "normal")
+        .style("text-decoration", customStyle?.aesthetic?.impact?.underline ? "underline" : "none")
+        .style("fill", customStyle?.aesthetic?.effect?.color || "black")
         .attr("pointer-events", "none")
-        .text(className);
+        .text(customStyle?.title || className);
     }
 
     function shouldDrawLeaf(branchIndex: number, leafPosition: number): boolean {

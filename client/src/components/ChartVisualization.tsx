@@ -128,13 +128,25 @@ export function ChartVisualization() {
 
   const handleViewChange = (viewType: ViewType) => {
     if (selectedSquare) {
-      const params = new URLSearchParams({
-        view: viewType,
-        class: selectedSquare.class,
-        parent: selectedSquare.parent,
-        depth: selectedSquare.depth.toString(),
-      });
-      window.location.href = `/${viewType}?${params.toString()}`;
+      if (viewType === 'included-build') {
+        // Show form for the selected square
+        const params = new URLSearchParams({
+          class: selectedSquare.class,
+          parent: selectedSquare.parent,
+          depth: selectedSquare.depth.toString(),
+        });
+        window.location.href = `/form?${params.toString()}`;
+      } else {
+        // Update current view for scaled or scoped
+        setCurrentView(viewType);
+        setIsModalOpen(false);
+        
+        // Store the selected square for rendering the specific view
+        setSelectedSquare({
+          ...selectedSquare,
+          viewType
+        });
+      }
     }
   };
 
@@ -256,38 +268,90 @@ export function ChartVisualization() {
       }
 
       drawSquares(corners, smallSquareSize, 0, "root", "Center");
-    } else if (currentView === 'scoped') {
-      function drawScope() {
-        const rootClass = 'branch';
-        if (rootClass === 'branch') {
-          drawSquare(centerX, centerY, centerSquareSize, "lightgray", "branch", 1, "");
-          drawSquare(centerX - centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf1", 2, "");
-          drawSquare(centerX + centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf2", 2, "");
-          drawSquare(centerX - centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf3", 2, "");
-          drawSquare(centerX + centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightgreen", "leaf4", 2, "");
-        } else if (rootClass === 'leaf') {
-          drawSquare(centerX, centerY, centerSquareSize, "lightgreen", "leaf", 2, "");
-          drawSquare(centerX - centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit1", 3, "");
-          drawSquare(centerX + centerSquareSize / 2, centerY - centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit2", 3, "");
-          drawSquare(centerX - centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit3", 3, "");
-          drawSquare(centerX + centerSquareSize / 2, centerY + centerSquareSize / 2, smallSquareSize, "lightcoral", "fruit4", 3, "");
-        }
-      }
-      drawScope();
-    } else if (currentView === 'included-build') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const squareClass = urlParams.get('class') || 'root';
-      const parentText = urlParams.get('parent') || 'Center';
+    } else if (currentView === 'scoped' && selectedSquare) {
+      // Draw only the selected square and its immediate children
+      const colors = {
+        "root": "lightblue",
+        "branch": "lightgray",
+        "leaf": "lightgreen",
+        "fruit": "lightcoral"
+      };
 
+      // Draw the selected square in the center
       drawSquare(
         centerX,
         centerY,
         centerSquareSize,
-        "lightblue",
-        squareClass,
-        1,
-        parentText
+        colors[selectedSquare.class as keyof typeof colors] || "",
+        selectedSquare.class,
+        selectedSquare.depth,
+        selectedSquare.parent
       );
+
+      // Draw its children in smaller squares around it
+      const childCorners = [
+        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+      ];
+
+      childCorners.forEach(([x, y], index) => {
+        let childClass = "";
+        if (selectedSquare.class === "root") childClass = "branch";
+        else if (selectedSquare.class === "branch") childClass = "leaf";
+        else if (selectedSquare.class === "leaf") childClass = "fruit";
+
+        if (childClass) {
+          drawSquare(
+            x,
+            y,
+            smallSquareSize,
+            colors[childClass as keyof typeof colors] || "",
+            `${childClass}${index + 1}`,
+            selectedSquare.depth + 1,
+            `${selectedSquare.parent}_${index + 1}`
+          );
+        }
+      });
+    } else if (currentView === 'scaled' && selectedSquare) {
+      // Draw an expanded view starting from the selected square
+      drawSquare(
+        centerX,
+        centerY,
+        centerSquareSize * 1.5, // Make the central square 50% larger
+        colors[selectedSquare.class as keyof typeof colors] || "",
+        selectedSquare.class,
+        selectedSquare.depth,
+        selectedSquare.parent
+      );
+
+      // Draw expanded children
+      const expandedCorners = [
+        [centerX - centerSquareSize, centerY - centerSquareSize],
+        [centerX + centerSquareSize, centerY - centerSquareSize],
+        [centerX - centerSquareSize, centerY + centerSquareSize],
+        [centerX + centerSquareSize, centerY + centerSquareSize],
+      ];
+
+      expandedCorners.forEach(([x, y], index) => {
+        let childClass = "";
+        if (selectedSquare.class === "root") childClass = "branch";
+        else if (selectedSquare.class === "branch") childClass = "leaf";
+        else if (selectedSquare.class === "leaf") childClass = "fruit";
+
+        if (childClass) {
+          drawSquare(
+            x,
+            y,
+            smallSquareSize * 1.5, // Make child squares 50% larger too
+            colors[childClass as keyof typeof colors] || "",
+            `${childClass}${index + 1}`,
+            selectedSquare.depth + 1,
+            `${selectedSquare.parent}_${index + 1}`
+          );
+        }
+      });
 
       const corners = [
         [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],

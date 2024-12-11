@@ -155,6 +155,25 @@ export function ChartVisualization() {
   useEffect(() => {
     if (!svgRef.current) return;
 
+    // Handle window resize
+    const handleResize = () => {
+      if (!svgRef.current) return;
+      const svg = d3.select(svgRef.current);
+      svg.selectAll("*").remove();
+      drawChart();
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    // Initial draw
+    drawChart();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+
+    function drawChart() {
+
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
@@ -163,11 +182,16 @@ export function ChartVisualization() {
       setCurrentView('standard');
     }
 
-    const width = window.innerWidth * 0.9;
-    const height = window.innerHeight * 0.9;
+    // Get the SVG container's dimensions
+    const svgElement = svgRef.current;
+    if (!svgElement) return;
+    
+    const boundingRect = svgElement.getBoundingClientRect();
+    const width = boundingRect.width;
+    const height = boundingRect.height;
     const centerX = width / 2;
     const centerY = height / 2;
-    const centerSquareSize = Math.min(width, height) / 2;
+    const centerSquareSize = Math.min(width, height) * 0.4; // Reduced to ensure visibility
     const smallSquareSize = centerSquareSize / 2;
     const smallestSquareSize = smallSquareSize / 2;
     const tinySquareSize = smallestSquareSize / 2;
@@ -381,7 +405,8 @@ export function ChartVisualization() {
         }
       });
     }
-  }, [currentView, selectedSquare]);
+  }
+  }, [currentView, selectedSquare]); // Close both the drawChart function and useEffect
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">
@@ -419,12 +444,20 @@ export function ChartVisualization() {
           Scope View
         </Button>
       </div>
-      <div className="flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <svg
-          ref={svgRef}
-          className="w-full h-full"
-          style={{ width: '90vw', height: '90vh', margin: 'auto', display: 'block' }}
-        />
+      <div className="flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
+        <div className="aspect-square w-full h-full absolute inset-0">
+          <svg
+            ref={svgRef}
+            className="w-full h-full"
+            aria-label="Chart visualization"
+            role="img"
+            style={{ margin: 'auto', display: 'block' }}
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <title>Interactive Chart Visualization</title>
+            <desc>A visualization of nested squares representing different hierarchical levels</desc>
+          </svg>
+        </div>
       </div>
 
       {selectedSquare && (

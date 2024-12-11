@@ -412,7 +412,7 @@ export function ChartVisualization() {
         });
       }
 
-      drawIncludedBuildSquares(corners, smallSquareSize, 0, squareClass, parentText);
+      drawIncludedBuildSquares(corners, smallSquareSize, 0, selectedSquare.class, selectedSquare.parent);
     }
   }, [currentView]);
 

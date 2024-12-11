@@ -64,9 +64,11 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Square</DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            Customize the appearance and behavior of the selected square.
-          </p>
+          <DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Customize the appearance and behavior of the selected square.
+            </p>
+          </DialogHeader>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">

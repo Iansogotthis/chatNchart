@@ -294,18 +294,21 @@ export function ChartVisualization() {
                 // Determine which corners should have fruits based on branch and leaf position
                 let fruitCornerNumbers: number[] = [];
                 if (branchIndex === 1) {
-                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // corner 2
-                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // corner 3
+                  if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; // Leaf 1: top-left, top-right, bottom-left
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // Leaf 2: top-left, top-right, bottom-right
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // Leaf 3: top-left, bottom-left, bottom-right
                 } else if (branchIndex === 2) {
-                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // corner 2
-                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // corner 4
+                  if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; // Leaf 1: top-left, top-right, bottom-left
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // Leaf 2: top-left, top-right, bottom-right
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // Leaf 4: top-right, bottom-left, bottom-right
                 } else if (branchIndex === 3) {
-                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // corner 3
-                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // corner 4
+                  if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; // Leaf 1: top-left, top-right, bottom-left
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // Leaf 3: top-left, bottom-left, bottom-right
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // Leaf 4: top-right, bottom-left, bottom-right
                 } else if (branchIndex === 4) {
-                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // corner 2
-                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // corner 3
-                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // corner 4
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // Leaf 2: top-left, top-right, bottom-right
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // Leaf 3: top-left, bottom-left, bottom-right
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // Leaf 4: top-right, bottom-left, bottom-right
                 }
 
                 fruitCornerNumbers.forEach(cornerNum => {

@@ -218,155 +218,254 @@ export function ChartVisualization() {
     }
 
     if (currentView === 'standard' || currentView === 'delineated') {
-      drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root", 0, "Center");
-      const baseCorners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+      // Draw root in center
+      drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
+
+      // Draw branches at corners with adjusted positions to avoid overlap
+      const branchOffset = centerSquareSize * 0.8; // Increased offset to prevent overlap
+      const branchCorners = [
+        [centerX - branchOffset, centerY - branchOffset],
+        [centerX + branchOffset, centerY - branchOffset],
+        [centerX - branchOffset, centerY + branchOffset],
+        [centerX + branchOffset, centerY + branchOffset],
       ];
-      
-      const corners = baseCorners.map(([x, y]) => getAdjustedPosition(x, y));
 
-      function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
-        if (depth > 1) return;
+      // Apply delineation adjustment if needed
+      const adjustedBranchCorners = currentView === 'delineated' 
+        ? branchCorners.map(([x, y]) => getAdjustedPosition(x, y))
+        : branchCorners;
 
-        const colors = {
-          "root": "lightblue",
-          "branch": "lightgray",
-          "leaf": "lightgreen",
-          "fruit": "lightcoral"
-        };
+      // Draw branches
+      adjustedBranchCorners.forEach(([x, y], branchIndex) => {
+        drawSquare(
+          x,
+          y,
+          smallSquareSize,
+          colors.branch,
+          "branch",
+          1,
+          `Center_${branchIndex + 1}`
+        );
 
-        corners.forEach(([x, y], index) => {
-          let currentClassName = className;
-          if (depth === 0) {
-            currentClassName = "branch";
-          } else if (depth === 1) {
-            currentClassName = "leaf";
-          } else if (depth === 2) {
-            currentClassName = "fruit";
-          }
+        // Calculate leaf positions for each branch
+        const leafOffset = smallSquareSize * 0.7; // Smaller offset for leaves
+        const leafCorners = [
+          [x - leafOffset, y - leafOffset],
+          [x + leafOffset, y - leafOffset],
+          [x - leafOffset, y + leafOffset],
+          [x + leafOffset, y + leafOffset],
+        ];
 
-          drawSquare(
-            x,
-            y,
-            size,
-            colors[currentClassName as keyof typeof colors] || "",
-            currentClassName,
-            depth,
-            parentText
+        // Skip the leaf position that would overlap with the root
+        leafCorners.forEach(([leafX, leafY], leafIndex) => {
+          // Calculate distance from root center to avoid overlap
+          const distanceFromRoot = Math.sqrt(
+            Math.pow(leafX - centerX, 2) + Math.pow(leafY - centerY, 2)
           );
+          
+          if (distanceFromRoot > centerSquareSize * 0.8) {
+            drawSquare(
+              leafX,
+              leafY,
+              smallSquareSize * 0.6,
+              colors.leaf,
+              "leaf",
+              2,
+              `Center_${branchIndex + 1}_${leafIndex + 1}`
+            );
 
-          if (size > tinySquareSize) {
-            const nextSize = size / 2;
-            const nextCorners = [
-              [x - size / 2, y - size / 2],
-              [x + size / 2, y - size / 2],
-              [x - size / 2, y + size / 2],
-              [x + size / 2, y + size / 2],
+            // Draw fruits around leaves
+            const fruitOffset = smallSquareSize * 0.4;
+            const fruitCorners = [
+              [leafX - fruitOffset, leafY - fruitOffset],
+              [leafX + fruitOffset, leafY - fruitOffset],
+              [leafX - fruitOffset, leafY + fruitOffset],
+              [leafX + fruitOffset, leafY + fruitOffset],
             ];
 
-            requestAnimationFrame(() => {
-              drawSquares(
-                nextCorners,
-                nextSize,
-                depth + 1,
-                currentClassName,
-                `${parentText}_${index + 1}`
+            fruitCorners.forEach(([fruitX, fruitY], fruitIndex) => {
+              const distanceFromBranch = Math.sqrt(
+                Math.pow(fruitX - x, 2) + Math.pow(fruitY - y, 2)
               );
+              
+              if (distanceFromBranch > smallSquareSize * 0.8) {
+                drawSquare(
+                  fruitX,
+                  fruitY,
+                  smallSquareSize * 0.3,
+                  colors.fruit,
+                  "fruit",
+                  3,
+                  `Center_${branchIndex + 1}_${leafIndex + 1}_${fruitIndex + 1}`
+                );
+              }
             });
           }
         });
-      }
-
-      drawSquares(corners, smallSquareSize, 0, "root", "Center");
-    } else if (currentView === 'scoped' && selectedSquare) {
-      // Draw only the selected square and its immediate children
-      const colors = {
-        "root": "lightblue",
-        "branch": "lightgray",
-        "leaf": "lightgreen",
-        "fruit": "lightcoral"
-      };
-
-      // Draw the selected square in the center
-      drawSquare(
-        centerX,
-        centerY,
-        centerSquareSize,
-        colors[selectedSquare.class as keyof typeof colors] || "",
-        selectedSquare.class,
-        selectedSquare.depth,
-        selectedSquare.parent
-      );
-
-      // Draw its children in smaller squares around it
-      const childCorners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ];
-
-      childCorners.forEach(([x, y], index) => {
-        let childClass = "";
-        if (selectedSquare.class === "root") childClass = "branch";
-        else if (selectedSquare.class === "branch") childClass = "leaf";
-        else if (selectedSquare.class === "leaf") childClass = "fruit";
-
-        if (childClass) {
-          drawSquare(
-            x,
-            y,
-            smallSquareSize,
-            colors[childClass as keyof typeof colors] || "",
-            `${childClass}${index + 1}`,
-            selectedSquare.depth + 1,
-            `${selectedSquare.parent}_${index + 1}`
-          );
-        }
       });
-    } else if (currentView === 'scaled' && selectedSquare) {
-        // Draw the selected square larger in the center
+    } else if (currentView === 'scoped' && selectedSquare) {
+      if (selectedSquare.class === 'branch') {
+        // Draw the branch in center
         drawSquare(
           centerX,
           centerY,
-          centerSquareSize * 1.5, // Make the central square 50% larger
-          colors[selectedSquare.class as keyof typeof colors] || "",
-          selectedSquare.class,
-          selectedSquare.depth,
+          centerSquareSize,
+          colors.branch,
+          'branch',
+          1,
           selectedSquare.parent
         );
 
-        // Calculate child class based on parent class
-        const getChildClass = (parentClass: string) => {
-          if (parentClass === "root") return "branch";
-          if (parentClass === "branch") return "leaf";
-          if (parentClass === "leaf") return "fruit";
-          return "";
-        };
+        // Draw parent root slightly above
+        drawSquare(
+          centerX,
+          centerY - centerSquareSize,
+          smallSquareSize,
+          colors.root,
+          'root',
+          0,
+          'Center'
+        );
 
-        const childClass = getChildClass(selectedSquare.class);
+        // Draw leaves in a grid below
+        const leafGrid: Array<[number, number]> = [];
+        const gridSize = 3; // 3x3 grid
+        const spacing = smallSquareSize * 1.2;
         
-        if (childClass) {
-          // Define expanded child positions with proper typing
-          const expandedCorners: Array<[number, number]> = [
+        for (let row = 0; row < gridSize; row++) {
+          for (let col = 0; col < gridSize; col++) {
+            if (!(row === 0 && col === 1)) { // Skip position that would overlap with root
+              leafGrid.push([
+                centerX + (col - 1) * spacing,
+                centerY + spacing + row * spacing
+              ]);
+            }
+          }
+        }
+
+        leafGrid.forEach(([x, y], index) => {
+          drawSquare(
+            x,
+            y,
+            smallSquareSize * 0.8,
+            colors.leaf,
+            'leaf',
+            2,
+            `${selectedSquare.parent}_${index + 1}`
+          );
+        });
+
+      } else if (selectedSquare.class === 'leaf') {
+        // Draw the leaf in center
+        drawSquare(
+          centerX,
+          centerY,
+          centerSquareSize,
+          colors.leaf,
+          'leaf',
+          2,
+          selectedSquare.parent
+        );
+
+        // Draw parent branch slightly above
+        drawSquare(
+          centerX,
+          centerY - centerSquareSize,
+          smallSquareSize,
+          colors.branch,
+          'branch',
+          1,
+          selectedSquare.parent.split('_')[0]
+        );
+
+        // Draw fruits in a grid pattern around the leaf
+        const fruitGrid: Array<[number, number]> = [];
+        const gridSize = 3;
+        const spacing = smallSquareSize;
+
+        for (let row = 0; row < gridSize; row++) {
+          for (let col = 0; col < gridSize; col++) {
+            if (!(row === 0 && col === 1)) { // Skip position that would overlap with branch
+              fruitGrid.push([
+                centerX + (col - 1) * spacing,
+                centerY + spacing + row * spacing
+              ]);
+            }
+          }
+        }
+
+        fruitGrid.forEach(([x, y], index) => {
+          drawSquare(
+            x,
+            y,
+            smallSquareSize * 0.6,
+            colors.fruit,
+            'fruit',
+            3,
+            `${selectedSquare.parent}_${index + 1}`
+          );
+        });
+      }
+    } else if (currentView === 'scaled' && selectedSquare) {
+        if (selectedSquare.class === 'branch') {
+          // Draw root in center
+          drawSquare(
+            centerX,
+            centerY,
+            centerSquareSize * 1.5,
+            colors.root,
+            'root',
+            0,
+            'Center'
+          );
+
+          // Draw all branches around it
+          const branchPositions: Array<[number, number]> = [
             [centerX - centerSquareSize, centerY - centerSquareSize],
             [centerX + centerSquareSize, centerY - centerSquareSize],
             [centerX - centerSquareSize, centerY + centerSquareSize],
             [centerX + centerSquareSize, centerY + centerSquareSize]
           ];
 
-          // Draw children at expanded positions
-          expandedCorners.forEach(([x, y], index) => {
+          branchPositions.forEach(([x, y], index) => {
             drawSquare(
               x,
               y,
-              smallSquareSize * 1.5, // Make child squares 50% larger too
-              colors[childClass as keyof typeof colors] || "",
-              `${childClass}${index + 1}`,
-              selectedSquare.depth + 1,
+              smallSquareSize * 1.5,
+              colors.branch,
+              'branch',
+              1,
+              `Center_${index + 1}`
+            );
+          });
+        } else if (selectedSquare.class === 'leaf') {
+          // Draw parent branch in center
+          drawSquare(
+            centerX,
+            centerY,
+            centerSquareSize * 1.5,
+            colors.branch,
+            'branch',
+            1,
+            selectedSquare.parent
+          );
+
+          // Draw all sibling leaves around it
+          const leafPositions: Array<[number, number]> = [
+            [centerX - centerSquareSize, centerY - centerSquareSize],
+            [centerX + centerSquareSize, centerY - centerSquareSize],
+            [centerX - centerSquareSize, centerY + centerSquareSize],
+            [centerX + centerSquareSize, centerY + centerSquareSize]
+          ];
+
+          leafPositions.forEach(([x, y], index) => {
+            drawSquare(
+              x,
+              y,
+              smallSquareSize * 1.5,
+              colors.leaf,
+              'leaf',
+              2,
               `${selectedSquare.parent}_${index + 1}`
             );
           });

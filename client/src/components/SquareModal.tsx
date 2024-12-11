@@ -281,23 +281,6 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
             Save Changes
           </Button>
           
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              onClick={() => handleViewChange('scaled')} 
-              variant="outline"
-              className="w-full border-2 shadow-sm"
-            >
-              Scale View
-            </Button>
-            <Button 
-              onClick={() => handleViewChange('scoped')} 
-              variant="outline"
-              className="w-full border-2 shadow-sm"
-            >
-              Scope View
-            </Button>
-          </div>
-          
           <Button 
             onClick={() => handleViewChange('included-build')} 
             variant="outline" 

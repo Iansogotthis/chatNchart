@@ -64,6 +64,9 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Square</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Customize the appearance and behavior of the selected square.
+          </p>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
@@ -278,29 +281,12 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
             Save Changes
           </Button>
           
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              onClick={() => handleViewChange('scaled')} 
-              variant="outline"
-              className="w-full border-2 shadow-sm"
-            >
-              Scale View
-            </Button>
-            <Button 
-              onClick={() => handleViewChange('scoped')} 
-              variant="outline"
-              className="w-full border-2 shadow-sm"
-            >
-              Scoped View
-            </Button>
-          </div>
-          
           <Button 
             onClick={() => handleViewChange('included-build')} 
             variant="outline" 
-            className="w-2/3 mx-auto border-2 shadow-sm hover:bg-accent"
+            className="w-full border-2 shadow-sm hover:bg-accent"
           >
-            In/Xclude
+            In/Xclude Build
           </Button>
         </div>
       </DialogContent>

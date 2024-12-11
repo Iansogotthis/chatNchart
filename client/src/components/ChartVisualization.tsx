@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button } from './ui/button';
 import * as d3 from 'd3';
+import { Button } from '@/components/ui/button';
 import '@/styles/chart.css';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SquareForm } from './SquareForm';
-import SquareModal from './SquareModal';
+import SquareModal from '@/components/SquareModal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 
@@ -24,7 +22,7 @@ const colors = {
 } as const;
 
 export function ChartVisualization() {
-  const [currentView, setCurrentView] = useState<ViewType>('scaled');
+  const [currentView, setCurrentView] = useState<ViewType>('standard');
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -119,7 +117,7 @@ export function ChartVisualization() {
       if (svgRef.current) {
         const square = d3.select(svgRef.current)
           .selectAll(`.square.${selectedSquare.class}`)
-          .filter(function(this: SVGElement) {
+          .filter(function() {
             const sibling = this.nextElementSibling;
             if (!sibling) return false;
             const text = d3.select(sibling);
@@ -175,23 +173,10 @@ export function ChartVisualization() {
     const tinySquareSize = smallestSquareSize / 2;
 
     // For delineated view, calculate branch positions with 25% closer spacing
-    const delineationFactor = currentView === 'delineated' ? 0.75 : 1; // Reduce spacing by 25%
+    const delineationFactor = currentView === 'delineated' ? 0.75 : 1;
 
     svg.attr("viewBox", `0 0 ${width} ${height}`)
        .attr("preserveAspectRatio", "xMidYMid meet");
-
-    // Calculate adjusted positions for delineated view
-    const getAdjustedPosition = (x: number, y: number) => {
-      if (currentView !== 'delineated') return [x, y];
-      
-      // Move points 25% closer to center
-      const dx = x - centerX;
-      const dy = y - centerY;
-      return [
-        centerX + dx * delineationFactor,
-        centerY + dy * delineationFactor
-      ];
-    };
 
     function drawSquare(x: number, y: number, size: number, color: string, className: string, depth: number, parentText: string) {
       const rect = svg.append("rect")
@@ -201,6 +186,8 @@ export function ChartVisualization() {
         .attr("height", size)
         .attr("class", `square ${className}`)
         .attr("fill", color)
+        .attr("rx", 4)
+        .attr("ry", 4)
         .on("click", () => handleSquareClick(className, parentText, depth));
 
       svg.append("text")
@@ -213,37 +200,52 @@ export function ChartVisualization() {
         .text(className);
     }
 
-    if (currentView === 'standard' || currentView === 'delineated') {
-      drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root", 0, "Center");
-      const baseCorners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ];
-      
-      const corners = baseCorners.map(([x, y]) => getAdjustedPosition(x, y));
+    function shouldDrawLeaf(branchIndex: number, leafPosition: number): boolean {
+      // branchIndex is 1-based (1-4)
+      // leafPosition is the position of the leaf in the branch (0-3, clockwise from top-left)
+      switch (branchIndex) {
+        case 1: // top-left branch
+          return leafPosition !== 3; // skip bottom-right leaf
+        case 2: // top-right branch
+          return leafPosition !== 2; // skip bottom-left leaf
+        case 3: // bottom-right branch
+          return leafPosition !== 0; // skip top-left leaf
+        case 4: // bottom-left branch
+          return leafPosition !== 1; // skip top-right leaf
+        default:
+          return true;
+      }
+    }
 
-      function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
-        if (depth > 1) return;
+    function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
+      if (depth > 1) return;
 
-        const colors = {
-          "root": "lightblue",
-          "branch": "lightgray",
-          "leaf": "lightgreen",
-          "fruit": "lightcoral"
-        };
+      corners.forEach(([x, y], index) => {
+        const branchIndex = index + 1;
+        let currentClassName = className;
+        
+        if (depth === 0) {
+          currentClassName = "branch";
+        } else if (depth === 1) {
+          currentClassName = "leaf";
+        }
 
-        corners.forEach(([x, y], index) => {
-          let currentClassName = className;
-          if (depth === 0) {
-            currentClassName = "branch";
-          } else if (depth === 1) {
-            currentClassName = "leaf";
-          } else if (depth === 2) {
-            currentClassName = "fruit";
+        // Draw the current square (branch or leaf)
+        if (currentClassName === "leaf") {
+          // Only draw leaf if it should be drawn based on its position
+          const parentBranchNumber = parseInt(parentText.split('_').pop() || '0');
+          if (shouldDrawLeaf(parentBranchNumber, index)) {
+            drawSquare(
+              x,
+              y,
+              size,
+              colors[currentClassName as keyof typeof colors] || "",
+              currentClassName,
+              depth,
+              `${parentText}_${branchIndex}`
+            );
           }
-
+        } else {
           drawSquare(
             x,
             y,
@@ -251,42 +253,61 @@ export function ChartVisualization() {
             colors[currentClassName as keyof typeof colors] || "",
             currentClassName,
             depth,
-            parentText
+            `${parentText}_${branchIndex}`
           );
+        }
 
-          if (size > tinySquareSize) {
-            const nextSize = size / 2;
-            const nextCorners = [
-              [x - size / 2, y - size / 2],
-              [x + size / 2, y - size / 2],
-              [x - size / 2, y + size / 2],
-              [x + size / 2, y + size / 2],
-            ];
+        // Continue drawing children if not at max depth and size is sufficient
+        if (size > tinySquareSize) {
+          const nextSize = size / 2;
+          const nextCorners = [
+            [x - size / 2, y - size / 2],
+            [x + size / 2, y - size / 2],
+            [x - size / 2, y + size / 2],
+            [x + size / 2, y + size / 2],
+          ] as [number, number][];
 
-            requestAnimationFrame(() => {
-              drawSquares(
-                nextCorners,
-                nextSize,
-                depth + 1,
-                currentClassName,
-                `${parentText}_${index + 1}`
-              );
-            });
-          }
-        });
-      }
+          requestAnimationFrame(() => {
+            drawSquares(
+              nextCorners,
+              nextSize,
+              depth + 1,
+              currentClassName,
+              `${parentText}_${branchIndex}`
+            );
+          });
+        }
+      });
+    }
 
-      drawSquares(corners, smallSquareSize, 0, "root", "Center");
+    // Calculate adjusted positions for delineated view
+    const getAdjustedPosition = (x: number, y: number): [number, number] => {
+      if (currentView !== 'delineated') return [x, y];
+      
+      // Move points closer to center
+      const dx = x - centerX;
+      const dy = y - centerY;
+      return [
+        centerX + dx * delineationFactor,
+        centerY + dy * delineationFactor
+      ];
+    };
+
+    if (currentView === 'standard' || currentView === 'delineated') {
+      // Draw root square
+      drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
+
+      // Draw branches and their children
+      const baseCorners = [
+        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+      ].map(([x, y]) => getAdjustedPosition(x, y)) as [number, number][];
+
+      drawSquares(baseCorners, smallSquareSize, 0, "root", "Center");
     } else if (currentView === 'scoped' && selectedSquare) {
       // Draw only the selected square and its immediate children
-      const colors = {
-        "root": "lightblue",
-        "branch": "lightgray",
-        "leaf": "lightgreen",
-        "fruit": "lightcoral"
-      };
-
-      // Draw the selected square in the center
       drawSquare(
         centerX,
         centerY,
@@ -297,13 +318,12 @@ export function ChartVisualization() {
         selectedSquare.parent
       );
 
-      // Draw its children in smaller squares around it
       const childCorners = [
         [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
         [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
         [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
         [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ];
+      ] as [number, number][];
 
       childCorners.forEach(([x, y], index) => {
         let childClass = "";
@@ -328,20 +348,19 @@ export function ChartVisualization() {
       drawSquare(
         centerX,
         centerY,
-        centerSquareSize * 1.5, // Make the central square 50% larger
+        centerSquareSize * 1.5,
         colors[selectedSquare.class as keyof typeof colors] || "",
         selectedSquare.class,
         selectedSquare.depth,
         selectedSquare.parent
       );
 
-      // Draw expanded children
       const expandedCorners = [
         [centerX - centerSquareSize, centerY - centerSquareSize],
         [centerX + centerSquareSize, centerY - centerSquareSize],
         [centerX - centerSquareSize, centerY + centerSquareSize],
         [centerX + centerSquareSize, centerY + centerSquareSize],
-      ];
+      ] as [number, number][];
 
       expandedCorners.forEach(([x, y], index) => {
         let childClass = "";
@@ -349,11 +368,11 @@ export function ChartVisualization() {
         else if (selectedSquare.class === "branch") childClass = "leaf";
         else if (selectedSquare.class === "leaf") childClass = "fruit";
 
-        if (childClass) {
+        if (childClass && (!childClass || shouldDrawLeaf(index + 1, index))) {
           drawSquare(
             x,
             y,
-            smallSquareSize * 1.5, // Make child squares 50% larger too
+            smallSquareSize * 1.5,
             colors[childClass as keyof typeof colors] || "",
             `${childClass}${index + 1}`,
             selectedSquare.depth + 1,
@@ -361,60 +380,8 @@ export function ChartVisualization() {
           );
         }
       });
-
-      const corners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ];
-
-      function drawIncludedBuildSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
-        if (depth > 1) return;
-
-        corners.forEach(([x, y], index) => {
-          let currentClassName = className;
-          if (depth === 0) {
-            currentClassName = "branch";
-          } else if (depth === 1) {
-            currentClassName = "leaf";
-          }
-
-          drawSquare(
-            x,
-            y,
-            size,
-            currentClassName === "branch" ? "lightgray" : "lightgreen",
-            currentClassName,
-            depth,
-            `${parentText}_${index + 1}`
-          );
-
-          if (size > tinySquareSize) {
-            const nextSize = size / 2;
-            const nextCorners = [
-              [x - size / 2, y - size / 2],
-              [x + size / 2, y - size / 2],
-              [x - size / 2, y + size / 2],
-              [x + size / 2, y + size / 2],
-            ] as [number, number][];
-
-            requestAnimationFrame(() => {
-              drawIncludedBuildSquares(
-                nextCorners,
-                nextSize,
-                depth + 1,
-                currentClassName,
-                `${parentText}_${index + 1}`
-              );
-            });
-          }
-        });
-      }
-
-      drawIncludedBuildSquares(corners, smallSquareSize, 0, selectedSquare.class, selectedSquare.parent);
     }
-  }, [currentView]);
+  }, [currentView, selectedSquare]);
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">

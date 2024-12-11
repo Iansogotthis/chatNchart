@@ -8,7 +8,7 @@ import SquareModal from './SquareModal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 
-type ViewType = 'scaled' | 'scoped' | 'included-build';
+type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped' | 'included-build';
 
 interface SelectedSquare {
   class: string;
@@ -153,8 +153,24 @@ export function ChartVisualization() {
     const smallestSquareSize = smallSquareSize / 2;
     const tinySquareSize = smallestSquareSize / 2;
 
+    // For delineated view, calculate branch positions with 25% closer spacing
+    const delineationFactor = currentView === 'delineated' ? 0.75 : 1; // Reduce spacing by 25%
+
     svg.attr("viewBox", `0 0 ${width} ${height}`)
        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    // Calculate adjusted positions for delineated view
+    const getAdjustedPosition = (x: number, y: number) => {
+      if (currentView !== 'delineated') return [x, y];
+      
+      // Move points 25% closer to center
+      const dx = x - centerX;
+      const dy = y - centerY;
+      return [
+        centerX + dx * delineationFactor,
+        centerY + dy * delineationFactor
+      ];
+    };
 
     function drawSquare(x: number, y: number, size: number, color: string, className: string, depth: number, parentText: string) {
       const rect = svg.append("rect")
@@ -176,14 +192,16 @@ export function ChartVisualization() {
         .text(className);
     }
 
-    if (currentView === 'scaled') {
+    if (currentView === 'standard' || currentView === 'delineated') {
       drawSquare(centerX, centerY, centerSquareSize, "lightblue", "root", 0, "Center");
-      const corners = [
+      const baseCorners = [
         [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
         [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
         [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
         [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
       ];
+      
+      const corners = baseCorners.map(([x, y]) => getAdjustedPosition(x, y));
 
       function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
         if (depth > 1) return;
@@ -329,25 +347,18 @@ export function ChartVisualization() {
     <div className="flex flex-col h-full space-y-4 p-4">
       <div className="flex justify-center space-x-4">
         <Button
-          onClick={() => setCurrentView('scaled')}
-          variant={currentView === 'scaled' ? 'default' : 'outline'}
+          onClick={() => setCurrentView('standard')}
+          variant={currentView === 'standard' ? 'default' : 'outline'}
           className="w-32"
         >
-          Scaled View
+          Standard Build
         </Button>
         <Button
-          onClick={() => setCurrentView('scoped')}
-          variant={currentView === 'scoped' ? 'default' : 'outline'}
+          onClick={() => setCurrentView('delineated')}
+          variant={currentView === 'delineated' ? 'default' : 'outline'}
           className="w-32"
         >
-          Scoped View
-        </Button>
-        <Button
-          onClick={() => setCurrentView('included-build')}
-          variant={currentView === 'included-build' ? 'default' : 'outline'}
-          className="w-32"
-        >
-          Include Build
+          Delineated View
         </Button>
       </div>
       <div className="flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

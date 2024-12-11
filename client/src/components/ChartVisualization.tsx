@@ -328,95 +328,49 @@ export function ChartVisualization() {
         }
       });
     } else if (currentView === 'scaled' && selectedSquare) {
-      // Draw an expanded view starting from the selected square
-      drawSquare(
-        centerX,
-        centerY,
-        centerSquareSize * 1.5, // Make the central square 50% larger
-        colors[selectedSquare.class as keyof typeof colors] || "",
-        selectedSquare.class,
-        selectedSquare.depth,
-        selectedSquare.parent
-      );
+        // Draw the selected square larger in the center
+        drawSquare(
+          centerX,
+          centerY,
+          centerSquareSize * 1.5, // Make the central square 50% larger
+          colors[selectedSquare.class as keyof typeof colors] || "",
+          selectedSquare.class,
+          selectedSquare.depth,
+          selectedSquare.parent
+        );
 
-      // Draw expanded children
-      const expandedCorners = [
-        [centerX - centerSquareSize, centerY - centerSquareSize],
-        [centerX + centerSquareSize, centerY - centerSquareSize],
-        [centerX - centerSquareSize, centerY + centerSquareSize],
-        [centerX + centerSquareSize, centerY + centerSquareSize],
-      ];
+        // Calculate child class based on parent class
+        const getChildClass = (parentClass: string) => {
+          if (parentClass === "root") return "branch";
+          if (parentClass === "branch") return "leaf";
+          if (parentClass === "leaf") return "fruit";
+          return "";
+        };
 
-      expandedCorners.forEach(([x, y], index) => {
-        let childClass = "";
-        if (selectedSquare.class === "root") childClass = "branch";
-        else if (selectedSquare.class === "branch") childClass = "leaf";
-        else if (selectedSquare.class === "leaf") childClass = "fruit";
-
+        const childClass = getChildClass(selectedSquare.class);
+        
         if (childClass) {
-          drawSquare(
-            x,
-            y,
-            smallSquareSize * 1.5, // Make child squares 50% larger too
-            colors[childClass as keyof typeof colors] || "",
-            `${childClass}${index + 1}`,
-            selectedSquare.depth + 1,
-            `${selectedSquare.parent}_${index + 1}`
-          );
+          // Define expanded child positions with proper typing
+          const expandedCorners: Array<[number, number]> = [
+            [centerX - centerSquareSize, centerY - centerSquareSize],
+            [centerX + centerSquareSize, centerY - centerSquareSize],
+            [centerX - centerSquareSize, centerY + centerSquareSize],
+            [centerX + centerSquareSize, centerY + centerSquareSize]
+          ];
+
+          // Draw children at expanded positions
+          expandedCorners.forEach(([x, y], index) => {
+            drawSquare(
+              x,
+              y,
+              smallSquareSize * 1.5, // Make child squares 50% larger too
+              colors[childClass as keyof typeof colors] || "",
+              `${childClass}${index + 1}`,
+              selectedSquare.depth + 1,
+              `${selectedSquare.parent}_${index + 1}`
+            );
+          });
         }
-      });
-
-      const corners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ];
-
-      function drawIncludedBuildSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
-        if (depth > 1) return;
-
-        corners.forEach(([x, y], index) => {
-          let currentClassName = className;
-          if (depth === 0) {
-            currentClassName = "branch";
-          } else if (depth === 1) {
-            currentClassName = "leaf";
-          }
-
-          drawSquare(
-            x,
-            y,
-            size,
-            currentClassName === "branch" ? "lightgray" : "lightgreen",
-            currentClassName,
-            depth,
-            `${parentText}_${index + 1}`
-          );
-
-          if (size > tinySquareSize) {
-            const nextSize = size / 2;
-            const nextCorners = [
-              [x - size / 2, y - size / 2],
-              [x + size / 2, y - size / 2],
-              [x - size / 2, y + size / 2],
-              [x + size / 2, y + size / 2],
-            ] as [number, number][];
-
-            requestAnimationFrame(() => {
-              drawIncludedBuildSquares(
-                nextCorners,
-                nextSize,
-                depth + 1,
-                currentClassName,
-                `${parentText}_${index + 1}`
-              );
-            });
-          }
-        });
-      }
-
-      drawIncludedBuildSquares(corners, smallSquareSize, 0, squareClass, parentText);
     }
   }, [currentView]);
 

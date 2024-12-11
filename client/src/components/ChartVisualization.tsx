@@ -67,6 +67,29 @@ export function ChartVisualization() {
     setIsModalOpen(true);
   };
 
+  const handleViewChange = (viewType: ViewType) => {
+    if (viewType === 'included-build' && selectedSquare) {
+      // Navigate to form view using wouter
+      const params = new URLSearchParams({
+        class: selectedSquare.class,
+        parent: selectedSquare.parent,
+        depth: selectedSquare.depth.toString(),
+      });
+      window.location.href = `/form?${params.toString()}`;
+      setIsModalOpen(false);
+    } else if (viewType === 'scaled' || viewType === 'scoped') {
+      // Update current view for scaled or scoped
+      setCurrentView(viewType);
+      setIsModalOpen(false);
+      // Force re-render of the chart
+      if (svgRef.current) {
+        const svg = d3.select(svgRef.current);
+        svg.selectAll("*").remove();
+        // The useEffect will handle redrawing
+      }
+    }
+  };
+
   const handleFormSubmit = async (data: any) => {
     if (!selectedSquare || !user) {
       console.error('Missing required data for submission');
@@ -100,22 +123,25 @@ export function ChartVisualization() {
       if (svgRef.current) {
         const square = d3.select(svgRef.current)
           .selectAll(`.square.${selectedSquare.class}`)
-          .filter(function() {
-            const text = d3.select(this.nextSibling as Element);
+          .filter(function(this: SVGElement) {
+            const sibling = this.nextElementSibling;
+            if (!sibling) return false;
+            const text = d3.select(sibling);
             return text.text() === selectedSquare.class;
           });
 
         // Apply styles based on settings
         square
           .style('stroke-width', `${data.priority.density}px`)
-          .style('stroke-dasharray', data.priority.durability === 'dotted' ? '3,3' : null)
+          .style('stroke-dasharray', data.priority.durability === 'dotted' ? '3,3' : '')
           .style('stroke', data.priority.decor)
           .style('fill', data.urgency);
 
         // Apply text styles
-        const text = square.nodes()[0]?.nextSibling;
-        if (text) {
-          d3.select(text)
+        const element = square.nodes()[0] as SVGElement;
+        const textElement = element?.nextElementSibling;
+        if (textElement) {
+          d3.select(textElement)
             .style('font-weight', data.aesthetic.impact.bold ? 'bold' : 'normal')
             .style('font-style', data.aesthetic.impact.italic ? 'italic' : 'normal')
             .style('text-decoration', data.aesthetic.impact.underline ? 'underline' : 'none')
@@ -130,31 +156,6 @@ export function ChartVisualization() {
     
     setIsModalOpen(false);
     setSelectedSquare(null);
-  };
-
-  const handleViewChange = (viewType: ViewType) => {
-    if (selectedSquare) {
-      if (viewType === 'included-build') {
-        // Navigate to form view using wouter
-        const params = new URLSearchParams({
-          class: selectedSquare.class,
-          parent: selectedSquare.parent,
-          depth: selectedSquare.depth.toString(),
-        });
-        window.location.href = `/form?${params.toString()}`;
-        setIsModalOpen(false);
-      } else if (viewType === 'scaled' || viewType === 'scoped') {
-        // Update current view for scaled or scoped
-        setCurrentView(viewType);
-        setIsModalOpen(false);
-        // Force re-render of the chart
-        if (svgRef.current) {
-          const svg = d3.select(svgRef.current);
-          svg.selectAll("*").remove();
-          // The useEffect will handle redrawing
-        }
-      }
-    }
   };
 
   useEffect(() => {

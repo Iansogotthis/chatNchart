@@ -20,14 +20,53 @@ export function ChartVisualization() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  const [squareStyles, setSquareStyles] = useState<Record<string, any>>({});
+
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
     setSelectedSquare({ class: className, parent: parentText, depth });
     setIsModalOpen(true);
   };
 
   const handleFormSubmit = (data: any) => {
-    // Here we would save the data to your backend
-    console.log('Form submitted:', data);
+    if (selectedSquare) {
+      const squareId = `${selectedSquare.class}_${selectedSquare.parent}_${selectedSquare.depth}`;
+      setSquareStyles(prev => ({
+        ...prev,
+        [squareId]: {
+          priority: data.priority,
+          urgency: data.urgency,
+          aesthetic: data.aesthetic
+        }
+      }));
+
+      // Update square visual properties
+      const square = d3.select(svgRef.current)
+        .selectAll(`.square.${selectedSquare.class}`)
+        .filter(function() {
+          const text = d3.select(this.nextSibling);
+          return text.text() === selectedSquare.class;
+        });
+
+      // Apply styles based on settings
+      square
+        .style('stroke-width', `${data.priority.density}px`)
+        .style('stroke-dasharray', data.priority.durability === 'dotted' ? '3,3' : null)
+        .style('stroke', data.priority.decor)
+        .style('fill', data.urgency);
+
+      // Apply text styles
+      const text = square.nodes()[0]?.nextSibling;
+      if (text) {
+        d3.select(text)
+          .style('font-weight', data.aesthetic.impact.bold ? 'bold' : 'normal')
+          .style('font-style', data.aesthetic.impact.italic ? 'italic' : 'normal')
+          .style('text-decoration', data.aesthetic.impact.underline ? 'underline' : 'none')
+          .style('font-family', data.aesthetic.affect.fontFamily)
+          .style('font-size', `${data.aesthetic.affect.fontSize}px`)
+          .style('fill', data.aesthetic.effect.color);
+      }
+    }
+    
     setIsModalOpen(false);
     setSelectedSquare(null);
   };

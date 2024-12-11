@@ -270,19 +270,22 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
           </div>
         </div>
 
-        <div className="flex justify-end mt-4">
-          <Button onClick={handleSave}>Save Changes</Button>
-        </div>
-
-        <div className="flex justify-between mt-4">
-          <Button onClick={() => handleViewChange('scaled')} variant="outline" className="flex-1 mx-1">
-            Scaled View
+        <div className="flex flex-col space-y-4 mt-4">
+          <Button onClick={handleSave} className="w-full">
+            Save Changes
           </Button>
-          <Button onClick={() => handleViewChange('scoped')} variant="outline" className="flex-1 mx-1">
-            Scoped View
-          </Button>
-          <Button onClick={() => handleViewChange('included-build')} variant="outline" className="flex-1 mx-1">
-            Include Build
+          
+          <div className="grid grid-cols-2 gap-4">
+            <Button onClick={() => handleViewChange('scaled')} variant="outline">
+              Scale View
+            </Button>
+            <Button onClick={() => handleViewChange('scoped')} variant="outline">
+              Scoped View
+            </Button>
+          </div>
+          
+          <Button onClick={() => handleViewChange('included-build')} variant="outline" className="w-2/3 mx-auto">
+            In/Xclude
           </Button>
         </div>
       </DialogContent>

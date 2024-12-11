@@ -221,13 +221,13 @@ export function ChartVisualization() {
       // Draw root in center
       drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
 
-      // Draw branches at corners with adjusted positions to avoid overlap
-      const branchOffset = centerSquareSize * 0.8; // Increased offset to prevent overlap
+      // Draw branches at each corner of root
+      const branchOffset = centerSquareSize;
       const branchCorners = [
-        [centerX - branchOffset, centerY - branchOffset],
-        [centerX + branchOffset, centerY - branchOffset],
-        [centerX - branchOffset, centerY + branchOffset],
-        [centerX + branchOffset, centerY + branchOffset],
+        [centerX - branchOffset, centerY - branchOffset], // Top left
+        [centerX + branchOffset, centerY - branchOffset], // Top right
+        [centerX - branchOffset, centerY + branchOffset], // Bottom left
+        [centerX + branchOffset, centerY + branchOffset], // Bottom right
       ];
 
       // Apply delineation adjustment if needed
@@ -235,11 +235,12 @@ export function ChartVisualization() {
         ? branchCorners.map(([x, y]) => getAdjustedPosition(x, y))
         : branchCorners;
 
-      // Draw branches
-      adjustedBranchCorners.forEach(([x, y], branchIndex) => {
+      // Draw branches and their leaves
+      adjustedBranchCorners.forEach(([branchX, branchY], branchIndex) => {
+        // Draw branch
         drawSquare(
-          x,
-          y,
+          branchX,
+          branchY,
           smallSquareSize,
           colors.branch,
           "branch",
@@ -247,60 +248,57 @@ export function ChartVisualization() {
           `Center_${branchIndex + 1}`
         );
 
-        // Calculate leaf positions for each branch
-        const leafOffset = smallSquareSize * 0.7; // Smaller offset for leaves
-        const leafCorners = [
-          [x - leafOffset, y - leafOffset],
-          [x + leafOffset, y - leafOffset],
-          [x - leafOffset, y + leafOffset],
-          [x + leafOffset, y + leafOffset],
-        ];
+        // Calculate vector from root to branch
+        const dx = branchX - centerX;
+        const dy = branchY - centerY;
+        const angle = Math.atan2(dy, dx);
 
-        // Skip the leaf position that would overlap with the root
-        leafCorners.forEach(([leafX, leafY], leafIndex) => {
-          // Calculate distance from root center to avoid overlap
-          const distanceFromRoot = Math.sqrt(
-            Math.pow(leafX - centerX, 2) + Math.pow(leafY - centerY, 2)
-          );
-          
-          if (distanceFromRoot > centerSquareSize * 0.8) {
-            drawSquare(
-              leafX,
-              leafY,
-              smallSquareSize * 0.6,
-              colors.leaf,
-              "leaf",
-              2,
-              `Center_${branchIndex + 1}_${leafIndex + 1}`
-            );
-
-            // Draw fruits around leaves
-            const fruitOffset = smallSquareSize * 0.4;
-            const fruitCorners = [
-              [leafX - fruitOffset, leafY - fruitOffset],
-              [leafX + fruitOffset, leafY - fruitOffset],
-              [leafX - fruitOffset, leafY + fruitOffset],
-              [leafX + fruitOffset, leafY + fruitOffset],
-            ];
-
-            fruitCorners.forEach(([fruitX, fruitY], fruitIndex) => {
-              const distanceFromBranch = Math.sqrt(
-                Math.pow(fruitX - x, 2) + Math.pow(fruitY - y, 2)
-              );
-              
-              if (distanceFromBranch > smallSquareSize * 0.8) {
-                drawSquare(
-                  fruitX,
-                  fruitY,
-                  smallSquareSize * 0.3,
-                  colors.fruit,
-                  "fruit",
-                  3,
-                  `Center_${branchIndex + 1}_${leafIndex + 1}_${fruitIndex + 1}`
-                );
-              }
-            });
+        // Calculate leaf positions (3 leaves per available corner)
+        const leafOffset = smallSquareSize * 0.8;
+        const leafPositions = [];
+        
+        // Add leaves in all corners except the one facing the root
+        for (let i = 0; i < 4; i++) {
+          const cornerAngle = Math.PI / 4 + (i * Math.PI / 2);
+          // Skip the corner that faces the root
+          if (Math.abs(((cornerAngle - angle + Math.PI * 3) % (Math.PI * 2)) - Math.PI) > Math.PI / 2) {
+            leafPositions.push([
+              branchX + leafOffset * Math.cos(cornerAngle),
+              branchY + leafOffset * Math.sin(cornerAngle)
+            ]);
           }
+        }
+
+        // Draw leaves
+        leafPositions.forEach(([leafX, leafY], leafIndex) => {
+          drawSquare(
+            leafX,
+            leafY,
+            smallSquareSize * 0.6,
+            colors.leaf,
+            "leaf",
+            2,
+            `Center_${branchIndex + 1}_${leafIndex + 1}`
+          );
+
+          // Draw fruits around each leaf
+          const fruitOffset = smallSquareSize * 0.5;
+          const fruitAngles = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+          
+          fruitAngles.forEach((fruitAngle, fruitIndex) => {
+            const fruitX = leafX + fruitOffset * Math.cos(fruitAngle);
+            const fruitY = leafY + fruitOffset * Math.sin(fruitAngle);
+            
+            drawSquare(
+              fruitX,
+              fruitY,
+              smallSquareSize * 0.3,
+              colors.fruit,
+              "fruit",
+              3,
+              `Center_${branchIndex + 1}_${leafIndex + 1}_${fruitIndex + 1}`
+            );
+          });
         });
       });
     } else if (currentView === 'scoped' && selectedSquare) {

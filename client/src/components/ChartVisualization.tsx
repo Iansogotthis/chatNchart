@@ -172,21 +172,42 @@ export function ChartVisualization() {
   useEffect(() => {
     if (!svgRef.current) return;
 
-    // Handle window resize
+    let resizeTimeout: number;
+    
+    // Handle window resize with debouncing
     const handleResize = () => {
-      if (!svgRef.current) return;
-      const svg = d3.select(svgRef.current);
-      svg.selectAll("*").remove();
-      drawChart();
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
+      
+      resizeTimeout = window.setTimeout(() => {
+        if (!svgRef.current) return;
+        
+        const svg = d3.select(svgRef.current);
+        const container = svg.node()?.parentElement;
+        
+        if (container) {
+          const boundingRect = container.getBoundingClientRect();
+          svg.attr("viewBox", `0 0 ${boundingRect.width} ${boundingRect.height}`);
+          svg.selectAll("*").remove();
+          drawChart();
+        }
+      }, 250); // Debounce resize events
     };
 
+    // Add both resize and orientationchange events for better mobile support
     window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
     
     // Initial draw
-    drawChart();
+    handleResize();
 
     return () => {
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
     };
 
     function drawChart() {
@@ -541,11 +562,27 @@ export function ChartVisualization() {
             className="w-full h-full"
             aria-label="Chart visualization"
             role="img"
-            style={{ margin: 'auto', display: 'block' }}
+            style={{ 
+              margin: 'auto', 
+              display: 'block',
+              maxWidth: '100%',
+              height: '100%',
+              overflow: 'visible'
+            }}
             preserveAspectRatio="xMidYMid meet"
+            viewBox={`0 0 ${window.innerWidth} ${window.innerHeight}`}
           >
             <title>Interactive Chart Visualization</title>
             <desc>A visualization of nested squares representing different hierarchical levels</desc>
+            <defs>
+              <style type="text/css">
+                {`
+                  .square { transition: all 0.3s ease-in-out; }
+                  .square:hover { filter: brightness(0.9); cursor: pointer; }
+                  text { user-select: none; }
+                `}
+              </style>
+            </defs>
           </svg>
         </div>
       </div>

@@ -37,7 +37,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
   const queryClient = useQueryClient();
 
   // Fetch messages for this conversation
-  const { data: messages = [], isLoading } = useQuery<Message[]>({
+  const { data: messages = [], isLoading, error } = useQuery<Message[]>({
     queryKey: ['direct-messages', friendId],
     queryFn: async () => {
       try {
@@ -45,8 +45,8 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
           credentials: 'include'
         });
         if (!response.ok) {
-          const error = await response.text();
-          throw new Error(error || 'Failed to fetch messages');
+          const errorText = await response.text();
+          throw new Error(errorText || 'Failed to fetch messages');
         }
         return response.json();
       } catch (error) {
@@ -55,6 +55,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
       }
     },
     refetchInterval: 5000, // Poll for new messages every 5 seconds
+    retry: 3, // Retry failed requests 3 times
   });
 
   // Mark messages as read
@@ -68,8 +69,8 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
           credentials: 'include'
         });
         if (!response.ok) {
-          const error = await response.text();
-          throw new Error(error || 'Failed to mark messages as read');
+          const errorText = await response.text();
+          throw new Error(errorText || 'Failed to mark messages as read');
         }
       } catch (error) {
         console.error('Error marking messages as read:', error);
@@ -92,8 +93,8 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
           credentials: 'include'
         });
         if (!response.ok) {
-          const error = await response.text();
-          throw new Error(error || 'Failed to send message');
+          const errorText = await response.text();
+          throw new Error(errorText || 'Failed to send message');
         }
         return response.json();
       } catch (error) {
@@ -156,6 +157,22 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <p className="text-destructive mb-4">
+          {error instanceof Error ? error.message : "Failed to load messages"}
+        </p>
+        <Button 
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] })}
+          variant="outline"
+        >
+          Try Again
+        </Button>
       </div>
     );
   }

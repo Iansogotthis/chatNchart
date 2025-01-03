@@ -12,22 +12,11 @@ import { Messages } from "@/components/Messages";
 import {
   Mail,
   Users,
-  FolderKanban,
   Send,
-  Star,
-  Trash2,
-  MailPlus,
-  RefreshCw,
-  Filter,
   Loader2,
-  Search
+  Search,
+  MailPlus,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -71,7 +60,10 @@ export default function MessagesPage() {
       const response = await fetch(`/api/users/search?q=${encodeURIComponent(searchQuery)}`, {
         credentials: 'include'
       });
-      if (!response.ok) throw new Error('Failed to search users');
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to search users');
+      }
       return response.json();
     },
     enabled: searchQuery.length >= 2
@@ -122,18 +114,28 @@ export default function MessagesPage() {
       setComposeOpen(true);
       // Fetch user details for the recipient
       fetch(`/api/users/${recipientId}`, { credentials: 'include' })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch user details');
+          return res.json();
+        })
         .then(user => {
           setSelectedUser(user);
         })
-        .catch(console.error);
+        .catch(error => {
+          console.error('Error fetching user details:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load recipient details",
+            variant: "destructive"
+          });
+        });
 
       // Clean up the URL
       setLocation('/messages', { replace: true });
     }
-  }, [setLocation]);
+  }, [setLocation, toast]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!selectedUser || !messageContent.trim()) {
       toast({
         title: "Error",
@@ -143,15 +145,19 @@ export default function MessagesPage() {
       return;
     }
 
-    sendMessageMutation.mutate({
-      receiverId: selectedUser.id,
-      content: messageContent.trim()
-    });
+    try {
+      await sendMessageMutation.mutateAsync({
+        receiverId: selectedUser.id,
+        content: messageContent.trim()
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   return (
-    <div className="container mx-auto max-w-6xl py-6">
-      <div className="flex flex-col lg:flex-row gap-6">
+    <div className="container mx-auto max-w-6xl p-4 md:py-6">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
         {/* Sidebar */}
         <Card className="lg:w-64 w-full">
           <CardContent className="p-4">
@@ -176,6 +182,7 @@ export default function MessagesPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="mb-2"
+                      aria-label="Search users"
                     />
                     {isSearching ? (
                       <div className="flex justify-center p-2">
@@ -211,6 +218,7 @@ export default function MessagesPage() {
                         value={messageContent}
                         onChange={(e) => setMessageContent(e.target.value)}
                         rows={5}
+                        aria-label="Message content"
                       />
                       <Button 
                         onClick={handleSendMessage} 

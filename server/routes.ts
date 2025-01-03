@@ -21,8 +21,14 @@ export function registerRoutes(app: Express) {
   setupAuth(app);
   const httpServer = createServer(app);
 
-  // Register message routes with the correct base path
-  app.use("/api/messages", messageRoutes);
+  // Register message routes as middleware with proper error handling
+  app.use("/api/messages", (req, res, next) => {
+    try {
+      messageRoutes(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.get("/api/users/search", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });

@@ -29,19 +29,19 @@ export function useTheme() {
 
     const styles: ThemeStyles = {
       light: {
-        '--background': '#FFFFFF',
-        '--foreground': '#1A1A1A',
+        '--background': '0 0% 3%',
+        '--foreground': '#FFFFFF',
         '--muted': '#F5F5F5',
         '--muted-foreground': '#737373',
-        '--card': '#FFFFFF',
-        '--card-foreground': '#1A1A1A',
-        '--border': '#E5E5E5',
-        '--input': '#F5F5F5',
-        '--accent': '#FFD700', // Brighter yellow for light theme
-        '--accent-foreground': '#1A1A1A',
+        '--card': '#0A0A0A',
+        '--card-foreground': '#FFFFFF',
+        '--border': '#262626',
+        '--input': '#111111',
+        '--accent': '#EF4444', // Red for light theme
+        '--accent-foreground': '#FFFFFF',
       },
       dark: {
-        '--background': '0 0% 0%',
+        '--background': '0 0% 3%',
         '--foreground': '0 0% 100%',
         '--muted': '0 0% 7%',
         '--muted-foreground': '#D4D4D4',
@@ -49,7 +49,7 @@ export function useTheme() {
         '--card-foreground': '#FFFFFF',
         '--border': '#262626',
         '--input': '#111111',
-        '--accent': '#8B5CF6', // Vivid purple for dark theme
+        '--accent': '#3B82F6', // Blue for dark theme
         '--accent-foreground': '#FFFFFF',
       },
       grey: {

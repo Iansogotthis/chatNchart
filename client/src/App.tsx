@@ -26,6 +26,12 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { theme, setTheme } = useTheme();
+  
+  useEffect(() => {
+    if (user && window.location.pathname === '/') {
+      window.location.href = `/profile/${user.username}`;
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {

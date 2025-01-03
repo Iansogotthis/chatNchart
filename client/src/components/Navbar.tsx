@@ -54,7 +54,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           <Button 
             variant="ghost" 
             size="icon"
-            className="mr-2 md:hidden"
+            className="mr-2"
             onClick={onToggleSidebar}
           >
             <MenuIcon className="h-5 w-5" />

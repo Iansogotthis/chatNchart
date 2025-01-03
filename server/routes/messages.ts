@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "../../db";
 import { messages, notifications, users } from "../../db/schema";
-import { eq, and, or, inArray } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import type { Request, Response } from "express";
 
 const router = Router();
@@ -41,6 +41,18 @@ router.get("/direct/:friendId", requireAuth, async (req, res) => {
       return res.status(400).json({ message: "Invalid friend ID" });
     }
 
+    // First verify if the friend exists
+    const [friend] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, friendId))
+      .limit(1);
+
+    if (!friend) {
+      return res.status(404).json({ message: "Friend not found" });
+    }
+
+    // Get messages between the two users
     const directMessages = await db
       .select()
       .from(messages)
@@ -63,6 +75,7 @@ router.get("/direct/:friendId", requireAuth, async (req, res) => {
 router.post("/direct", requireAuth, async (req, res) => {
   try {
     const { receiverId, content } = req.body;
+    console.log("Received message request:", { receiverId, content });
 
     if (!receiverId || !content) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -91,8 +104,11 @@ router.post("/direct", requireAuth, async (req, res) => {
         senderId: req.user!.id,
         receiverId: parsedReceiverId,
         content: content.trim(),
+        isRead: false,
       })
       .returning();
+
+    console.log("Created new message:", newMessage);
 
     // Create notification for the receiver
     await db.insert(notifications).values({
@@ -123,7 +139,7 @@ router.put("/read", requireAuth, async (req, res) => {
       .where(
         and(
           eq(messages.receiverId, req.user!.id),
-          inArray(messages.id, messageIds)
+          or(...messageIds.map(id => eq(messages.id, id)))
         )
       );
 

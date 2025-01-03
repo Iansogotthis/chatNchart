@@ -21,7 +21,7 @@ export function registerRoutes(app: Express) {
   setupAuth(app);
   const httpServer = createServer(app);
 
-  // Register message routes first
+  // Register message routes with the correct base path
   app.use("/api/messages", messageRoutes);
 
   app.get("/api/users/search", async (req, res) => {

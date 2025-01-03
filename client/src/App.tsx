@@ -135,7 +135,6 @@ function App() {
                       <Route>404 Page Not Found</Route>
                     </Switch>
                   )}
-                  </Switch>
                 </main>
               </div>
             </div>

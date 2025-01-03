@@ -29,28 +29,28 @@ export function useTheme() {
 
     const styles: ThemeStyles = {
       light: {
-        '--background': '0 0% 0%',
-        '--foreground': '#FFFFFF',
-        '--muted': '#1A1A1A',
-        '--muted-foreground': '#A1A1A1',
-        '--card': '#0A0A0A',
-        '--card-foreground': '#FFFFFF',
-        '--border': '#262626',
-        '--input': '#111111',
-        '--accent': '#8B4513', // Brown for light theme
+        '--background': '0 0% 100%',
+        '--foreground': '#000000',
+        '--muted': '#F5F5F5',
+        '--muted-foreground': '#737373',
+        '--card': '#FFFFFF',
+        '--card-foreground': '#000000',
+        '--border': '#000000',
+        '--input': '#F5F5F5',
+        '--accent': '#EF4444',
         '--accent-foreground': '#FFFFFF',
       },
       dark: {
         '--background': '0 0% 0%',
-        '--foreground': '#00FF00',
+        '--foreground': '#FFFFFF',
         '--muted': '0 0% 7%',
-        '--muted-foreground': '#00FF00',
+        '--muted-foreground': '#D4D4D4',
         '--card': '#0A0A0A',
-        '--card-foreground': '#00FF00',
-        '--border': '#262626',
+        '--card-foreground': '#FFFFFF',
+        '--border': '#FFFFFF',
         '--input': '#111111',
-        '--accent': '#87CEEB', // Light blue for dark theme
-        '--accent-foreground': '#000000',
+        '--accent': '#EF4444',
+        '--accent-foreground': '#FFFFFF',
       },
       grey: {
         '--background': '0 0% 0%',

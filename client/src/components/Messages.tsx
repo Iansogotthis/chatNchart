@@ -37,7 +37,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
   const queryClient = useQueryClient();
 
   // Fetch messages for this conversation
-  const { data: messages = [], isLoading, error } = useQuery<Message[]>({
+  const { data: messages = [], isLoading, error, previousData } = useQuery<Message[]>({
     queryKey: ['direct-messages', friendId],
     queryFn: async () => {
       try {
@@ -63,6 +63,19 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     staleTime: 1000,
     refetchOnWindowFocus: false,
     enabled: !!friendId,
+    onSuccess: (data) => {
+      if (previousData && data.length > previousData.length) {
+        const newMessages = data.slice(previousData.length);
+        newMessages.forEach(msg => {
+          if (msg.receiverId === user?.id && !msg.isRead) {
+            toast({
+              title: "New Message",
+              description: `${friendUsername}: ${msg.content.substring(0, 50)}${msg.content.length > 50 ? '...' : ''}`,
+            });
+          }
+        });
+      }
+    },
   });
 
   // Mark messages as read

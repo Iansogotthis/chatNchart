@@ -8,8 +8,17 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Add security headers and CORS
+// Cache for auth states (5 minute TTL)
+const authCache = new Map<string, { isAuth: boolean; timestamp: number }>();
+const AUTH_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Bypass auth for static assets and cache auth state
 app.use((req, res, next) => {
+  // Skip auth check for static assets
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    return next();
+  }
+
   // Allow requests from Replit preview window and browsers
   const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co'];
   const origin = req.headers.origin;
@@ -20,34 +29,58 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+
+  // Cache auth state
+  const sessionId = req.sessionID;
+  if (sessionId) {
+    const cached = authCache.get(sessionId);
+    const now = Date.now();
+    if (cached && (now - cached.timestamp) < AUTH_CACHE_TTL) {
+      // Use cached auth state
+      if (cached.isAuth) {
+        next();
+        return;
+      }
+    }
+  }
+
   next();
 });
 
-// Add request logging middleware
+// Add request logging middleware (only for API routes)
 app.use((req, res, next) => {
+  // Skip logging for static assets
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    return next();
+  }
+
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  // Debug auth state
-  log(`Auth state for ${path}: ${req.isAuthenticated?.() ? 'authenticated' : 'not authenticated'}`);
+  // Only capture JSON response for API routes
+  if (path.startsWith("/api")) {
+    let capturedJsonResponse: Record<string, any> | undefined = undefined;
+    const originalResJson = res.json;
+    res.json = function (bodyJson, ...args) {
+      // Sanitize sensitive data before logging
+      if (bodyJson && typeof bodyJson === 'object') {
+        const sanitized = { ...bodyJson };
+        delete sanitized.password;
+        delete sanitized.token;
+        capturedJsonResponse = sanitized;
+      }
+      return originalResJson.apply(res, [bodyJson, ...args]);
+    };
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
+    res.on("finish", () => {
+      const duration = Date.now() - start;
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
       log(logLine);
-    }
-  });
+    });
+  }
 
   next();
 });
@@ -61,13 +94,15 @@ async function startServer() {
       await db.execute(sql`SELECT 1`);
       log("Database connection successful");
 
-      // Check if users table exists and has the required columns
-      const tables = await db.execute(sql`
-        SELECT column_name, data_type 
-        FROM information_schema.columns 
-        WHERE table_name = 'users'
-      `);
-      log("Database schema verified:", JSON.stringify(tables));
+      // Only log schema in development
+      if (process.env.NODE_ENV === 'development') {
+        const tables = await db.execute(sql`
+          SELECT column_name, data_type 
+          FROM information_schema.columns 
+          WHERE table_name = 'users'
+        `);
+        log("Database schema verified:", JSON.stringify(tables));
+      }
     } catch (error) {
       log("Database error:", error instanceof Error ? error.message : String(error));
       throw new Error("Failed to connect to database or verify schema");

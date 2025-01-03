@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 type PendingViewType = ViewType | 'form' | null;
@@ -44,33 +45,75 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSquareForm, setShowSquareForm] = useState(false);
   const [pendingView, setPendingView] = useState<PendingViewType>(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [chartTitle, setChartTitle] = useState(chart.title);
   const svgRef = useRef<SVGSVGElement>(null);
   const queryClient = useQueryClient();
   const { user } = useUser();
 
-  const [squareStyles, setSquareStyles] = useState<Record<string, {
-    title: string;
-    priority: {
-      density: number;
-      durability: string;
-      decor: string;
-    };
-    urgency: string;
-    aesthetic: {
-      impact: {
-        bold: boolean;
-        italic: boolean;
-        underline: boolean;
-      };
-      affect: {
-        fontFamily: string;
-        fontSize: number;
-      };
-      effect: {
-        color: string;
-      };
-    };
-  }>>({});
+  const updateChartMutation = useMutation({
+    mutationFn: async (newTitle: string) => {
+      const response = await fetch(`/api/charts/${chart.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...chart,
+          title: newTitle
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update chart title');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['charts'] });
+      toast.success('Chart title updated successfully');
+      setEditingTitle(false);
+    },
+    onError: (error) => {
+      toast.error('Failed to update chart title');
+      console.error('Error updating chart title:', error);
+    }
+  });
+
+  const handleTitleSave = async () => {
+    if (chartTitle.trim() === '') {
+      toast.error('Chart title cannot be empty');
+      return;
+    }
+    await updateChartMutation.mutateAsync(chartTitle);
+  };
+
+  const squareCustomizationMutation = useMutation({
+    mutationFn: async (customization: any) => {
+      const response = await fetch('/api/square-customization', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...customization,
+          chartId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save square customization');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['square-customizations', chartId] });
+    },
+    onError: (error) => {
+      console.error('Error saving square customization:', error);
+      // You might want to show a toast notification here
+    }
+  });
 
   const chartId = chart.id;
 
@@ -101,33 +144,30 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
     }
   }, [customizations]);
 
-  const squareCustomizationMutation = useMutation({
-    mutationFn: async (customization: any) => {
-      const response = await fetch('/api/square-customization', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...customization,
-          chartId,
-        }),
-      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to save square customization');
-      }
-
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['square-customizations', chartId] });
-    },
-    onError: (error) => {
-      console.error('Error saving square customization:', error);
-      // You might want to show a toast notification here
-    }
-  });
+  const [squareStyles, setSquareStyles] = useState<Record<string, {
+    title: string;
+    priority: {
+      density: number;
+      durability: string;
+      decor: string;
+    };
+    urgency: string;
+    aesthetic: {
+      impact: {
+        bold: boolean;
+        italic: boolean;
+        underline: boolean;
+      };
+      affect: {
+        fontFamily: string;
+        fontSize: number;
+      };
+      effect: {
+        color: string;
+      };
+    };
+  }>>({});
 
   const getNextHierarchyLevel = (currentClass: string) => {
     switch (currentClass) {
@@ -595,6 +635,53 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
       isFullscreen ? "fixed inset-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : ""
     )}>
       <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
+        <div className="flex items-center gap-4 flex-1 mr-4">
+          {editingTitle ? (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleTitleSave();
+            }} className="flex items-center gap-2 flex-1">
+              <Input
+                value={chartTitle}
+                onChange={(e) => setChartTitle(e.target.value)}
+                placeholder="Enter chart title..."
+                className="max-w-md"
+                autoFocus
+              />
+              <Button
+                type="submit"
+                size="sm"
+                disabled={updateChartMutation.isPending}
+              >
+                Save
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setChartTitle(chart.title);
+                  setEditingTitle(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </form>
+          ) : (
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold">{chart.title}</h1>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingTitle(true)}
+                className="ml-2"
+              >
+                Edit Title
+              </Button>
+            </div>
+          )}
+        </div>
+
         <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
           {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
             <Tooltip key={viewType}>
@@ -616,7 +703,6 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
             </Tooltip>
           ))}
         </div>
-
         <div className="flex items-center gap-2 ml-4">
           {selectedSquare && (
             <span className="text-sm text-muted-foreground whitespace-nowrap">

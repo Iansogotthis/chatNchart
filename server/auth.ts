@@ -28,10 +28,9 @@ const crypto = {
   },
 };
 
-// extend express user object with our schema
 declare global {
   namespace Express {
-    interface User extends SelectUser { }
+    interface User extends SelectUser {}
   }
 }
 
@@ -41,22 +40,29 @@ export function setupAuth(app: Express) {
     secret: process.env.REPL_ID || "porygon-supremacy",
     resave: false,
     saveUninitialized: false,
-    cookie: {},
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: app.get("env") === "production",
+      sameSite: "lax",
+    },
     store: new MemoryStore({
       checkPeriod: 86400000, // prune expired entries every 24h
+      max: 1000, // maximum number of sessions to store
+      ttl: 86400000, // time to live in milliseconds (24h)
     }),
   };
 
   if (app.get("env") === "production") {
     app.set("trust proxy", 1);
-    sessionSettings.cookie = {
-      secure: true,
-    };
   }
 
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Cache for user data
+  const userCache = new Map<number, { user: SelectUser; timestamp: number }>();
+  const USER_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
@@ -87,16 +93,40 @@ export function setupAuth(app: Express) {
 
   passport.deserializeUser(async (id: number, done) => {
     try {
+      // Check cache first
+      const cached = userCache.get(id);
+      const now = Date.now();
+      if (cached && now - cached.timestamp < USER_CACHE_TTL) {
+        return done(null, cached.user);
+      }
+
+      // If not in cache or expired, fetch from database
       const [user] = await db
         .select()
         .from(users)
         .where(eq(users.id, id))
         .limit(1);
+
+      if (user) {
+        // Update cache
+        userCache.set(id, { user, timestamp: now });
+      }
+
       done(null, user);
     } catch (err) {
       done(err);
     }
   });
+
+  // Clean up expired cache entries periodically
+  setInterval(() => {
+    const now = Date.now();
+    Array.from(userCache.entries()).forEach(([id, { timestamp }]) => {
+      if (now - timestamp > USER_CACHE_TTL) {
+        userCache.delete(id);
+      }
+    });
+  }, USER_CACHE_TTL);
 
   app.post("/api/register", async (req, res, next) => {
     try {
@@ -104,12 +134,14 @@ export function setupAuth(app: Express) {
       if (!result.success) {
         return res
           .status(400)
-          .send("Invalid input: " + result.error.issues.map(i => i.message).join(", "));
+          .send(
+            "Invalid input: " +
+              result.error.issues.map((i) => i.message).join(", ")
+          );
       }
 
       const { username, password } = result.data;
 
-      // Check if user already exists
       const [existingUser] = await db
         .select()
         .from(users)
@@ -120,10 +152,8 @@ export function setupAuth(app: Express) {
         return res.status(400).send("Username already exists");
       }
 
-      // Hash the password
       const hashedPassword = await crypto.hash(password);
 
-      // Create the new user
       const [newUser] = await db
         .insert(users)
         .values({
@@ -132,7 +162,6 @@ export function setupAuth(app: Express) {
         })
         .returning();
 
-      // Log the user in after registration
       req.login(newUser, (err) => {
         if (err) {
           return next(err);
@@ -152,10 +181,12 @@ export function setupAuth(app: Express) {
     if (!result.success) {
       return res
         .status(400)
-        .send("Invalid input: " + result.error.issues.map(i => i.message).join(", "));
+        .send(
+          "Invalid input: " + result.error.issues.map((i) => i.message).join(", ")
+        );
     }
 
-    const cb = (err: any, user: Express.User, info: IVerifyOptions) => {
+    passport.authenticate("local", (err: any, user: Express.User, info: IVerifyOptions) => {
       if (err) {
         return next(err);
       }
@@ -169,16 +200,23 @@ export function setupAuth(app: Express) {
           return next(err);
         }
 
+        // Update user cache on successful login
+        userCache.set(user.id, { user, timestamp: Date.now() });
+
         return res.json({
           message: "Login successful",
           user: { id: user.id, username: user.username },
         });
       });
-    };
-    passport.authenticate("local", cb)(req, res, next);
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res) => {
+    // Clear user from cache on logout
+    if (req.user?.id) {
+      userCache.delete(req.user.id);
+    }
+
     req.logout((err) => {
       if (err) {
         return res.status(500).send("Logout failed");
@@ -190,7 +228,9 @@ export function setupAuth(app: Express) {
 
   app.get("/api/user", (req, res) => {
     if (req.isAuthenticated()) {
-      return res.json(req.user);
+      // Only return non-sensitive user data
+      const { password, ...safeUser } = req.user;
+      return res.json(safeUser);
     }
 
     res.status(401).send("Not logged in");

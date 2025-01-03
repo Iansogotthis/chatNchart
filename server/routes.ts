@@ -619,7 +619,15 @@ export function registerRoutes(app: Express) {
     if (!user) return res.status(404).send("User not found");
 
     const userCharts = await db
-      .select()
+      .select({
+        id: charts.id,
+        title: charts.title,
+        data: charts.data,
+        isPublic: charts.isPublic,
+        createdAt: charts.createdAt,
+        updatedAt: charts.updatedAt,
+        userId: charts.userId,
+      })
       .from(charts)
       .where(eq(charts.userId, user.id))
       .limit(5);

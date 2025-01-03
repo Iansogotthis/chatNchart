@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useTheme } from "@/hooks/use-theme";
+import { cn } from "@/utils/cn";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { MenuIcon, ArrowUp, Moon, Sun } from "lucide-react";

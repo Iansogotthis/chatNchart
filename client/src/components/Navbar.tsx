@@ -54,14 +54,14 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           <Button 
             variant="ghost" 
             size="icon"
-            className="mr-2 md:hidden hover:bg-accent/50 transition-colors"
+            className="mr-2 md:hidden"
             onClick={onToggleSidebar}
           >
             <MenuIcon className="h-5 w-5" />
           </Button>
 
           <div className="flex items-center flex-1 justify-center">
-            <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
+            <div className="hidden md:flex items-center space-x-8">
               <Link href="/home" className="font-bold text-lg">Chart Visualizer</Link>
               <Link href="/charts">Charts</Link>
               <Link href="/forum">Forum</Link>

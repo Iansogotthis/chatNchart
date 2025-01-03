@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useState, useEffect } from "react";
+import { SearchFriends } from "./SearchFriends";
 
 interface NavbarProps {
   onToggleSidebar: () => void;
@@ -64,25 +65,28 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
           <div className="flex items-center justify-end space-x-2">
             {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        {user.username.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user.username}`}>Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => logout()}>
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <SearchFriends />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          {user.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/profile/${user.username}`}>Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => logout()}>
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             )}
           </div>
         </div>

@@ -2,18 +2,19 @@ import type { Express } from "express";
 import { createServer } from "http";
 import { setupAuth } from "./auth";
 import { db } from "../db";
-import { 
-  charts, 
+import {
+  charts,
   messages as messagesTable,
   savedCharts,
   chartLikes,
   notifications as notificationsTable,
-  forumPosts, 
-  friends, 
+  forumPosts,
+  friends,
   users,
-  squareCustomizations 
+  squareCustomizations,
+  type User
 } from "../db/schema";
-import { eq, and, desc, or } from "drizzle-orm";
+import { eq, and, desc, or, sql, type SQL } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {
@@ -422,6 +423,259 @@ export function registerRoutes(app: Express) {
       );
 
     res.json(userFriends);
+  });
+
+  app.post("/api/friends/request/:username", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      // Get target user
+      const [targetUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, req.params.username))
+        .limit(1);
+
+      if (!targetUser) {
+        return res.status(404).send("User not found");
+      }
+
+      if (targetUser.id === req.user.id) {
+        return res.status(400).send("Cannot send friend request to yourself");
+      }
+
+      // Check if friend request already exists
+      const [existingRequest] = await db
+        .select()
+        .from(friends)
+        .where(
+          and(
+            eq(friends.userId, req.user.id),
+            eq(friends.friendId, targetUser.id)
+          )
+        )
+        .limit(1);
+
+      if (existingRequest) {
+        return res.status(400).send("Friend request already exists");
+      }
+
+      // Create friend request
+      const [friendRequest] = await db
+        .insert(friends)
+        .values({
+          userId: req.user.id,
+          friendId: targetUser.id,
+          status: "pending"
+        })
+        .returning();
+
+      // Create notification for the target user
+      await db.insert(notificationsTable).values({
+        userId: targetUser.id,
+        type: "friend_request",
+        sourceId: friendRequest.id,
+      });
+
+      res.json(friendRequest);
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      res.status(500).json({ error: 'Failed to send friend request' });
+    }
+  });
+
+  app.put("/api/friends/request/:requestId", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const { action } = req.body;
+      if (!['accept', 'reject'].includes(action)) {
+        return res.status(400).send("Invalid action");
+      }
+
+      // Get friend request
+      const [friendRequest] = await db
+        .select()
+        .from(friends)
+        .where(
+          and(
+            eq(friends.id, parseInt(req.params.requestId)),
+            eq(friends.friendId, req.user.id),
+            eq(friends.status, "pending")
+          )
+        )
+        .limit(1);
+
+      if (!friendRequest) {
+        return res.status(404).send("Friend request not found");
+      }
+
+      if (action === 'accept') {
+        // Update the friend request status
+        const [updatedRequest] = await db
+          .update(friends)
+          .set({ status: "accepted" })
+          .where(eq(friends.id, friendRequest.id))
+          .returning();
+
+        // Create reverse friendship entry
+        await db.insert(friends).values({
+          userId: friendRequest.friendId,
+          friendId: friendRequest.userId,
+          status: "accepted"
+        });
+
+        // Create notification for the requester
+        await db.insert(notificationsTable).values({
+          userId: friendRequest.userId,
+          type: "friend_request_accepted",
+          sourceId: friendRequest.id,
+        });
+
+        res.json(updatedRequest);
+      } else {
+        // Delete the friend request if rejected
+        await db
+          .delete(friends)
+          .where(eq(friends.id, friendRequest.id));
+
+        res.json({ message: "Friend request rejected" });
+      }
+    } catch (error) {
+      console.error('Error handling friend request:', error);
+      res.status(500).json({ error: 'Failed to handle friend request' });
+    }
+  });
+
+  app.delete("/api/friends/:friendId", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      // Delete both friendship entries
+      await db
+        .delete(friends)
+        .where(
+          or(
+            and(
+              eq(friends.userId, req.user.id),
+              eq(friends.friendId, parseInt(req.params.friendId))
+            ),
+            and(
+              eq(friends.userId, parseInt(req.params.friendId)),
+              eq(friends.friendId, req.user.id)
+            )
+          )
+        );
+
+      res.json({ message: "Friend removed successfully" });
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      res.status(500).json({ error: 'Failed to remove friend' });
+    }
+  });
+
+  app.get("/api/friends", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const friendsList = await db
+        .select({
+          id: friends.id,
+          status: friends.status,
+          createdAt: friends.createdAt,
+          friend: {
+            id: users.id,
+            username: users.username,
+            bio: users.bio,
+          }
+        })
+        .from(friends)
+        .where(
+          and(
+            eq(friends.userId, req.user.id),
+            eq(friends.status, "accepted")
+          )
+        )
+        .leftJoin(users, eq(friends.friendId, users.id));
+
+      const pendingRequests = await db
+        .select({
+          id: friends.id,
+          status: friends.status,
+          createdAt: friends.createdAt,
+          sender: {
+            id: users.id,
+            username: users.username
+          }
+        })
+        .from(friends)
+        .where(
+          and(
+            eq(friends.friendId, req.user.id),
+            eq(friends.status, "pending")
+          )
+        )
+        .leftJoin(users, eq(friends.userId, users.id));
+
+      // Transform and type-check the response data
+      const response = {
+        friends: friendsList.map(f => ({
+          id: f.id,
+          status: f.status,
+          createdAt: f.createdAt,
+          friend: f.friend ? {
+            id: f.friend.id,
+            username: f.friend.username,
+            bio: f.friend.bio
+          } : null
+        })),
+        pendingRequests: pendingRequests.map(r => ({
+          id: r.id,
+          status: r.status,
+          createdAt: r.createdAt,
+          sender: r.sender ? {
+            id: r.sender.id,
+            username: r.sender.username
+          } : null
+        }))
+      };
+
+      res.json(response);
+    } catch (error) {
+      console.error('Error fetching friends:', error);
+      res.status(500).json({ error: 'Failed to fetch friends' });
+    }
+  });
+
+  app.get("/api/users/search", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const searchQuery = req.query.q as string;
+      if (!searchQuery || searchQuery.length < 2) {
+        return res.json([]);
+      }
+
+      const searchResults = await db
+        .select({
+          id: users.id,
+          username: users.username,
+        })
+        .from(users)
+        .where(sql`${users.username} ILIKE ${`%${searchQuery}%`}`)
+        .limit(10);
+
+      // Transform results to only return necessary fields
+      const transformedResults = searchResults.map(user => ({
+        id: user.id,
+        username: user.username,
+      }));
+
+      res.json(transformedResults);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      res.status(500).json({ error: 'Failed to search users' });
+    }
   });
 
   return httpServer;

@@ -158,23 +158,17 @@ function App() {
                         <HomePage />
                       </Route>
                       <Route path="/charts">
-                        <div className="flex h-screen pt-14">
-                          <ChartsNavigation 
-                            onSelect={(chart) => setSelectedChart(chart)} 
-                            selectedChart={selectedChart} 
-                          />
-                          <div className="flex-1 p-4 overflow-auto">
-                            {selectedChart ? (
-                              <ChartVisualization 
-                                chart={selectedChart} 
-                                isFullscreen={isFullscreen}
-                              />
-                            ) : (
-                              <div className="flex items-center justify-center h-full text-muted-foreground">
-                                Select a chart or create a new one to get started
-                              </div>
-                            )}
-                          </div>
+                        <div className="flex-1 p-4">
+                          {selectedChart ? (
+                            <ChartVisualization 
+                              chart={selectedChart} 
+                              isFullscreen={isFullscreen}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                              Select a chart or create a new one to get started
+                            </div>
+                          )}
                         </div>
                       </Route>
                       <Route path="/profile/:username" component={ProfilePage} />

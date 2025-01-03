@@ -27,6 +27,9 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
+import Link from "next/link"; // Assuming Next.js is used for routing; adjust if necessary.
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 
 interface User {
   id: number;
@@ -41,6 +44,15 @@ interface Message {
   isRead: boolean;
   createdAt: string;
 }
+
+interface Conversation {
+  id: number;
+  participantId: number;
+  participantName: string;
+  lastMessageAt: string;
+  lastMessage: string | null; // Added lastMessage field
+}
+
 
 export default function MessagesPage() {
   const { user } = useUser();
@@ -155,6 +167,13 @@ export default function MessagesPage() {
     }
   };
 
+  // Fetch conversations  (Replace with your actual fetch logic)
+  const { data: conversations = [], isLoading: isConversationsLoading } = useQuery({
+    queryKey: ['conversations'],
+    queryFn: () => fetch('/api/conversations', { credentials: 'include' }).then(res => res.json())
+  });
+
+
   return (
     <div className="container mx-auto max-w-6xl p-4 md:py-6">
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
@@ -246,28 +265,35 @@ export default function MessagesPage() {
             <ScrollArea className="h-[calc(100vh-12rem)]">
               <div className="space-y-2">
                 {conversations?.map((convo) => (
-                  <Button 
+                  <Link 
                     key={convo.id}
-                    variant={selectedUser?.id === convo.participantId ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                    onClick={() => setSelectedUser({
-                      id: convo.participantId,
-                      username: convo.participantName
-                    })}
+                    href={`/messages?user=${convo.participantId}`}
+                    className={`block w-full p-3 rounded-lg transition-colors ${
+                      selectedUser?.id === convo.participantId 
+                        ? "bg-primary/10 hover:bg-primary/20" 
+                        : "hover:bg-muted"
+                    }`}
                   >
-                    <div className="flex items-center gap-2 w-full">
-                      <Avatar className="h-8 w-8">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
                         <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${convo.participantName}`} />
                         <AvatarFallback>{convo.participantName[0]}</AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col items-start">
-                        <span>{convo.participantName}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(convo.lastMessageAt).toLocaleDateString()}
-                        </span>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-baseline">
+                          <span className="font-medium">{convo.participantName}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(convo.lastMessageAt), 'MMM d, h:mm a')}
+                          </span>
+                        </div>
+                        {convo.lastMessage && (
+                          <p className="text-sm text-muted-foreground truncate">
+                            {convo.lastMessage}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  </Button>
+                  </Link>
                 ))}
               </div>
             </ScrollArea>

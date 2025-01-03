@@ -41,16 +41,8 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
   return (
     <>
-      <nav className={cn(
-        "fixed z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-        "md:top-0 md:left-0 md:right-0 md:h-14",
-        "top-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full hover:h-14 hover:w-[95vw] transition-all duration-300 border md:border-0"
-      )}>
-        <div className={cn(
-          "container flex h-full items-center justify-between max-w-7xl mx-auto px-4",
-          "md:opacity-100",
-          "opacity-0 hover:opacity-100 transition-opacity duration-300"
-        )}>
+      <nav className="fixed z-50 border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-full items-center justify-between max-w-7xl mx-auto px-4">
           <Button 
             variant="ghost" 
             size="icon"

@@ -193,7 +193,7 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="fixed bottom-4 left-4 z-50">
           <button
             onClick={() => setOpenMobile(true)}
             className="w-12 h-12 rounded-full bg-background border shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"

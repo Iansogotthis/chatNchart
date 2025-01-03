@@ -60,7 +60,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             <MenuIcon className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center flex-1 justify-center">
+          <div className="flex items-center flex-1 justify-center group">
             <Button variant="ghost" asChild className="mr-4">
               <Link href="/home" className="font-bold">
                 Chart Visualizer
@@ -68,6 +68,14 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             </Button>
             <nav className="hidden md:flex items-center space-x-4 text-sm font-medium overflow-hidden transition-all duration-300 hover:w-full">
               <div className="flex items-center space-x-4 whitespace-nowrap">
+                <Link href="/charts" className="hover:text-primary">Charts</Link>
+                <Link href="/forum" className="hover:text-primary">Forum</Link>
+                <Link href="/friends" className="hover:text-primary">Friends</Link>
+                <Link href="/messages" className="hover:text-primary">Messages</Link>
+              </div>
+            </nav>
+            <nav className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur md:hidden opacity-0 group-hover:opacity-100 transition-all duration-300 py-2 px-4">
+              <div className="flex flex-col space-y-2">
                 <Link href="/charts" className="hover:text-primary">Charts</Link>
                 <Link href="/forum" className="hover:text-primary">Forum</Link>
                 <Link href="/friends" className="hover:text-primary">Friends</Link>

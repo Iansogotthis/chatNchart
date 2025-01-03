@@ -1,51 +1,90 @@
-import { ChartVisualization } from "@/components/ChartVisualization";
+
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChartVisualization } from "@/components/ChartVisualization";
 import { PerplexityChat } from "@/components/PerplexityChat";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { BarChart3, BrainCircuit, Users, Share2 } from "lucide-react";
 
 export default function HomePage() {
-  const { toast } = useToast();
-
   const { data: chartData, isLoading } = useQuery({
     queryKey: ["/api/charts"],
   });
 
-  const saveMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await fetch("/api/charts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to save chart");
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Chart saved successfully",
-      });
-    },
-  });
-
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold">Chart Visualization</h1>
-        <Button onClick={() => saveMutation.mutate(chartData)}>Save Chart</Button>
-      </div>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-background to-muted">
+        <div className="container mx-auto text-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold mb-6"
+          >
+            Visualize Your Data Journey
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+          >
+            Create, analyze, and share interactive charts with AI-powered insights
+          </motion.p>
+        </div>
+      </section>
 
-      <div className="h-[80vh] border rounded-lg p-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            Loading chart...
+      {/* Features Grid */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto grid md:grid-cols-3 gap-8">
+          <Card className="p-6">
+            <CardContent className="space-y-4">
+              <BarChart3 className="h-12 w-12 text-primary" />
+              <h3 className="text-xl font-semibold">Advanced Visualization</h3>
+              <p className="text-muted-foreground">Create stunning interactive charts and graphs</p>
+            </CardContent>
+          </Card>
+          <Card className="p-6">
+            <CardContent className="space-y-4">
+              <BrainCircuit className="h-12 w-12 text-primary" />
+              <h3 className="text-xl font-semibold">AI Analysis</h3>
+              <p className="text-muted-foreground">Get intelligent insights with Perplexity integration</p>
+            </CardContent>
+          </Card>
+          <Card className="p-6">
+            <CardContent className="space-y-4">
+              <Share2 className="h-12 w-12 text-primary" />
+              <h3 className="text-xl font-semibold">Easy Sharing</h3>
+              <p className="text-muted-foreground">Collaborate and share your visualizations</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Demo Section */}
+      <section className="py-16 px-4 bg-muted/50">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold mb-8 text-center">Live Demo</h2>
+          <div className="bg-background rounded-lg shadow-lg p-6">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-[400px]">
+                Loading demo...
+              </div>
+            ) : (
+              <ChartVisualization data={chartData} />
+            )}
           </div>
-        ) : (
-          <ChartVisualization data={chartData} onSave={saveMutation.mutate} />
-        )}
-      </div>
-      <PerplexityChat />
+        </div>
+      </section>
+
+      {/* AI Chat Section */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold mb-8 text-center">Ask AI Assistant</h2>
+          <PerplexityChat />
+        </div>
+      </section>
     </div>
   );
 }

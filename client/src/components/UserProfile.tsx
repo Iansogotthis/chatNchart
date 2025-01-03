@@ -20,7 +20,8 @@ import {
   Clock,
   Edit,
   Mail,
-  Phone
+  Phone,
+  MessageSquare
 } from "lucide-react";
 import type { User, Chart } from "@db/schema";
 
@@ -285,20 +286,24 @@ export function UserProfile({
             <ScrollArea className="h-[300px]">
               <div className="space-y-4">
                 {user?.friends?.map((friend) => (
-                  <Card key={friend.id} className="p-4">
+                  <Card key={friend.id} className="p-4 hover:bg-accent transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <Avatar>
                           <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${friend.username}`} />
                           <AvatarFallback>{friend.username[0].toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="space-y-1">
                           <Link href={`/profile/${friend.username}`} className="font-medium hover:underline">
                             {friend.username}
                           </Link>
-                          {friend.bio && (
-                            <p className="text-sm text-muted-foreground line-clamp-1">{friend.bio}</p>
-                          )}
+                          <Link 
+                            href={`/messages?user=${friend.id}`} 
+                            className="flex items-center text-sm text-muted-foreground hover:text-primary"
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            Message
+                          </Link>
                         </div>
                       </div>
                     </div>

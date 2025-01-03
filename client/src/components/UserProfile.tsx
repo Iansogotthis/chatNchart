@@ -96,26 +96,26 @@ export function UserProfile({
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
               <div className="flex flex-col md:flex-row items-start gap-6">
                 <Avatar className="h-24 w-24 ring-4 ring-primary/10">
-                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username}`} />
-                  <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.username || 'default'}`} />
+                  <AvatarFallback>{user?.username?.[0]?.toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
                   <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    {user.username}
+                    {user?.username || 'Loading...'}
                   </CardTitle>
-                  {user.bio && (
+                  {user?.bio && (
                     <CardDescription className="max-w-2xl text-base leading-relaxed">
                       {user.bio}
                     </CardDescription>
                   )}
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {user.email && (
+                    {user?.email && (
                       <Button variant="outline" size="sm" className="gap-2">
                         <Mail className="h-4 w-4" />
                         {user.email}
                       </Button>
                     )}
-                    {user.phone && (
+                    {user?.phone && (
                       <Button variant="outline" size="sm" className="gap-2">
                         <Phone className="h-4 w-4" />
                         {user.phone}
@@ -130,11 +130,11 @@ export function UserProfile({
 
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <StatsCard icon={Calendar} value={formatDate(user.createdAt)?.split('/')[2] || 'N/A'} label="Member Since" />
+              <StatsCard icon={Calendar} value={formatDate(user?.createdAt)?.split('/')[2] || 'N/A'} label="Member Since" />
               <StatsCard icon={ChartPieIcon} value={totalCharts} label="Charts" />
               <StatsCard icon={Users} value={totalFriends} label="Friends" />
               <StatsCard icon={Share2} value={totalCollaborations} label="Collaborations" />
-              <StatsCard icon={Clock} value={formatDate(user.lastOnline)} label="Last Online" />
+              <StatsCard icon={Clock} value={formatDate(user?.lastOnline)} label="Last Online" />
             </div>
           </CardContent>
         </Card>
@@ -153,7 +153,7 @@ export function UserProfile({
                 icon={MapPin}
                 title="Location"
                 content={
-                  user.city && user.state
+                  user?.city && user?.state
                     ? `${user.city}, ${user.state} ${user.zipCode}`
                     : 'No location provided'
                 }
@@ -167,7 +167,7 @@ export function UserProfile({
                 title="Social Links"
                 content={
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries(user.socials as Record<string, string>).map(([platform, link]) => (
+                    {Object.entries(user?.socials as Record<string, string> || {}).map(([platform, link]) => (
                       link && (
                         <a
                           key={platform}
@@ -192,7 +192,7 @@ export function UserProfile({
                 title="Hobbies & Interests"
                 content={
                   <div className="flex flex-wrap gap-2">
-                    {user.hobbies?.map((hobby, index) => (
+                    {user?.hobbies?.map((hobby, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
@@ -213,7 +213,7 @@ export function UserProfile({
                 title="Skills & Talents"
                 content={
                   <div className="flex flex-wrap gap-2">
-                    {user.talents?.map((talent, index) => (
+                    {user?.talents?.map((talent, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
@@ -258,7 +258,7 @@ export function UserProfile({
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold">Certifications</h3>
                 <div className="space-y-4">
-                  {(user.certifications as Array<{ company: string; title: string; year: string }>)?.map((cert, index) => (
+                  {(user?.certifications as Array<{ company: string; title: string; year: string }> || []).map((cert, index) => (
                     <Card key={index} className="bg-primary/5 border-none">
                       <CardContent className="p-4 space-y-2">
                         <p><span className="font-medium">Company:</span> {cert.company}</p>

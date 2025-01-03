@@ -3,22 +3,32 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
+import { useUser } from "@/hooks/use-user";
 
 interface ForumPost {
   id: number;
   title: string;
   content: string;
-  author: string;
+  author?: {
+    id: number;
+    username: string;
+  };
   createdAt: string;
+  updatedAt: string;
 }
 
 interface ForumProps {
   posts: ForumPost[];
-  onCreatePost?: (post: Omit<ForumPost, "id" | "createdAt">) => void;
+  onCreatePost?: (post: Partial<ForumPost>) => void;
 }
 
 export function Forum({ posts, onCreatePost }: ForumProps) {
   const [newPost, setNewPost] = useState({ title: "", content: "" });
+  const { user } = useUser();
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString();
+  };
 
   return (
     <div className="space-y-6 w-full max-w-4xl mx-auto">
@@ -30,11 +40,14 @@ export function Forum({ posts, onCreatePost }: ForumProps) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (onCreatePost) {
+              if (onCreatePost && user) {
                 onCreatePost({
                   title: newPost.title,
                   content: newPost.content,
-                  author: "currentUser", // This should come from auth context
+                  author: {
+                    id: user.id,
+                    username: user.username
+                  }
                 });
                 setNewPost({ title: "", content: "" });
               }
@@ -62,7 +75,7 @@ export function Forum({ posts, onCreatePost }: ForumProps) {
             <CardHeader>
               <CardTitle>{post.title}</CardTitle>
               <div className="text-sm text-muted-foreground">
-                Posted by {post.author} on {post.createdAt}
+                Posted by {post.author?.username || 'Anonymous'} on {formatDate(post.createdAt)}
               </div>
             </CardHeader>
             <CardContent>

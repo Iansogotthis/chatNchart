@@ -10,8 +10,14 @@ import type { Chart } from "@db/schema";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
+type PendingViewType = ViewType | 'form' | null;
 
 interface SelectedSquare {
   class: string;
@@ -35,7 +41,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSquareForm, setShowSquareForm] = useState(false);
-  const [pendingView, setPendingView] = useState<ViewType | null>(null);
+  const [pendingView, setPendingView] = useState<PendingViewType>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const queryClient = useQueryClient();
   const { user } = useUser();
@@ -140,36 +146,42 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   };
 
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
-    setSelectedSquare({ class: className, parent: parentText, depth });
-
-    if (pendingView) {
-      // Handle pending view change
-      if (pendingView === 'scoped') {
-        const previousClass = getPreviousHierarchyLevel(className);
-        if (previousClass) {
-          const newParent = parentText.split('_').slice(0, -1).join('_');
-          const newDepth = depth - 1;
-
-          setSelectedSquare({
-            class: previousClass,
-            parent: newParent || 'Center',
-            depth: newDepth
-          });
-          setCurrentView('scoped');
-          toast.success(`Centered on parent ${previousClass}`);
-        }
-      } else if (pendingView === 'scaled') {
-        setCurrentView('scaled');
-        toast.success(`Centered on ${className} with all descendants`);
-      }
-      setPendingView(null);
-    } else if (currentView === 'standard' || currentView === 'delineated') {
+    if (!pendingView) {
+      setSelectedSquare({ class: className, parent: parentText, depth });
       setIsModalOpen(true);
+      return;
+    }
+
+    if (pendingView === 'form') {
+      setSelectedSquare({ class: className, parent: parentText, depth });
+      setShowSquareForm(true);
+      setPendingView(null);
+      return;
+    }
+
+    if (pendingView === 'scoped') {
+      const previousClass = getPreviousHierarchyLevel(className);
+      if (previousClass) {
+        const newParent = parentText.split('_').slice(0, -1).join('_');
+        const newDepth = depth - 1;
+        setSelectedSquare({
+          class: previousClass,
+          parent: newParent || 'Center',
+          depth: newDepth
+        });
+        setCurrentView('scoped');
+        setPendingView(null);
+        toast.success(`Scoped to parent ${previousClass}`);
+      }
+    } else if (pendingView === 'scaled') {
+      setSelectedSquare({ class: className, parent: parentText, depth });
+      setCurrentView('scaled');
+      setPendingView(null);
+      toast.success(`Scaled view centered on ${className}`);
     }
   };
 
   const toggleSquareForm = () => {
-    setPendingView(null);
     if (!selectedSquare) {
       setPendingView('form');
       toast.info("Please select a square first");
@@ -186,9 +198,10 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       setIsModalOpen(false);
       setShowSquareForm(false);
       setPendingView(null);
+      toast.success(`Switched to ${viewType} view`);
     } else {
       setPendingView(viewType);
-      toast.info("Please select a square from which you wish to perspect");
+      toast.info(`Please select a square to ${viewType === 'scoped' ? 'scope to its parent' : 'scale and show all descendants'}`);
     }
 
     if (svgRef.current) {
@@ -578,14 +591,23 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
         <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
           {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
-            <Button
-              key={viewType}
-              onClick={() => handleViewChange(viewType as ViewType)}
-              variant={currentView === viewType ? 'default' : 'outline'}
-              className="whitespace-nowrap"
-            >
-              {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
-            </Button>
+            <Tooltip key={viewType}>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => handleViewChange(viewType as ViewType)}
+                  variant={currentView === viewType ? 'default' : 'outline'}
+                  className="whitespace-nowrap"
+                >
+                  {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {viewType === 'scaled' && 'Center on a square and show all its descendants'}
+                {viewType === 'scoped' && 'Center on parent square and show its immediate children'}
+                {viewType === 'standard' && 'Default hierarchical view'}
+                {viewType === 'delineated' && 'Spaced hierarchical view'}
+              </TooltipContent>
+            </Tooltip>
           ))}
         </div>
 
@@ -595,13 +617,20 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
               Selected: {selectedSquare.class}
             </span>
           )}
-          <Button
-            onClick={toggleSquareForm}
-            variant={showSquareForm ? 'default' : 'outline'}
-            className="whitespace-nowrap"
-          >
-            {showSquareForm ? 'Hide Form' : 'In/Exclude'}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={toggleSquareForm}
+                variant={showSquareForm ? 'default' : 'outline'}
+                className="whitespace-nowrap"
+              >
+                {showSquareForm ? 'Hide Form' : 'In/Exclude'}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Add or remove square details
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 

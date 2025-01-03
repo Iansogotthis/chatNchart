@@ -181,20 +181,7 @@ export const chartRelations = relations(charts, ({ one, many }) => ({
   savedBy: many(savedCharts),
 }));
 
-export const messageRelations = relations(messages: {
-  id: serial('id').primaryKey(),
-  content: text('content').notNull(),
-  senderId: integer('sender_id').references(() => users.id).notNull(),
-  receiverId: integer('receiver_id').references(() => users.id).notNull(),
-  messageType: text('message_type', { enum: ['DM', 'TM', 'GM', 'LM', 'AM', 'CM'] }).default('DM'),
-  status: text('status', { enum: ['unread', 'read', 'sent', 'draft'] }).default('unread'),
-  isImportant: boolean('is_important').default(false),
-  isRead: boolean('is_read').default(false),
-  isDraft: boolean('is_draft').default(false),
-  projectId: integer('project_id'),
-  folder: text('folder'),
-  createdAt: timestamp('created_at').defaultNow(),
-}, ({ one }) => ({
+export const messageRelations = relations(messages, ({ one }) => ({
   sender: one(users, {
     fields: [messages.senderId],
     references: [users.id],

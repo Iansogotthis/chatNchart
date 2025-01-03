@@ -2,8 +2,18 @@ import type { Express } from "express";
 import { createServer } from "http";
 import { setupAuth } from "./auth";
 import { db } from "../db";
-import { charts, forumPosts, friends, users, squareCustomizations } from "../db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { 
+  charts, 
+  messages,
+  savedCharts,
+  chartLikes,
+  notifications,
+  forumPosts, 
+  friends, 
+  users,
+  squareCustomizations 
+} from "../db/schema";
+import { eq, and, desc, or } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {
@@ -17,6 +27,203 @@ export function registerRoutes(app: Express) {
       isAuthenticated: req.isAuthenticated?.(),
       user: req.user
     });
+  });
+
+  // Message routes
+  app.get("/api/messages", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const messages = await db
+        .select({
+          id: messages.id,
+          content: messages.content,
+          isRead: messages.isRead,
+          createdAt: messages.createdAt,
+          sender: {
+            id: users.id,
+            username: users.username,
+          },
+          receiver: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(messages)
+        .where(or(
+          eq(messages.senderId, req.user.id),
+          eq(messages.receiverId, req.user.id)
+        ))
+        .leftJoin(users, eq(messages.senderId, users.id))
+        .leftJoin(users, eq(messages.receiverId, users.id))
+        .orderBy(desc(messages.createdAt));
+
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+  });
+
+  app.post("/api/messages", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const [message] = await db.insert(messages).values({
+        senderId: req.user.id,
+        receiverId: req.body.receiverId,
+        content: req.body.content,
+      }).returning();
+
+      // Create notification for the receiver
+      await db.insert(notifications).values({
+        userId: req.body.receiverId,
+        type: 'message',
+        sourceId: message.id,
+      });
+
+      res.json(message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
+  // Saved charts routes
+  app.get("/api/saved-charts", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const saved = await db
+        .select({
+          id: savedCharts.id,
+          notes: savedCharts.notes,
+          createdAt: savedCharts.createdAt,
+          chart: {
+            id: charts.id,
+            title: charts.title,
+            data: charts.data,
+            creator: {
+              id: users.id,
+              username: users.username,
+            },
+          },
+        })
+        .from(savedCharts)
+        .where(eq(savedCharts.userId, req.user.id))
+        .leftJoin(charts, eq(savedCharts.chartId, charts.id))
+        .leftJoin(users, eq(charts.userId, users.id));
+
+      res.json(saved);
+    } catch (error) {
+      console.error('Error fetching saved charts:', error);
+      res.status(500).json({ error: 'Failed to fetch saved charts' });
+    }
+  });
+
+  app.post("/api/saved-charts", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const [saved] = await db.insert(savedCharts).values({
+        userId: req.user.id,
+        chartId: req.body.chartId,
+        notes: req.body.notes,
+      }).returning();
+
+      res.json(saved);
+    } catch (error) {
+      console.error('Error saving chart:', error);
+      res.status(500).json({ error: 'Failed to save chart' });
+    }
+  });
+
+  // Chart likes routes
+  app.post("/api/charts/:id/like", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const [like] = await db.insert(chartLikes).values({
+        userId: req.user.id,
+        chartId: parseInt(req.params.id),
+      }).returning();
+
+      // Create notification for the chart owner
+      const [chart] = await db
+        .select()
+        .from(charts)
+        .where(eq(charts.id, parseInt(req.params.id)))
+        .limit(1);
+
+      if (chart && chart.userId !== req.user.id) {
+        await db.insert(notifications).values({
+          userId: chart.userId,
+          type: 'chart_like',
+          sourceId: like.id,
+        });
+      }
+
+      res.json(like);
+    } catch (error) {
+      console.error('Error liking chart:', error);
+      res.status(500).json({ error: 'Failed to like chart' });
+    }
+  });
+
+  app.delete("/api/charts/:id/like", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      await db
+        .delete(chartLikes)
+        .where(and(
+          eq(chartLikes.userId, req.user.id),
+          eq(chartLikes.chartId, parseInt(req.params.id))
+        ));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error unliking chart:', error);
+      res.status(500).json({ error: 'Failed to unlike chart' });
+    }
+  });
+
+  // Notifications routes
+  app.get("/api/notifications", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const notifications = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, req.user.id))
+        .orderBy(desc(notifications.createdAt));
+
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ error: 'Failed to fetch notifications' });
+    }
+  });
+
+  app.patch("/api/notifications/:id", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const [notification] = await db
+        .update(notifications)
+        .set({ isRead: true })
+        .where(and(
+          eq(notifications.id, parseInt(req.params.id)),
+          eq(notifications.userId, req.user.id)
+        ))
+        .returning();
+
+      res.json(notification);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ error: 'Failed to update notification' });
+    }
   });
 
   // Chart routes

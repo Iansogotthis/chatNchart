@@ -14,6 +14,7 @@ import { ChartVisualization } from "./components/ChartVisualization";
 import Navbar from "./components/Navbar";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function App() {
   const { user, isLoading } = useUser();
@@ -21,7 +22,6 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    // Add smooth scrolling to the root element
     if (typeof document !== 'undefined') {
       document.documentElement.style.scrollBehavior = 'smooth';
     }
@@ -37,52 +37,54 @@ function App() {
 
   if (!user) {
     return (
-      <>
+      <TooltipProvider>
         <AuthPage />
         <Toaster />
-      </>
+      </TooltipProvider>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <div className="flex-1 pt-14">
-        <div className="grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out" 
-             style={{ 
-               gridTemplateColumns: sidebarOpen ? '250px 1fr' : '0px 1fr'
-             }}>
-          <div className={cn(
-            "overflow-hidden transition-all duration-300",
-            sidebarOpen ? "w-[250px]" : "w-0"
-          )}>
-            <ChartsNavigation 
-              onSelect={setSelectedChart} 
-              selectedChart={selectedChart}
-            />
+    <TooltipProvider>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <div className="flex-1 pt-14">
+          <div className="grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out" 
+               style={{ 
+                 gridTemplateColumns: sidebarOpen ? '250px 1fr' : '0px 1fr'
+               }}>
+            <div className={cn(
+              "overflow-hidden transition-all duration-300",
+              sidebarOpen ? "w-[250px]" : "w-0"
+            )}>
+              <ChartsNavigation 
+                onSelect={setSelectedChart} 
+                selectedChart={selectedChart}
+              />
+            </div>
+            <main className="overflow-auto">
+              <Switch>
+                <Route path="/">
+                  {selectedChart ? (
+                    <ChartVisualization chart={selectedChart} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      Select or create a chart to get started
+                    </div>
+                  )}
+                </Route>
+                <Route path="/form" component={FormView} />
+                <Route path="/profile/:username" component={ProfilePage} />
+                <Route path="/forum" component={ForumPage} />
+                <Route path="/messages" component={MessagesPage} />
+                <Route>404 Page Not Found</Route>
+              </Switch>
+            </main>
           </div>
-          <main className="overflow-auto">
-            <Switch>
-              <Route path="/">
-                {selectedChart ? (
-                  <ChartVisualization chart={selectedChart} />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    Select or create a chart to get started
-                  </div>
-                )}
-              </Route>
-              <Route path="/form" component={FormView} />
-              <Route path="/profile/:username" component={ProfilePage} />
-              <Route path="/forum" component={ForumPage} />
-              <Route path="/messages" component={MessagesPage} />
-              <Route>404 Page Not Found</Route>
-            </Switch>
-          </main>
         </div>
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
+    </TooltipProvider>
   );
 }
 

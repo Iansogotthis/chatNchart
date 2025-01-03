@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 
 interface SquareModalProps {
   isOpen: boolean;
@@ -48,7 +49,6 @@ interface SquareData {
       color: string;
     };
   };
-  viewMode?: 'scoped' | 'scaled' | 'included-build';
 }
 
 export default function SquareModal({ 
@@ -66,36 +66,6 @@ export default function SquareModal({
   useEffect(() => {
     setData(initialData);
   }, [initialData]);
-
-  const handleSave = () => {
-    const formattedData: SquareData = {
-      title: data.title || initialData.title,
-      priority: {
-        density: Number(data.priority?.density) as 1 | 2 | 3 | 4 || 1,
-        durability: data.priority?.durability || 'single',
-        decor: data.priority?.decor || '#000000'
-      },
-      urgency: data.urgency || 'black',
-      aesthetic: {
-        impact: {
-          bold: Boolean(data.aesthetic?.impact?.bold),
-          italic: Boolean(data.aesthetic?.impact?.italic),
-          underline: Boolean(data.aesthetic?.impact?.underline)
-        },
-        affect: {
-          fontFamily: data.aesthetic?.affect?.fontFamily || 'Arial',
-          fontSize: Number(data.aesthetic?.affect?.fontSize) || 14
-        },
-        effect: {
-          color: data.aesthetic?.effect?.color || '#000000'
-        }
-      },
-      viewMode: data.viewMode
-    };
-
-    onSave(formattedData);
-    onClose();
-  };
 
   const handleDataChange = (path: string[], value: any) => {
     setData(prevData => {
@@ -116,6 +86,7 @@ export default function SquareModal({
 
   const openDetailings = () => {
     if (!squareClass || !parentText || depth === undefined) {
+      toast.error("Square information is incomplete");
       return;
     }
     const params = new URLSearchParams({
@@ -128,7 +99,7 @@ export default function SquareModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Square</DialogTitle>
           <div className="text-sm text-muted-foreground">
@@ -136,8 +107,8 @@ export default function SquareModal({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="h-[70vh] pr-4">
-          <div className="space-y-4 pb-4">
+        <ScrollArea className="flex-1 px-4">
+          <div className="space-y-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -309,7 +280,7 @@ export default function SquareModal({
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={() => onSave(data)}>
               Save Changes
             </Button>
           </div>

@@ -8,17 +8,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 import type { Chart } from "@db/schema";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Info } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped' | 'included-build';
+type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 
 interface SelectedSquare {
   class: string;
@@ -145,44 +138,21 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
     }
   };
 
-  const getViewTooltip = (viewType: ViewType) => {
-    if (!selectedSquare) return "Select a square first";
-
-    switch (viewType) {
-      case 'scoped':
-        const parentLevel = getPreviousHierarchyLevel(selectedSquare.class);
-        return `Center on the parent ${parentLevel} and show its children`;
-      case 'scaled':
-        const childLevel = getNextHierarchyLevel(selectedSquare.class);
-        return `Center on this ${selectedSquare.class} and show all its ${childLevel}s`;
-      case 'standard':
-        return "Show the complete chart structure";
-      case 'delineated':
-        return "Show the chart with spacing between elements";
-      default:
-        return "";
-    }
-  };
 
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
+    if (!selectedSquare && (currentView === 'scaled' || currentView === 'scoped')) {
+      toast("Please select a square first");
+      return;
+    }
+
     setSelectedSquare({ class: className, parent: parentText, depth });
 
-    // Show navigation hint based on current view
     if (currentView === 'standard' || currentView === 'delineated') {
-      const scaledHint = getNextHierarchyLevel(className);
-      const scopedHint = getPreviousHierarchyLevel(className);
-
-      toast.info(
-        <div className="space-y-2">
-          <p>Square selected: {className}</p>
-          <p className="text-sm text-muted-foreground">
-            • Use Scaled View to focus on this {className} and its {scaledHint}s
-            <br/>
-            • Use Scoped View to focus on its parent {scopedHint}
-          </p>
-        </div>
-      );
       setIsModalOpen(true);
+    } else if (currentView === 'scaled') {
+      handleViewChange('scaled');
+    } else if (currentView === 'scoped') {
+      handleViewChange('scoped');
     }
   };
 
@@ -205,25 +175,29 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       setSelectedSquare(null);
       setIsModalOpen(false);
       setShowSquareForm(false);
-    } else if (viewType === 'scoped') {
-      const newParent = selectedSquare?.parent.split('_').slice(0, -1).join('_');
-      const newDepth = selectedSquare ? selectedSquare.depth - 1 : 0;
-      let newClass = getPreviousHierarchyLevel(selectedSquare?.class || '');
+    } else if (viewType === 'scoped' && selectedSquare) {
+      // Move up one level in hierarchy
+      const newParent = selectedSquare.parent.split('_').slice(0, -1).join('_');
+      const newDepth = selectedSquare.depth - 1;
+      let newClass = '';
+
+      if (selectedSquare.class === 'fruit') newClass = 'leaf';
+      else if (selectedSquare.class === 'leaf') newClass = 'branch';
+      else if (selectedSquare.class === 'branch') newClass = 'root';
 
       if (newClass) {
-        toast.success(`Centered on parent ${newClass}`);
         setSelectedSquare({
           class: newClass,
           parent: newParent || 'Center',
           depth: newDepth
         });
+        setCurrentView(viewType);
+        toast.success(`Centered on parent ${newClass}`);
       }
+    } else if (viewType === 'scaled' && selectedSquare) {
+      // Center on current selection and show children
       setCurrentView(viewType);
-      setIsModalOpen(false);
-    } else if (viewType === 'scaled') {
-      toast.success(`Centered on ${selectedSquare?.class} to show its children`);
-      setCurrentView(viewType);
-      setIsModalOpen(false);
+      toast.success(`Centered on ${selectedSquare.class}`);
     }
 
     if (svgRef.current) {
@@ -612,41 +586,24 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
     <div className="flex flex-col h-full space-y-4 p-4">
       <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
         <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
-          <TooltipProvider>
-            {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
-              <Tooltip key={viewType}>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => handleViewChange(viewType as ViewType)}
-                    variant={currentView === viewType ? 'default' : 'outline'}
-                    className="whitespace-nowrap"
-                    disabled={!selectedSquare && (viewType === 'scaled' || viewType === 'scoped')}
-                  >
-                    {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs">
-                  <p>{getViewTooltip(viewType as ViewType)}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </TooltipProvider>
+          {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
+            <Button
+              key={viewType}
+              onClick={() => handleViewChange(viewType as ViewType)}
+              variant={currentView === viewType ? 'default' : 'outline'}
+              className="whitespace-nowrap"
+              disabled={!selectedSquare && (viewType === 'scaled' || viewType === 'scoped')}
+            >
+              {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
+            </Button>
+          ))}
         </div>
 
         <div className="flex items-center gap-2 ml-4">
           {selectedSquare && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">
-              <span>Selected: {selectedSquare.class}</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Parent: {selectedSquare.parent}</p>
-                  <p>Depth: {selectedSquare.depth}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
+              Selected: {selectedSquare.class}
+            </span>
           )}
           <Button
             onClick={toggleSquareForm}
@@ -654,7 +611,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
             disabled={!selectedSquare}
             className="whitespace-nowrap"
           >
-            {showSquareForm ? 'Hide Form' : 'Include/Exclude'}
+            {showSquareForm ? 'Hide Form' : 'In/Exclude'}
           </Button>
         </div>
       </div>

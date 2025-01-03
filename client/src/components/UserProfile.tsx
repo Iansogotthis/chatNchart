@@ -275,9 +275,44 @@ export function UserProfile({
         </Card>
       </motion.div>
 
+      {/* Friends Section */}
+      <motion.div {...fadeInUp} transition={{ delay: 0.6 }}>
+        <Card>
+          <CardHeader>
+            <SectionHeader icon={Users} title={`Friends (${totalFriends})`} />
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-4">
+                {user?.friends?.map((friend) => (
+                  <Card key={friend.id} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <Avatar>
+                          <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${friend.username}`} />
+                          <AvatarFallback>{friend.username[0].toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <Link href={`/profile/${friend.username}`} className="font-medium hover:underline">
+                            {friend.username}
+                          </Link>
+                          {friend.bio && (
+                            <p className="text-sm text-muted-foreground line-clamp-1">{friend.bio}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Featured Charts */}
       {topCharts && topCharts.length > 0 && (
-        <motion.div {...fadeInUp} transition={{ delay: 0.6 }}>
+        <motion.div {...fadeInUp} transition={{ delay: 0.8 }}>
           <Card>
             <CardHeader>
               <SectionHeader icon={ChartPieIcon} title="Featured Charts" />

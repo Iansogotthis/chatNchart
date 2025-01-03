@@ -40,9 +40,9 @@ export function useTheme() {
         '--input': '#F5F5F5',
       },
       dark: {
-        '--background': '#000000',
-        '--foreground': '#FFFFFF',
-        '--muted': '#111111',
+        '--background': '0 0% 0%',
+        '--foreground': '0 0% 100%',
+        '--muted': '0 0% 7%',
         '--muted-foreground': '#D4D4D4',
         '--card': '#0A0A0A',
         '--card-foreground': '#FFFFFF',

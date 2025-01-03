@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'wouter';
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 type PendingAction = ViewType | 'form' | null;

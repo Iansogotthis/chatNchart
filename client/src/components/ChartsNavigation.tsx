@@ -85,8 +85,8 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
   });
 
   return (
-    <div className="flex flex-col h-full border-r border-border">
-      <div className="p-4 border-b border-border flex gap-2">
+    <div className="flex flex-col h-full border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="p-4 border-b border-border flex gap-2 sticky top-0 z-10 bg-background">
         <Button 
           onClick={() => createChartMutation.mutate()} 
           className="flex-1 gap-2"
@@ -116,11 +116,11 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
-          <div className="text-sm font-medium text-muted-foreground">
+          <div className="text-sm font-medium text-muted-foreground sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
             My Charts
           </div>
           <Separator className="my-2" />
-          <div className="space-y-2">
+          <div className="space-y-1">
             {isLoading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -130,18 +130,21 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
                 <Button
                   key={chart.id}
                   variant={selectedChart?.id === chart.id ? 'default' : 'ghost'}
-                  className="w-full justify-start font-normal"
+                  className="w-full justify-start font-normal text-left relative group"
                   onClick={() => onSelect(chart)}
                 >
-                  {chart.title}
+                  <span className="truncate flex-1">{chart.title}</span>
+                  {selectedChart?.id === chart.id && (
+                    <span className="absolute inset-y-0 right-2 w-1 bg-primary rounded-full" />
+                  )}
                 </Button>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No charts yet</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No charts yet</p>
             )}
           </div>
         </div>
-        <ScrollBar orientation="vertical" />
+        <ScrollBar />
       </ScrollArea>
     </div>
   );

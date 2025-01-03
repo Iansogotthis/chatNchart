@@ -7,6 +7,7 @@ import { SquareForm } from '@/components/SquareForm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 import type { Chart } from "@db/schema";
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped' | 'included-build';
 
@@ -533,26 +534,26 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">
-      <div className="flex justify-between items-center">
-        <div className="flex space-x-4">
+      <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
+        <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
           <Button
             onClick={() => handleViewChange('standard')}
             variant={currentView === 'standard' ? 'default' : 'outline'}
-            className="w-32"
+            className="whitespace-nowrap"
           >
             Standard Build
           </Button>
           <Button
             onClick={() => handleViewChange('delineated')}
             variant={currentView === 'delineated' ? 'default' : 'outline'}
-            className="w-32"
+            className="whitespace-nowrap"
           >
             Delineated View
           </Button>
           <Button
             onClick={() => handleViewChange('scaled')}
             variant={currentView === 'scaled' ? 'default' : 'outline'}
-            className={`w-32`}
+            className="whitespace-nowrap"
             disabled={!selectedSquare}
             title={!selectedSquare ? "Select a square first" : "View scaled version"}
           >
@@ -561,7 +562,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           <Button
             onClick={() => handleViewChange('scoped')}
             variant={currentView === 'scoped' ? 'default' : 'outline'}
-            className={`w-32`}
+            className="whitespace-nowrap"
             disabled={!selectedSquare}
             title={!selectedSquare ? "Select a square first" : "View scoped version"}
           >
@@ -569,9 +570,9 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-4">
           {selectedSquare && (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
               Selected: {selectedSquare.class}
             </span>
           )}
@@ -580,63 +581,80 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
             variant={showSquareForm ? 'default' : 'outline'}
             disabled={!selectedSquare}
             title={!selectedSquare ? "Select a square first" : undefined}
+            className="whitespace-nowrap"
           >
             {showSquareForm ? 'Hide Form' : 'Include/Exclude'}
           </Button>
         </div>
       </div>
 
-      <div className="flex-1 flex gap-4">
-        <div className={`flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative ${showSquareForm ? 'w-2/3' : 'w-full'}`}>
-          <div className="aspect-square w-full h-full absolute inset-0">
-            <svg
-              ref={svgRef}
-              className="w-full h-full"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                overflow: 'visible'
-              }}
-              aria-label="Chart visualization"
-              role="img"
-            >
-              <title>Interactive Chart Visualization</title>
-              <desc>A visualization of nested squares representing different hierarchical levels</desc>
-              <defs>
-                <style type="text/css">
-                  {`
-                    .square { transition: all 0.3s ease-in-out; }
-                    .square:hover { filter: brightness(0.9); cursor: pointer; }
-                    text { user-select: none; }
-                  `}
-                </style>
-              </defs>
-            </svg>
+      <div className="flex-1 flex gap-4 min-h-0">
+        <div className={`flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative ${
+          showSquareForm ? 'w-2/3' : 'w-full'
+        }`}>
+          <div className="absolute inset-0 overflow-auto">
+            <div className="aspect-square w-full h-full relative">
+              <svg
+                ref={svgRef}
+                className="w-full h-full"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  overflow: 'visible'
+                }}
+                aria-label="Chart visualization"
+                role="img"
+              >
+                <title>Interactive Chart Visualization</title>
+                <desc>A visualization of nested squares representing different hierarchical levels</desc>
+                <defs>
+                  <style type="text/css">
+                    {`
+                      .square { transition: all 0.3s ease-in-out; }
+                      .square:hover { filter: brightness(0.9); cursor: pointer; }
+                      .square-selected { 
+                        filter: brightness(1.1);
+                        stroke: var(--primary);
+                        stroke-width: 2px;
+                      }
+                      text { user-select: none; }
+                      .square-group:focus { outline: none; }
+                      .square-group:focus .square { 
+                        stroke: var(--primary);
+                        stroke-width: 2px;
+                      }
+                    `}
+                  </style>
+                </defs>
+              </svg>
+            </div>
           </div>
         </div>
 
         {showSquareForm && selectedSquare && (
-          <div className="w-1/3 overflow-auto border rounded-lg p-4">
-            <SquareForm
-              squareData={{
-                title: '',
-                plane: '',
-                purpose: '',
-                delineator: '',
-                notations: '',
-                details: '',
-                extraData: '',
-                name: selectedSquare.class,
-                size: '',
-                color: '',
-                type: selectedSquare.class,
-                parent_id: selectedSquare.parent
-              }}
-              onSubmit={handleFormSubmit}
-            />
+          <div className="w-1/3 overflow-auto border rounded-lg p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <ScrollArea className="h-full pr-4">
+              <SquareForm
+                squareData={{
+                  title: '',
+                  plane: '',
+                  purpose: '',
+                  delineator: '',
+                  notations: '',
+                  details: '',
+                  extraData: '',
+                  name: selectedSquare.class,
+                  size: '',
+                  color: '',
+                  type: selectedSquare.class,
+                  parent_id: selectedSquare.parent
+                }}
+                onSubmit={handleFormSubmit}
+              />
+            </ScrollArea>
           </div>
         )}
       </div>
@@ -646,7 +664,6 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            // Only clear selection if we're in standard or delineated view
             if (currentView === 'standard' || currentView === 'delineated') {
               setSelectedSquare(null);
             }

@@ -33,8 +33,8 @@
 @media (max-width: 720px) {
   nav.fixed.z-50 {
     top: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 1rem;
+    transform: none;
     width: auto;
     height: auto;
     border-radius: 0.5rem;

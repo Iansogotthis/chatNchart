@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from '@/lib/utils';
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 type PendingViewType = ViewType | 'form' | null;
@@ -26,10 +27,10 @@ interface SelectedSquare {
 }
 
 const colors = {
-  "root": "lightblue",
-  "branch": "lightgray",
-  "leaf": "lightgreen",
-  "fruit": "lightcoral"
+  "root": "var(--root-color, rgb(176, 196, 222))",
+  "branch": "var(--branch-color, rgb(211, 211, 211))",
+  "leaf": "var(--leaf-color, rgb(144, 238, 144))",
+  "fruit": "var(--fruit-color, rgb(240, 128, 128))"
 } as const;
 
 interface ChartVisualizationProps {
@@ -588,7 +589,11 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
   }, [currentView, selectedSquare, squareStyles, isFullscreen]);
 
   return (
-    <div className="flex flex-col h-full space-y-4 p-4">
+    <div className={cn(
+      "flex flex-col h-full space-y-4 p-4",
+      "transition-all duration-300 ease-in-out",
+      isFullscreen ? "fixed inset-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : ""
+    )}>
       <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
         <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
           {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
@@ -634,6 +639,50 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
           </Tooltip>
         </div>
       </div>
+
+      <style type="text/css">
+        {`
+          :root {
+            --root-color: rgb(176, 196, 222);
+            --branch-color: rgb(211, 211, 211);
+            --leaf-color: rgb(144, 238, 144);
+            --fruit-color: rgb(240, 128, 128);
+          }
+
+          [data-theme='dark'] {
+            --root-color: rgb(100, 120, 140);
+            --branch-color: rgb(80, 80, 80);
+            --leaf-color: rgb(60, 100, 60);
+            --fruit-color: rgb(140, 60, 60);
+          }
+
+          .chart-container {
+            transition: all 0.3s ease-in-out;
+          }
+
+          .square { 
+            transition: all 0.3s ease-in-out; 
+          }
+
+          .square:hover { 
+            filter: brightness(1.1); 
+            cursor: pointer; 
+          }
+
+          .square-selected { 
+            filter: brightness(1.1);
+            stroke: var(--primary);
+            stroke-width: 2px;
+          }
+
+          @media (max-width: 640px) {
+            .buttons-container {
+              flex-wrap: wrap;
+              gap: 0.5rem;
+            }
+          }
+        `}
+      </style>
 
       <div className="flex-1 flex gap-4 min-h-0">
         <div className={`flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative ${

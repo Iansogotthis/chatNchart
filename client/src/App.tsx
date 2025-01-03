@@ -28,18 +28,19 @@ function App() {
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.style.scrollBehavior = 'smooth';
-    }
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
     } else {
       document.exitFullscreen();
-      setIsFullscreen(false);
     }
   };
 
@@ -90,15 +91,13 @@ function App() {
               )}
             </div>
             <div className="flex-1 pt-14">
-              <div 
-                className={cn(
-                  "grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out",
-                  {
-                    'lg:grid-cols-[250px_1fr] grid-cols-[0px_1fr]': sidebarOpen,
-                    'grid-cols-[0px_1fr]': !sidebarOpen
-                  }
-                )}
-              >
+              <div className={cn(
+                "grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out",
+                {
+                  'lg:grid-cols-[250px_1fr] grid-cols-[0px_1fr]': sidebarOpen,
+                  'grid-cols-[0px_1fr]': !sidebarOpen
+                }
+              )}>
                 <div className={cn(
                   "overflow-hidden transition-all duration-300 lg:block",
                   sidebarOpen ? "lg:w-[250px]" : "w-0"
@@ -109,8 +108,8 @@ function App() {
                   />
                 </div>
                 <main className={cn(
-                  "overflow-auto",
-                  isFullscreen ? "fixed inset-0 z-50 bg-background pl-[250px]" : ""
+                  "overflow-auto relative",
+                  isFullscreen && selectedChart ? "fixed inset-0 z-50 bg-background pl-[250px]" : ""
                 )}>
                   <Switch>
                     <Route path="/">

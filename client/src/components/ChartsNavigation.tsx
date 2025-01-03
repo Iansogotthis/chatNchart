@@ -120,7 +120,7 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
             My Charts
           </div>
           <Separator className="my-2" />
-          <div className="space-y-1">
+          <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
             {isLoading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -129,14 +129,11 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
               charts.map((chart) => (
                 <Button
                   key={chart.id}
-                  variant={selectedChart?.id === chart.id ? 'default' : 'ghost'}
-                  className="w-full justify-start font-normal text-left relative group"
+                  variant={selectedChart?.id === chart.id ? 'default' : 'outline'}
+                  className="whitespace-nowrap justify-start font-normal"
                   onClick={() => onSelect(chart)}
                 >
-                  <span className="truncate flex-1">{chart.title}</span>
-                  {selectedChart?.id === chart.id && (
-                    <span className="absolute inset-y-0 right-2 w-1 bg-primary rounded-full" />
-                  )}
+                  {chart.title}
                 </Button>
               ))
             ) : (

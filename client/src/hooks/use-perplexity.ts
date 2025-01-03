@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { generateResponse } from '@/lib/perplexityService';
 
-export function usePerplexity() {
+export function useGemini() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

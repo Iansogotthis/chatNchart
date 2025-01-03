@@ -1,28 +1,16 @@
 
-const API_URL = 'https://api.perplexity.ai/chat/completions';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 export async function generateResponse(prompt: string) {
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_PERPLEXITY_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "mixtral-8x7b-instruct",
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0]?.message?.content || '';
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
   } catch (error) {
-    console.error('Perplexity API error:', error);
+    console.error('Gemini API error:', error);
     throw error;
   }
 }

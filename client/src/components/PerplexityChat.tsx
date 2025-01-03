@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { usePerplexity } from '@/hooks/use-perplexity';
+import { useGemini } from '@/hooks/use-perplexity';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -25,7 +25,7 @@ export function PerplexityChat() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>AI Assistant</CardTitle>
+        <CardTitle>Gemini AI Assistant</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">

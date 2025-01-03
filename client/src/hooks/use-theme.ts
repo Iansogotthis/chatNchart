@@ -29,8 +29,14 @@ export function useTheme() {
         '--foreground': '#1A1A1A',
       },
       dark: {
-        '--background': '#121212',
-        '--foreground': '#E0E0E0',
+        '--background': '#0A0A0A',
+        '--foreground': '#D0D0D0',
+        '--muted': 'rgba(217, 217, 217, 0.1)',
+        '--muted-foreground': '#A0A0A0',
+        '--card': '#141414',
+        '--card-foreground': '#D0D0D0',
+        '--border': '#2A2A2A',
+        '--input': '#1A1A1A',
       },
       grey: {
         '--background': '#F5F5F5',

@@ -79,7 +79,7 @@ export function UserProfile({
   };
 
   const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
-    <div className="flex items-center gap-3 mb-6">
+    <div className="flex items-center justify-center gap-3 mb-6">
       <div className="p-2 rounded-lg bg-primary/10">
         <Icon className="h-6 w-6 text-primary" />
       </div>

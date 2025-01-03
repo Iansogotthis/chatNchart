@@ -32,14 +32,15 @@ async function fetchFriends(): Promise<FriendsResponse> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch friends');
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to fetch friends');
   }
 
   return response.json();
 }
 
 async function sendFriendRequest(username: string): Promise<void> {
-  const response = await fetch(`/api/friends/request/${username}`, {
+  const response = await fetch(`/api/friends/request/${encodeURIComponent(username)}`, {
     method: 'POST',
     credentials: 'include'
   });
@@ -83,7 +84,9 @@ export function useFriends() {
 
   const { data, error, isLoading } = useQuery<FriendsResponse>({
     queryKey: ['friends'],
-    queryFn: fetchFriends
+    queryFn: fetchFriends,
+    staleTime: 1000 * 60, // 1 minute
+    retry: 2
   });
 
   const sendRequestMutation = useMutation({

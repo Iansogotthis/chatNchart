@@ -1,3 +1,4 @@
+import { drizzle } from "drizzle-orm/neon-serverless";
 import type { Express } from "express";
 import { createServer } from "http";
 import { setupAuth } from "./auth";
@@ -16,17 +17,10 @@ import {
 import { eq, and, desc, or, sql, not } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
-// Type for user search results
-interface UserSearchResult {
-  id: number;
-  username: string;
-}
-
 export function registerRoutes(app: Express) {
   setupAuth(app);
   const httpServer = createServer(app);
 
-  // User search route with improved case-insensitive search
   app.get("/api/users/search", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");
 
@@ -36,15 +30,16 @@ export function registerRoutes(app: Express) {
         return res.json([]);
       }
 
-      // Case-insensitive search with more flexible matching
       const searchResults = await db
         .select({
           id: users.id,
           username: users.username,
         })
         .from(users)
-        .where(sql`LOWER(${users.username}) LIKE LOWER(${'%' + searchQuery + '%'})`)
-        .where(not(eq(users.id, req.user.id))) // Exclude current user
+        .where(and(
+          sql`LOWER(${users.username}) LIKE ${`%${searchQuery.toLowerCase()}%`}`,
+          not(eq(users.id, req.user.id))
+        ))
         .limit(10);
 
       res.json(searchResults);
@@ -54,12 +49,10 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Friend request route with improved validation
   app.post("/api/friends/request/:username", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");
 
     try {
-      // Get target user with case-insensitive match
       const [targetUser] = await db
         .select()
         .from(users)
@@ -74,7 +67,6 @@ export function registerRoutes(app: Express) {
         return res.status(400).send("Cannot send friend request to yourself");
       }
 
-      // Check if friend request already exists in either direction
       const [existingRequest] = await db
         .select()
         .from(friends)
@@ -99,7 +91,6 @@ export function registerRoutes(app: Express) {
         return res.status(400).send("Friend request already exists");
       }
 
-      // Create friend request
       const [friendRequest] = await db
         .insert(friends)
         .values({
@@ -109,7 +100,6 @@ export function registerRoutes(app: Express) {
         })
         .returning();
 
-      // Create notification for the target user
       await db.insert(notificationsTable).values({
         userId: targetUser.id,
         type: "friend_request",
@@ -132,7 +122,6 @@ export function registerRoutes(app: Express) {
         return res.status(400).send("Invalid action");
       }
 
-      // Get friend request
       const [friendRequest] = await db
         .select()
         .from(friends)
@@ -150,21 +139,18 @@ export function registerRoutes(app: Express) {
       }
 
       if (action === 'accept') {
-        // Update the friend request status
         const [updatedRequest] = await db
           .update(friends)
           .set({ status: "accepted" })
           .where(eq(friends.id, friendRequest.id))
           .returning();
 
-        // Create reverse friendship entry
         await db.insert(friends).values({
           userId: friendRequest.friendId,
           friendId: friendRequest.userId,
           status: "accepted"
         });
 
-        // Create notification for the requester
         await db.insert(notificationsTable).values({
           userId: friendRequest.userId,
           type: "friend_request_accepted",
@@ -173,7 +159,6 @@ export function registerRoutes(app: Express) {
 
         res.json(updatedRequest);
       } else {
-        // Delete the friend request if rejected
         await db
           .delete(friends)
           .where(eq(friends.id, friendRequest.id));
@@ -190,7 +175,6 @@ export function registerRoutes(app: Express) {
     if (!req.user) return res.status(401).send("Not authenticated");
 
     try {
-      // Delete both friendship entries
       await db
         .delete(friends)
         .where(
@@ -256,7 +240,6 @@ export function registerRoutes(app: Express) {
         )
         .leftJoin(users, eq(friends.userId, users.id));
 
-      // Transform and type-check the response data
       const response = {
         friends: friendsList.map(f => ({
           id: f.id,
@@ -333,14 +316,12 @@ export function registerRoutes(app: Express) {
         content: req.body.content,
       }).returning();
 
-      // Create notification for the receiver
       await db.insert(notificationsTable).values({
         userId: parseInt(req.body.receiverId),
         type: 'message',
         sourceId: message.id,
       });
 
-      // Fetch the complete message with sender and receiver info
       const [completeMessage] = await db
         .select({
           id: messagesTable.id,
@@ -428,7 +409,6 @@ export function registerRoutes(app: Express) {
         chartId: parseInt(req.params.id),
       }).returning();
 
-      // Create notification for the chart owner
       const [chart] = await db
         .select()
         .from(charts)
@@ -601,7 +581,6 @@ export function registerRoutes(app: Express) {
         content: req.body.content,
       }).returning();
 
-      // Fetch the created post with author information
       const [createdPost] = await db
         .select({
           id: forumPosts.id,

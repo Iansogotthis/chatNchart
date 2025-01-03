@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 interface SearchResult {
   id: number;
   username: string;
+}
+
+interface FriendStatus {
   isFriend?: boolean;
   hasRequestPending?: boolean;
 }
@@ -19,7 +22,7 @@ export function SearchFriends() {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<(SearchResult & FriendStatus)[]>([]);
   const { user } = useUser();
   const { friends, pendingRequests, sendRequest, isMutating } = useFriends();
   const { toast } = useToast();
@@ -45,11 +48,10 @@ export function SearchFriends() {
 
       // Transform results with friend status
       const searchResults = users.map(user => ({
-        id: user.id,
-        username: user.username,
+        ...user,
         isFriend: friends.some(f => f.friend?.id === user.id),
         hasRequestPending: pendingRequests.some(r => r.sender?.id === user.id) || 
-                         friends.some(f => f.friend?.id === user.id && f.status === "pending")
+                         friends.some(f => f.friend?.id === user.id)
       }));
 
       setResults(searchResults);

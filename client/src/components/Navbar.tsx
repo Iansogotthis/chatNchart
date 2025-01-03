@@ -69,17 +69,24 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             {user && (
               <>
                 <SearchFriends />
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                  className="mr-2"
+                >
+                  {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2 .5 3" /><path d="M9 18h6" /><path d="M10 22h4" /></svg>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme('grey')}>Grey</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme('almond')}>Almond</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('light')}>Bright</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('dark')}>Navy</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('grey')}>Slate</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <DropdownMenu>

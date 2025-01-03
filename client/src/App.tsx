@@ -24,6 +24,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Maximize2, Minimize2 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "wouter";
 
 function App() {
   const { user, isLoading } = useUser();

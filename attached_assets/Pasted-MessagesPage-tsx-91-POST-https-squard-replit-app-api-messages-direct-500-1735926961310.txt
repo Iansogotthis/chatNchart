@@ -1,0 +1,2205 @@
+MessagesPage.tsx:91 
+        
+        
+       POST https://squard.replit.app/api/messages/direct 500 (Internal Server Error)
+mutationFn @ MessagesPage.tsx:91
+fn @ @tanstack_react-query.js?v=0a6f8e26:1188
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+execute @ @tanstack_react-query.js?v=0a6f8e26:1224
+await in execute
+mutate @ @tanstack_react-query.js?v=0a6f8e26:2621
+handleSendMessage @ MessagesPage.tsx:165
+callCallback2 @ chunk-RPCDYKBN.js?v=d41ff8be:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=d41ff8be:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=d41ff8be:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=d41ff8be:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=d41ff8be:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=d41ff8be:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=d41ff8be:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=d41ff8be:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=d41ff8be:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=d41ff8be:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=d41ff8be:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=d41ff8be:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=d41ff8be:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=d41ff8be:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=d41ff8be:5449Understand this errorAI
+MessagesPage.tsx:170 Error sending message: Error: {"message":"column \"message_type\" of relation \"messages\" does not exist","stack":"error: column \"message_type\" of relation \"messages\" does not exist\n    at file:///home/runner/b6f31257-b053-4411-a23c-60e30ca184b6/node_modules/@neondatabase/serverless/index.mjs:1345:74\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async NeonPreparedQuery.execute (/home/runner/b6f31257-b053-4411-a23c-60e30ca184b6/node_modules/src/neon-serverless/session.ts:102:18)\n    at async <anonymous> (/home/runner/b6f31257-b053-4411-a23c-60e30ca184b6/server/routes/messages.ts:105:26)","details":{}}
+    at Object.mutationFn (MessagesPage.tsx:101:15)
+overrideMethod @ hook.js:608
+handleSendMessage @ MessagesPage.tsx:170
+await in handleSendMessage
+callCallback2 @ chunk-RPCDYKBN.js?v=d41ff8be:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=d41ff8be:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=d41ff8be:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=d41ff8be:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=d41ff8be:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=d41ff8be:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=d41ff8be:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=d41ff8be:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=d41ff8be:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=d41ff8be:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=d41ff8be:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=d41ff8be:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=d41ff8be:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=d41ff8be:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=d41ff8be:5449Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514Understand this errorAI
+Messages.tsx:60 
+        
+        
+       GET https://squard.replit.app/api/messages/direct/3 500 (Internal Server Error)
+queryFn @ Messages.tsx:60
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518Understand this errorAI
+Messages.tsx:72 Error fetching messages: Error: Failed to fetch direct messages
+    at queryFn (Messages.tsx:68:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:72
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=0a6f8e26:839
+run @ @tanstack_react-query.js?v=0a6f8e26:493
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:518
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:514
+Promise.catch
+run @ @tanstack_react-query.js?v=0a6f8e26:497
+start @ @tanstack_react-query.js?v=0a6f8e26:535
+fetch @ @tanstack_react-query.js?v=0a6f8e26:925
+executeFetch_fn @ @tanstack_react-query.js?v=0a6f8e26:2211
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:2245
+setInterval
+updateRefetchInterval_fn @ @tanstack_react-query.js?v=0a6f8e26:2243
+updateTimers_fn @ @tanstack_react-query.js?v=0a6f8e26:2250
+onQueryUpdate @ @tanstack_react-query.js?v=0a6f8e26:2206
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:997
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:996
+batch @ @tanstack_react-query.js?v=0a6f8e26:582
+dispatch_fn @ @tanstack_react-query.js?v=0a6f8e26:995
+onError @ @tanstack_react-query.js?v=0a6f8e26:860
+reject @ @tanstack_react-query.js?v=0a6f8e26:464
+(anonymous) @ @tanstack_react-query.js?v=0a6f8e26:507Understand this errorAI

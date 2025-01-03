@@ -68,11 +68,13 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold mb-8 text-center">Live Demo</h2>
           <div className="bg-background rounded-lg shadow-lg p-6">
             {isLoading ? (
-              <div className="flex items-center justify-center h-[400px]">
+              <div className="flex items-center justify-center h-[800px]">
                 Loading demo...
               </div>
             ) : (
-              <ChartVisualization chart={chartData} />
+              <div className="h-[800px]">
+                <ChartVisualization chart={chartData} />
+              </div>
             )}
           </div>
         </div>

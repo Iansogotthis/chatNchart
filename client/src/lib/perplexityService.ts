@@ -7,7 +7,7 @@ export async function generateResponse(prompt: string) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
+        'Authorization': `Bearer ${import.meta.env.VITE_PERPLEXITY_API_KEY}`
       },
       body: JSON.stringify({
         model: "mixtral-8x7b-instruct",

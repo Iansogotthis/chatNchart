@@ -132,7 +132,7 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
                   key={chart.id}
                   variant={selectedChart?.id === chart.id ? 'default' : 'outline'}
                   className="whitespace-nowrap justify-start font-normal"
-                  onClick={() => onSelect(chart)}
+                  onClick={() => setLocation(`/charts/${chart.id}`)}
                 >
                   {chart.title}
                 </Button>

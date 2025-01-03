@@ -158,18 +158,26 @@ function App() {
                         <HomePage />
                       </Route>
                       <Route path="/charts">
-                        <div className="flex-1 p-4">
-                          {selectedChart ? (
-                            <ChartVisualization 
-                              chart={selectedChart} 
-                              isFullscreen={isFullscreen}
-                            />
+                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                          Select a chart or create a new one to get started
+                        </div>
+                      </Route>
+                      <Route path="/charts/:chartId">
+                        {(params) => {
+                          const chart = charts?.find(c => c.id === parseInt(params.chartId));
+                          return chart ? (
+                            <div className="flex-1 p-4">
+                              <ChartVisualization 
+                                chart={chart} 
+                                isFullscreen={isFullscreen}
+                              />
+                            </div>
                           ) : (
                             <div className="flex items-center justify-center h-full text-muted-foreground">
-                              Select a chart or create a new one to get started
+                              Chart not found
                             </div>
-                          )}
-                        </div>
+                          );
+                        }}
                       </Route>
                       <Route path="/profile/:username" component={ProfilePage} />
                       <Route path="/forum" component={ForumPage} />

@@ -29,14 +29,14 @@ export function useTheme() {
 
     const styles: ThemeStyles = {
       light: {
-        '--background': '0 0% 3%',
-        '--foreground': '#FFFFFF',
+        '--background': '0 0% 100%',
+        '--foreground': '#111111',
         '--muted': '#F5F5F5',
         '--muted-foreground': '#737373',
-        '--card': '#0A0A0A',
-        '--card-foreground': '#FFFFFF',
-        '--border': '#262626',
-        '--input': '#111111',
+        '--card': '#FFFFFF',
+        '--card-foreground': '#111111',
+        '--border': '#E5E5E5',
+        '--input': '#F5F5F5',
         '--accent': '#EF4444', // Red for light theme
         '--accent-foreground': '#FFFFFF',
       },

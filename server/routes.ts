@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { setupAuth } from "./auth";
 import { db } from "../db";
 import { charts, forumPosts, friends, users, squareCustomizations } from "../db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {
@@ -81,18 +81,72 @@ export function registerRoutes(app: Express) {
 
   // Forum routes
   app.get("/api/forum/posts", async (_req, res) => {
-    const posts = await db.select().from(forumPosts);
-    res.json(posts);
+    try {
+      const posts = await db
+        .select({
+          id: forumPosts.id,
+          title: forumPosts.title,
+          content: forumPosts.content,
+          createdAt: forumPosts.createdAt,
+          author: {
+            id: users.id,
+            username: users.username
+          }
+        })
+        .from(forumPosts)
+        .leftJoin(users, eq(forumPosts.userId, users.id))
+        .orderBy(desc(forumPosts.createdAt));
+
+      // Transform the results to handle null authors
+      const transformedPosts = posts.map(post => ({
+        ...post,
+        author: post.author.id ? post.author : null
+      }));
+
+      res.json(transformedPosts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      res.status(500).json({ error: 'Failed to fetch posts' });
+    }
   });
 
   app.post("/api/forum/posts", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");
-    const [post] = await db.insert(forumPosts).values({
-      userId: req.user.id,
-      title: req.body.title,
-      content: req.body.content,
-    }).returning();
-    res.json(post);
+    try {
+      const [post] = await db.insert(forumPosts).values({
+        userId: req.user.id,
+        title: req.body.title,
+        content: req.body.content,
+      }).returning();
+
+      // Fetch the created post with author information
+      const [createdPost] = await db
+        .select({
+          id: forumPosts.id,
+          title: forumPosts.title,
+          content: forumPosts.content,
+          createdAt: forumPosts.createdAt,
+          author: {
+            id: users.id,
+            username: users.username
+          }
+        })
+        .from(forumPosts)
+        .leftJoin(users, eq(forumPosts.userId, users.id))
+        .where(eq(forumPosts.id, post.id))
+        .limit(1);
+
+      // Transform the result to handle null author
+      const transformedPost = {
+        ...createdPost,
+        author: createdPost.author.id ? createdPost.author : null
+      };
+
+      res.json(transformedPost);
+    } catch (error) {
+      console.error('Error creating post:', error);
+      res.status(500).json({ error: 'Failed to create post' });
+    }
   });
 
   // User profile routes

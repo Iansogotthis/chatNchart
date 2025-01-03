@@ -3,157 +3,51 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    font-size: 103%; /* Base scale increase of 3% */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: calc(0.5rem * 1.03); /* Scale up radius by 3% */
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
 
-  html {
-    font-size: 103%; /* Reinforce root scaling */
-  }
-
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    /* Scale all measurements by 3% */
-    --spacing-scale: 1.03;
-    --base-spacing: calc(1rem * var(--spacing-scale));
-  }
-
-  /* Scale spacing utilities */
-  .p-4 {
-    padding: calc(1rem * var(--spacing-scale));
-  }
-
-  .m-4 {
-    margin: calc(1rem * var(--spacing-scale));
+    @apply font-sans antialiased bg-background text-foreground;
   }
 }
-
-/* Navigation Styles */
-.side-nav {
-  @apply fixed lg:static h-full w-64 bg-background border-r border-border;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
-  z-index: 50;
-}
-
-.side-nav.open {
-  transform: translateX(0);
-}
-
-@media (min-width: 1024px) {
-  .side-nav {
-    transform: none;
-  }
-}
-
-/* Chart Styles */
 .square {
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
+    stroke: black;
+    stroke-width: 2px;
+    cursor: pointer;
 }
 
-.square:hover {
-  filter: brightness(1.1);
+.root {
+    fill: #60A5FA;
 }
 
-.square-selected {
-  filter: brightness(1.1);
-  stroke: hsl(var(--primary));
-  stroke-width: 2px;
+.branch {
+    fill: #34D399;
 }
 
-/* Responsive Design */
-@media (max-width: 640px) {
-  .chart-container {
-    height: calc(100vh - 4rem);
-  }
-
-  .buttons-container {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+.leaf {
+    fill: #F472B6;
 }
 
-@media (max-width: 768px) {
-  .chart-grid {
-    grid-template-columns: 1fr;
-  }
+.fruit {
+    fill: #A78BFA;
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .chart-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-@media (min-width: 1025px) {
-  .chart-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Full Screen Mode */
-.fullscreen-chart {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 50;
-  background-color: hsl(var(--background));
-  overflow: auto;
-}
-
-.fullscreen-chart .chart-container {
-  height: 100vh;
-  padding: 2rem;
+svg {
+    width: 90vw;
+    height: 90vh;
+    display: block;
+    margin: auto;
 }

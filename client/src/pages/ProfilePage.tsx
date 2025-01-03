@@ -36,17 +36,6 @@ export default function ProfilePage() {
     }
   });
 
-  const { data: pendingRequests = [], isLoading: isLoadingRequests } = useQuery({
-    queryKey: [`/api/users/${username}/friend-requests`],
-    queryFn: async () => {
-      if (!isOwnProfile) return [];
-      const response = await fetch(`/api/users/${username}/friend-requests`);
-      if (!response.ok) throw new Error('Failed to fetch friend requests');
-      return response.json();
-    },
-    enabled: user?.username === username // Only fetch requests for own profile
-  });
-
   const updateProfileMutation = useMutation({
     mutationFn: async ({ section, data }: { section: string; data: any }) => {
       const response = await fetch(`/api/users/${username}/profile/${section}`, {
@@ -93,8 +82,8 @@ export default function ProfilePage() {
   });
 
   const removeFriendMutation = useMutation({
-    mutationFn: async (friendId: number) => {
-      const response = await fetch(`/api/users/${username}/friends/${friendId}`, {
+    mutationFn: async () => {
+      const response = await fetch(`/api/users/${username}/friends`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to remove friend');
@@ -109,46 +98,7 @@ export default function ProfilePage() {
     },
   });
 
-  const handleAcceptRequest = async (requestId: number) => {
-    try {
-      await fetch(`/api/users/${username}/friend-requests/${requestId}/accept`, {
-        method: 'POST',
-      });
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${username}/friends`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${username}/friend-requests`] });
-      toast({
-        title: "Friend request accepted",
-        description: "You are now friends!",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to accept friend request",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleRejectRequest = async (requestId: number) => {
-    try {
-      await fetch(`/api/users/${username}/friend-requests/${requestId}/reject`, {
-        method: 'POST',
-      });
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${username}/friend-requests`] });
-      toast({
-        title: "Friend request rejected",
-        description: "Friend request has been rejected",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to reject friend request",
-        variant: "destructive",
-      });
-    }
-  };
-
-  if (isLoadingProfile || isLoadingFriends || isLoadingRequests) {
+  if (isLoadingProfile || isLoadingFriends) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -157,7 +107,7 @@ export default function ProfilePage() {
   }
 
   const isOwnProfile = user?.username === username;
-  const isFriend = friends?.some((friend: any) => friend.friend?.username === user?.username);
+  const isFriend = friends?.some((friend: any) => friend.username === user?.username);
 
   if (editSection) {
     return (
@@ -197,7 +147,7 @@ export default function ProfilePage() {
                   <Button
                     className="w-full"
                     variant={isFriend ? "destructive" : "default"}
-                    onClick={() => isFriend ? removeFriendMutation.mutate(profile.id) : addFriendMutation.mutate()}
+                    onClick={() => isFriend ? removeFriendMutation.mutate() : addFriendMutation.mutate()}
                     disabled={addFriendMutation.isPending || removeFriendMutation.isPending}
                   >
                     {addFriendMutation.isPending || removeFriendMutation.isPending ? (
@@ -228,17 +178,12 @@ export default function ProfilePage() {
                   <TabsContent value="friends">
                     <FriendList
                       friends={friends}
-                      pendingRequests={isOwnProfile ? pendingRequests : []}
-                      onRemoveFriend={isOwnProfile ? (id) => removeFriendMutation.mutate(id) : undefined}
-                      onAcceptRequest={isOwnProfile ? handleAcceptRequest : undefined}
-                      onRejectRequest={isOwnProfile ? handleRejectRequest : undefined}
+                      onRemove={isOwnProfile ? (id) => removeFriendMutation.mutate() : undefined}
                     />
                   </TabsContent>
                   <TabsContent value="mutuals">
                     <FriendList
                       friends={friends.filter((friend: any) => friend.isMutual)}
-                      pendingRequests={[]}
-                      isMutualView={true}
                     />
                   </TabsContent>
                 </Tabs>

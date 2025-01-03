@@ -14,7 +14,7 @@ import {
   users,
   squareCustomizations,
 } from "../db/schema";
-import { eq, and, desc, or, sql } from "drizzle-orm";
+import { eq, and, desc, or, sql, not } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {
@@ -36,12 +36,10 @@ export function registerRoutes(app: Express) {
           username: users.username,
         })
         .from(users)
-        .where(
-          and(
-            sql`LOWER(${users.username}) LIKE ${`%${searchQuery.toLowerCase()}%`}`,
-            sql`${users.id} != ${req.user.id}`
-          )
-        )
+        .where(and(
+          sql`LOWER(${users.username}) LIKE ${`%${searchQuery.toLowerCase()}%`}`,
+          not(eq(users.id, req.user.id))
+        ))
         .limit(10);
 
       res.json(searchResults);
@@ -612,106 +610,46 @@ export function registerRoutes(app: Express) {
   });
 
   app.get("/api/users/:username", async (req, res) => {
-    try {
-      const result = await db
-        .select({
-          id: users.id,
-          username: users.username,
-          bio: users.bio,
-          createdAt: users.createdAt,
-          email: users.email,
-          phone: users.phone,
-          city: users.city,
-          state: users.state,
-          zipCode: users.zipCode,
-          socials: users.socials,
-          favorites: users.favorites,
-          hobbies: users.hobbies,
-          talents: users.talents,
-          professional: users.professional,
-        })
-        .from(users)
-        .where(eq(users.username, req.params.username))
-        .limit(1);
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, req.params.username))
+      .limit(1);
 
-      const userData = result[0];
-      if (!userData) return res.status(404).send("User not found");
+    if (!user) return res.status(404).send("User not found");
 
-      const userCharts = await db
-        .select({
-          id: charts.id,
-          title: charts.title,
-          data: charts.data,
-          createdAt: charts.createdAt,
-          updatedAt: charts.updatedAt,
-          isPublic: charts.isPublic,
-          creator: {
-            id: users.id,
-            username: users.username,
-          }
-        })
-        .from(charts)
-        .leftJoin(users, eq(charts.userId, users.id))
-        .where(eq(charts.userId, userData.id))
-        .limit(5);
+    const userCharts = await db
+      .select()
+      .from(charts)
+      .where(eq(charts.userId, user.id))
+      .limit(5);
 
-      const transformedCharts = userCharts.map(chart => ({
-        id: chart.id,
-        title: chart.title,
-        data: chart.data,
-        createdAt: chart.createdAt,
-        updatedAt: chart.updatedAt,
-        isPublic: chart.isPublic,
-        creator: chart.creator,
-      }));
-
-      res.json({
-        ...userData,
-        topCharts: transformedCharts,
-      });
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({ error: 'Failed to fetch user data' });
-    }
+    res.json({
+      ...user,
+      topCharts: userCharts,
+    });
   });
 
   app.get("/api/users/:username/friends", async (req, res) => {
-    try {
-      const [user] = await db
-        .select({
-          id: users.id,
-          username: users.username,
-        })
-        .from(users)
-        .where(eq(users.username, req.params.username))
-        .limit(1);
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, req.params.username))
+      .limit(1);
 
-      if (!user) return res.status(404).send("User not found");
+    if (!user) return res.status(404).send("User not found");
 
-      const userFriends = await db
-        .select({
-          id: friends.id,
-          status: friends.status,
-          createdAt: friends.createdAt,
-          friend: {
-            id: users.id,
-            username: users.username,
-          },
-        })
-        .from(friends)
-        .where(
-          and(
-            eq(friends.userId, user.id),
-            eq(friends.status, "accepted")
-          )
+    const userFriends = await db
+      .select()
+      .from(friends)
+      .where(
+        and(
+          eq(friends.userId, user.id),
+          eq(friends.status, "accepted")
         )
-        .leftJoin(users, eq(friends.friendId, users.id));
+      );
 
-      res.json(userFriends);
-    } catch (error) {
-      console.error('Error fetching user friends:', error);
-      res.status(500).json({ error: 'Failed to fetch user friends' });
-    }
+    res.json(userFriends);
   });
 
   return httpServer;

@@ -23,31 +23,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Define public routes that don't require authentication
-const publicRoutes = [
-  '/api/login',
-  '/api/register',
-  '/api/user',
-  '/@vite/client',
-  '/src',
-  '/node_modules',
-  '/favicon.ico'
-];
-
-// Add request logging and auth check middleware
+// Add request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  // Only check auth for API routes that aren't public
-  if (path.startsWith('/api') && !publicRoutes.some(route => path.startsWith(route))) {
-    if (!req.isAuthenticated?.()) {
-      return res.status(401).json({ message: 'Not authenticated' });
-    }
-  }
+  // Debug auth state
+  log(`Auth state for ${path}: ${req.isAuthenticated?.() ? 'authenticated' : 'not authenticated'}`);
 
-  // Capture response for logging
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;

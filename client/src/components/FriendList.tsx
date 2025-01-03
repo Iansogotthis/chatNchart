@@ -29,12 +29,11 @@ interface Friend {
 
 interface FriendListProps {
   friends: Friend[];
-  pendingRequests?: FriendRequest[];
+  pendingRequests: FriendRequest[];
   onAcceptRequest?: (requestId: number) => void;
   onRejectRequest?: (requestId: number) => void;
   onRemoveFriend?: (friendId: number) => void;
   onMessage?: (friendId: number) => void;
-  isMutualView?: boolean;
 }
 
 export function FriendList({
@@ -44,11 +43,10 @@ export function FriendList({
   onRejectRequest,
   onRemoveFriend,
   onMessage,
-  isMutualView = false,
 }: FriendListProps) {
   return (
     <div className="space-y-6">
-      {!isMutualView && pendingRequests.length > 0 && (
+      {(pendingRequests?.length ?? 0) > 0 && (
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -59,50 +57,47 @@ export function FriendList({
           <CardContent>
             <ScrollArea className="h-[200px] pr-4">
               <div className="space-y-4">
-                {pendingRequests.map((request) => {
-                  if (!request.sender) return null;
-                  return (
-                    <Card key={request.id} className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <Avatar>
-                            <AvatarFallback>
-                              {request.sender.username.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <Link href={`/profile/${request.sender.username}`} className="font-medium hover:underline">
-                              {request.sender.username}
-                            </Link>
-                            <p className="text-sm text-muted-foreground">
-                              Sent {formatDistanceToNow(new Date(request.createdAt))} ago
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => onAcceptRequest?.(request.id)}
-                            className="bg-primary/10 hover:bg-primary/20 text-primary"
-                          >
-                            <UserCheck className="h-4 w-4 mr-1" />
-                            Accept
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onRejectRequest?.(request.id)}
-                            className="hover:bg-destructive/10 text-destructive hover:text-destructive"
-                          >
-                            <UserX className="h-4 w-4 mr-1" />
-                            Decline
-                          </Button>
+                {pendingRequests.map((request) => request.sender && (
+                  <Card key={request.id} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarFallback>
+                            {request.sender.username.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <Link href={`/profile/${request.sender.username}`} className="font-medium hover:underline">
+                            {request.sender.username}
+                          </Link>
+                          <p className="text-sm text-muted-foreground">
+                            Sent {formatDistanceToNow(new Date(request.createdAt))} ago
+                          </p>
                         </div>
                       </div>
-                    </Card>
-                  );
-                })}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => onAcceptRequest?.(request.id)}
+                          className="bg-primary/10 hover:bg-primary/20 text-primary"
+                        >
+                          <UserCheck className="h-4 w-4 mr-1" />
+                          Accept
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onRejectRequest?.(request.id)}
+                          className="hover:bg-destructive/10 text-destructive hover:text-destructive"
+                        >
+                          <UserX className="h-4 w-4 mr-1" />
+                          Decline
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
             </ScrollArea>
           </CardContent>
@@ -113,19 +108,19 @@ export function FriendList({
         <CardHeader>
           <div className="flex items-center gap-2">
             <UserCheck className="w-5 h-5 text-primary" />
-            <CardTitle>{isMutualView ? 'Mutual Friends' : 'Your Friends'}</CardTitle>
+            <CardTitle>Your Friends</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          {friends.length === 0 ? (
+          {(friends?.length ?? 0) === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              {isMutualView ? 'No mutual friends yet.' : 'No friends added yet. Start by sending friend requests!'}
+              No friends added yet. Start by sending friend requests!
             </p>
           ) : (
             <div className="space-y-4">
               {friends.map((friendship) => {
-                const friend = friendship.friend;
-                if (!friend) return null;
+                // Skip rendering if friend is null
+                if (!friendship.friend) return null;
 
                 return (
                   <Card key={friendship.id} className="p-4">
@@ -133,16 +128,16 @@ export function FriendList({
                       <div className="flex items-center space-x-4">
                         <Avatar>
                           <AvatarFallback>
-                            {friend.username.charAt(0).toUpperCase()}
+                            {friendship.friend.username.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <Link href={`/profile/${friend.username}`} className="font-medium hover:underline">
-                            {friend.username}
+                          <Link href={`/profile/${friendship.friend.username}`} className="font-medium hover:underline">
+                            {friendship.friend.username}
                           </Link>
-                          {friend.bio && (
+                          {friendship.friend.bio && (
                             <p className="text-sm text-muted-foreground line-clamp-1">
-                              {friend.bio}
+                              {friendship.friend.bio}
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground">
@@ -151,22 +146,22 @@ export function FriendList({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {onMessage && (
+                        {onMessage && friendship.friend && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onMessage(friend.id)}
+                            onClick={() => onMessage(friendship.friend.id)}
                             className="hover:bg-primary/10 text-primary hover:text-primary"
                           >
                             <MessageSquare className="h-4 w-4 mr-1" />
                             Message
                           </Button>
                         )}
-                        {onRemoveFriend && (
+                        {onRemoveFriend && friendship.friend && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onRemoveFriend(friend.id)}
+                            onClick={() => onRemoveFriend(friendship.friend.id)}
                             className="hover:bg-destructive/10 text-destructive hover:text-destructive"
                           >
                             <UserMinus className="h-4 w-4 mr-1" />

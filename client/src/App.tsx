@@ -2,7 +2,7 @@ import { Switch, Route } from "wouter";
 import { Loader2 } from "lucide-react";
 import { useUser } from "./hooks/use-user";
 import { useState, useEffect } from "react";
-import type { Chart } from "@db/schema";
+import type { Chart } from "../db/schema";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import ForumPage from "./pages/ForumPage";
@@ -14,11 +14,11 @@ import { ChartsNavigation } from "./components/ChartsNavigation";
 import { ChartVisualization } from "./components/ChartVisualization";
 import Navbar from "./components/Navbar";
 import { Toaster } from "sonner";
-import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { cn } from "./lib/utils";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { Button } from "./components/ui/button";
 import { Moon, Sun, Maximize2, Minimize2 } from "lucide-react";
-import { useTheme } from "@/hooks/use-theme";
+import { useTheme } from "./hooks/use-theme";
 
 function App() {
   const { user, isLoading } = useUser();
@@ -44,15 +44,39 @@ function App() {
     }
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (window.innerWidth <= 768 && sidebarOpen) {
+        const sidebar = document.querySelector('.side-nav');
+        const navToggle = document.querySelector('.nav-toggle');
+        if (
+          sidebar &&
+          !sidebar.contains(event.target as Node) &&
+          navToggle &&
+          !navToggle.contains(event.target as Node)
+        ) {
+          setSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [sidebarOpen]);
+
   return (
     <TooltipProvider>
       <div className={cn(
-        "min-h-screen bg-background flex flex-col",
-        "transition-colors duration-300"
+        "min-h-screen bg-background transition-colors duration-300",
+        "flex flex-col relative"
       )}>
         {isLoading ? (
           <div className="flex items-center justify-center min-h-screen">
-            <Loader2 className="h-8 w-8 animate-spin text-border" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : !user ? (
           <>
@@ -61,7 +85,7 @@ function App() {
           </>
         ) : (
           <>
-            <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+            <Navbar onToggleSidebar={toggleSidebar} />
             <div className="fixed top-4 right-4 z-50 flex gap-2">
               <Button
                 variant="outline"
@@ -74,6 +98,7 @@ function App() {
                 ) : (
                   <Moon className="h-5 w-5" />
                 )}
+                <span className="sr-only">Toggle theme</span>
               </Button>
               {selectedChart && (
                 <Button
@@ -87,29 +112,31 @@ function App() {
                   ) : (
                     <Maximize2 className="h-5 w-5" />
                   )}
+                  <span className="sr-only">Toggle fullscreen</span>
                 </Button>
               )}
             </div>
             <div className="flex-1 pt-14">
               <div className={cn(
-                "grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out",
+                "grid h-[calc(100vh-3.5rem)] transition-all duration-300 ease-in-out",
                 {
                   'lg:grid-cols-[250px_1fr] grid-cols-[0px_1fr]': sidebarOpen,
                   'grid-cols-[0px_1fr]': !sidebarOpen
                 }
               )}>
-                <div className={cn(
-                  "overflow-hidden transition-all duration-300 lg:block",
-                  sidebarOpen ? "lg:w-[250px]" : "w-0"
+                <aside className={cn(
+                  "side-nav",
+                  sidebarOpen ? "open" : "",
+                  "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
                 )}>
                   <ChartsNavigation 
                     onSelect={setSelectedChart} 
                     selectedChart={selectedChart}
                   />
-                </div>
+                </aside>
                 <main className={cn(
                   "overflow-auto relative",
-                  isFullscreen && selectedChart ? "fixed inset-0 z-50 bg-background pl-[250px]" : ""
+                  isFullscreen && selectedChart ? "fixed inset-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : ""
                 )}>
                   <Switch>
                     <Route path="/">

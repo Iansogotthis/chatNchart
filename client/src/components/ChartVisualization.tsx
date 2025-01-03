@@ -1,21 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-import { Button } from '@/components/ui/button';
-import '@/styles/chart.css';
-import SquareModal from '@/components/SquareModal';
-import { SquareForm } from '@/components/SquareForm';
+import { Button } from '../components/ui/button';
+import '../styles/chart.css';
+import SquareModal from '../components/SquareModal';
+import { SquareForm } from '../components/SquareForm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUser } from '@/hooks/use-user';
-import type { Chart } from "@db/schema";
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useUser } from '../hooks/use-user';
+import type { Chart } from "../../db/schema";
+import { ScrollArea } from '../components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from '@/lib/utils';
+} from "../components/ui/tooltip";
+import { cn } from '../lib/utils';
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 type PendingViewType = ViewType | 'form' | null;

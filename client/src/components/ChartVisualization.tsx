@@ -35,6 +35,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSquareForm, setShowSquareForm] = useState(false);
+  const [pendingView, setPendingView] = useState<ViewType | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const queryClient = useQueryClient();
   const { user } = useUser();
@@ -138,66 +139,56 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
     }
   };
 
-
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
-    if (!selectedSquare && (currentView === 'scaled' || currentView === 'scoped')) {
-      toast("Please select a square first");
-      return;
-    }
-
     setSelectedSquare({ class: className, parent: parentText, depth });
 
-    if (currentView === 'standard' || currentView === 'delineated') {
+    if (pendingView) {
+      // Handle pending view change
+      if (pendingView === 'scoped') {
+        const previousClass = getPreviousHierarchyLevel(className);
+        if (previousClass) {
+          const newParent = parentText.split('_').slice(0, -1).join('_');
+          const newDepth = depth - 1;
+
+          setSelectedSquare({
+            class: previousClass,
+            parent: newParent || 'Center',
+            depth: newDepth
+          });
+          setCurrentView('scoped');
+          toast.success(`Centered on parent ${previousClass}`);
+        }
+      } else if (pendingView === 'scaled') {
+        setCurrentView('scaled');
+        toast.success(`Centered on ${className} with all descendants`);
+      }
+      setPendingView(null);
+    } else if (currentView === 'standard' || currentView === 'delineated') {
       setIsModalOpen(true);
-    } else if (currentView === 'scaled') {
-      handleViewChange('scaled');
-    } else if (currentView === 'scoped') {
-      handleViewChange('scoped');
     }
   };
 
   const toggleSquareForm = () => {
+    setPendingView(null);
     if (!selectedSquare) {
-      toast.error("Please select a square first");
+      setPendingView('form');
+      toast.info("Please select a square first");
       return;
     }
     setShowSquareForm(!showSquareForm);
+    setIsModalOpen(false);
   };
 
   const handleViewChange = (viewType: ViewType) => {
-    if (!selectedSquare && (viewType === 'scaled' || viewType === 'scoped')) {
-      toast.error("Please select a square first");
-      return;
-    }
-
     if (viewType === 'standard' || viewType === 'delineated') {
       setCurrentView(viewType);
       setSelectedSquare(null);
       setIsModalOpen(false);
       setShowSquareForm(false);
-    } else if (viewType === 'scoped' && selectedSquare) {
-      // Move up one level in hierarchy
-      const newParent = selectedSquare.parent.split('_').slice(0, -1).join('_');
-      const newDepth = selectedSquare.depth - 1;
-      let newClass = '';
-
-      if (selectedSquare.class === 'fruit') newClass = 'leaf';
-      else if (selectedSquare.class === 'leaf') newClass = 'branch';
-      else if (selectedSquare.class === 'branch') newClass = 'root';
-
-      if (newClass) {
-        setSelectedSquare({
-          class: newClass,
-          parent: newParent || 'Center',
-          depth: newDepth
-        });
-        setCurrentView(viewType);
-        toast.success(`Centered on parent ${newClass}`);
-      }
-    } else if (viewType === 'scaled' && selectedSquare) {
-      // Center on current selection and show children
-      setCurrentView(viewType);
-      toast.success(`Centered on ${selectedSquare.class}`);
+      setPendingView(null);
+    } else {
+      setPendingView(viewType);
+      toast.info("Please select a square from which you wish to perspect");
     }
 
     if (svgRef.current) {
@@ -592,7 +583,6 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
               onClick={() => handleViewChange(viewType as ViewType)}
               variant={currentView === viewType ? 'default' : 'outline'}
               className="whitespace-nowrap"
-              disabled={!selectedSquare && (viewType === 'scaled' || viewType === 'scoped')}
             >
               {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
             </Button>
@@ -608,7 +598,6 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           <Button
             onClick={toggleSquareForm}
             variant={showSquareForm ? 'default' : 'outline'}
-            disabled={!selectedSquare}
             className="whitespace-nowrap"
           >
             {showSquareForm ? 'Hide Form' : 'In/Exclude'}

@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 
@@ -51,14 +51,14 @@ interface SquareData {
   };
 }
 
-export default function SquareModal({ 
-  isOpen, 
-  onClose, 
-  onSave, 
+export default function SquareModal({
+  isOpen,
+  onClose,
+  onSave,
   initialData,
   squareClass,
   parentText,
-  depth 
+  depth
 }: SquareModalProps) {
   const [data, setData] = useState<SquareData>(initialData);
   const [, setLocation] = useLocation();
@@ -95,6 +95,7 @@ export default function SquareModal({
       depth: depth.toString()
     });
     setLocation(`/form?${params.toString()}`);
+    onClose(); 
   };
 
   return (
@@ -266,13 +267,13 @@ export default function SquareModal({
               />
             </div>
           </div>
+          <ScrollBar />
         </ScrollArea>
 
         <div className="flex justify-between items-center space-x-2 pt-4">
           <Button
             variant="secondary"
             onClick={openDetailings}
-            disabled={!squareClass || !parentText || depth === undefined}
           >
             View Detailings
           </Button>

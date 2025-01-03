@@ -43,11 +43,6 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
       log(logLine);
     }
   });
@@ -61,35 +56,22 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     console.error('Server error:', err);
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // Use port 3001 instead of 3000
-  const PORT = 3001;
+  const PORT = process.env.PORT || 3001;
 
-  // Add error handling for port conflicts
-  server.on('error', (error: any) => {
-    if (error.code === 'EADDRINUSE') {
-      console.error(`Port ${PORT} is already in use. Please try a different port.`);
-      process.exit(1);
-    } else {
-      console.error('Server error:', error);
-      process.exit(1);
-    }
-  });
-
-  server.listen(PORT, "0.0.0.0", () => {
+  server.listen(PORT as number, "0.0.0.0", () => {
     log(`Server running on http://0.0.0.0:${PORT}`);
   });
-})();
+})().catch((error) => {
+  console.error('Server startup error:', error);
+  process.exit(1);
+});

@@ -37,7 +37,7 @@ export function useTheme() {
         '--card-foreground': '#1A1A1A',
         '--border': '#E5E5E5',
         '--input': '#F5F5F5',
-        '--accent': '#FFE44D', // Yellow accent for light theme
+        '--accent': '#FFD700', // Brighter yellow for light theme
         '--accent-foreground': '#1A1A1A',
       },
       dark: {
@@ -49,7 +49,7 @@ export function useTheme() {
         '--card-foreground': '#FFFFFF',
         '--border': '#262626',
         '--input': '#111111',
-        '--accent': '#9333EA', // Purple accent for dark theme
+        '--accent': '#8B5CF6', // Vivid purple for dark theme
         '--accent-foreground': '#FFFFFF',
       },
       grey: {
@@ -61,7 +61,7 @@ export function useTheme() {
         '--card-foreground': '#FFFFFF',
         '--border': '#334155',
         '--input': '#334155',
-        '--accent': '#64748B', // Slate accent for grey theme
+        '--accent': '#475569', // Slate blue for grey theme
         '--accent-foreground': '#FFFFFF',
       },
       almond: {
@@ -73,7 +73,7 @@ export function useTheme() {
         '--card-foreground': '#451A03',
         '--border': '#FED7AA',
         '--input': '#FED7AA',
-        '--accent': '#EA580C', // Red-orange accent for almond theme
+        '--accent': '#F97316', // Bright orange for almond theme
         '--accent-foreground': '#FFFFFF',
       }
     };

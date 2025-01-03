@@ -370,24 +370,27 @@ const Section = ({
   onEdit?: () => void;
   isOwnProfile: boolean;
 }) => (
-  <div className="space-y-4">
-    <h3 className="text-xl font-semibold flex items-center gap-2">
-      <Icon className="h-5 w-5 text-primary" /> {title}
-    </h3>
-    <div className="bg-muted/50 rounded-lg p-4">
-      {content}
+  <div className="space-y-2">
+    <div className="flex justify-between items-center">
+      <h3 className="text-lg font-medium text-muted-foreground">
+        {title}
+      </h3>
+      {isOwnProfile && onEdit && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onEdit}
+          className="text-sm text-muted-foreground hover:text-primary"
+        >
+          Edit {title}
+        </Button>
+      )}
     </div>
-    {isOwnProfile && onEdit && (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onEdit}
-        className="w-full text-muted-foreground hover:text-primary hover:bg-primary/10"
-      >
-        <Edit className="h-4 w-4 mr-2" />
-        Edit {title}
-      </Button>
-    )}
+    <div className="pl-4 py-2">
+      <div className="text-xl">
+        {content}
+      </div>
+    </div>
   </div>
 );
 

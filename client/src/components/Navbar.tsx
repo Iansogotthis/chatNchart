@@ -45,7 +45,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           <Button 
             variant="ghost" 
             size="icon"
-            className="mr-2"
+            className="mr-2 md:hidden hover:bg-accent/50 transition-colors"
             onClick={onToggleSidebar}
           >
             <MenuIcon className="h-5 w-5" />

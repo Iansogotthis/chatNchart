@@ -53,9 +53,11 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           </Button>
 
           <div className="flex items-center flex-1 justify-center">
-            <Link href="/home" className="flex items-center mr-4">
-              <span className="font-bold">Chart Visualizer</span>
-            </Link>
+            <Button variant="ghost" asChild className="mr-4">
+              <Link href="/home" className="font-bold">
+                Chart Visualizer
+              </Link>
+            </Button>
             <nav className="hidden md:flex items-center space-x-4 text-sm font-medium overflow-hidden transition-all duration-300 hover:w-full">
               <div className="flex items-center space-x-4 whitespace-nowrap">
                 <Link href="/charts" className="hover:text-primary">Charts</Link>

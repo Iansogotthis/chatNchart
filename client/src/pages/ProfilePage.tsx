@@ -179,29 +179,46 @@ export default function ProfilePage() {
               </Card>
             )}
 
-            {friends && friends.length > 0 && (
-              <Card className="p-4">
-                <Tabs defaultValue="friends">
-                  <TabsList className="w-full">
-                    <TabsTrigger value="friends" className="flex-1">Friends</TabsTrigger>
-                    <TabsTrigger value="mutuals" className="flex-1">Mutuals</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="friends">
-                    <FriendList
-                      friends={friends}
-                      pendingRequests={[]}
-                      onRemoveFriend={isOwnProfile ? (id: number) => removeFriendMutation.mutate() : undefined}
-                    />
-                  </TabsContent>
-                  <TabsContent value="mutuals">
-                    <FriendList
-                      friends={friends.filter((friend) => friend.friend?.isMutual)}
-                      pendingRequests={[]}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </Card>
-            )}
+            <Card className="p-4">
+              <CardHeader>
+                <CardTitle>Friends ({friends?.length || 0})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {friends?.map((friendship) => (
+                      <Card key={friendship.id} className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <Avatar>
+                              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${friendship.friend?.username}`} />
+                              <AvatarFallback>{friendship.friend?.username?.[0]?.toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <Link href={`/profile/${friendship.friend?.username}`}>
+                                <h3 className="font-medium hover:underline">{friendship.friend?.username}</h3>
+                              </Link>
+                              {friendship.friend?.bio && (
+                                <p className="text-sm text-muted-foreground">{friendship.friend.bio}</p>
+                              )}
+                            </div>
+                          </div>
+                          {isOwnProfile && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFriendMutation.mutate(friendship.id)}
+                            >
+                              <UserMinus className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

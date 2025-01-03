@@ -243,16 +243,34 @@ export default function MessagesPage() {
               </DialogContent>
             </Dialog>
 
-            <nav className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start">
-                <Mail className="mr-2 h-4 w-4" />
-                Inbox
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
-                Friends
-              </Button>
-            </nav>
+            <ScrollArea className="h-[calc(100vh-12rem)]">
+              <div className="space-y-2">
+                {conversations?.map((convo) => (
+                  <Button 
+                    key={convo.id}
+                    variant={selectedUser?.id === convo.participantId ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                    onClick={() => setSelectedUser({
+                      id: convo.participantId,
+                      username: convo.participantName
+                    })}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${convo.participantName}`} />
+                        <AvatarFallback>{convo.participantName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col items-start">
+                        <span>{convo.participantName}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(convo.lastMessageAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 

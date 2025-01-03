@@ -88,7 +88,7 @@ export function UserProfile({
   );
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto px-4 py-8">
+    <div className="space-y-12 max-w-3xl mx-auto px-4 py-8">
       {/* Bio Section */}
       <motion.div {...fadeInUp}>
         <Card className="w-full overflow-hidden">

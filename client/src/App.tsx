@@ -11,8 +11,7 @@ import MessagesPage from "./pages/MessagesPage";
 import FriendsPage from "./pages/FriendsPage";
 import AuthPage from "./pages/AuthPage";
 import DemoPage from "./pages/DemoPage";
-import { lazy, Suspense } from 'react';
-import { Suspense, startTransition } from 'react';
+import { lazy, Suspense, startTransition } from 'react';
 const FormView = lazy(() => import('./pages/ChartPages/FormView'));
 const IncludeBuildView = lazy(() => import('./pages/ChartPages/IncludeBuildView'));
 const ScaledView = lazy(() => import('./pages/ChartPages/ScaledView'));
@@ -24,7 +23,7 @@ import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Maximize2, Minimize2, Home } from "lucide-react";
+import { Moon, Sun, Home } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useLocation } from "wouter";
 import {
@@ -37,7 +36,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from "wouter";
 
 function App() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading, logout } = useUser();
   const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -66,14 +65,6 @@ function App() {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-  };
 
   const handleReset = () => {
     setLocation("/home");
@@ -159,64 +150,65 @@ function App() {
                       isFullscreen={isFullscreen} 
                     />
                   ) : (
-                    <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                    <Suspense fallback={<div className="flex items-center justify-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>}>
                       <Switch>
-                        <Route path="/" exact>
-                          {user && startTransition(() => <ProfilePage username={user.username} />)}
+                        <Route path="/" component={() => (
+                          user && <ProfilePage username={user.username} />
+                        )} />
+                        <Route path="/home" component={HomePage} />
+                        <Route path="/charts">
+                          <div className="flex items-center justify-center h-full text-muted-foreground">
+                            Select a chart or create a new one to get started
+                          </div>
                         </Route>
-                      <Route path="/home">
-                        <HomePage />
-                      </Route>
-                      <Route path="/charts">
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                          Select a chart or create a new one to get started
-                        </div>
-                      </Route>
-                      <Route path="/charts/:chartId">
-                        {(params) => {
-                          const chart = charts?.find(c => c.id === parseInt(params.chartId));
-                          return chart ? (
-                            <div className="flex-1 p-4">
-                              <ChartVisualization 
-                                chart={chart} 
-                                isFullscreen={isFullscreen}
-                              />
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-muted-foreground">
-                              Chart not found
-                            </div>
-                          );
-                        }}
-                      </Route>
-                      <Route path="/profile/:username" component={ProfilePage} />
-                      <Route path="/forum" component={ForumPage} />
-                      <Route path="/messages" component={MessagesPage} />
-                      <Route path="/friends" component={FriendsPage} />
-                      <Route path="/charts/form">
-                        <Suspense fallback={<div>Loading...</div>}>
-                          <FormView />
-                        </Suspense>
-                      </Route>
-                      <Route path="/charts/include">
-                        <Suspense fallback={<div>Loading...</div>}>
-                          <IncludeBuildView />
-                        </Suspense>
-                      </Route>
-                      <Route path="/charts/scaled">
-                        <Suspense fallback={<div>Loading...</div>}>
-                          <ScaledView />
-                        </Suspense>
-                      </Route>
-                      <Route path="/charts/scoped">
-                        <Suspense fallback={<div>Loading...</div>}>
-                          <ScopedView />
-                        </Suspense>
-                      </Route>
-                      <Route path="/form" component={FormView} />
-                      <Route path="/demo" component={DemoPage} />
-                      <Route>404 Page Not Found</Route>
-                    </Switch>
+                        <Route path="/charts/:chartId">
+                          {(params) => {
+                            const chart = charts?.find(c => c.id === parseInt(params.chartId));
+                            return chart ? (
+                              <div className="flex-1 p-4">
+                                <ChartVisualization 
+                                  chart={chart} 
+                                  isFullscreen={isFullscreen}
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center h-full text-muted-foreground">
+                                Chart not found
+                              </div>
+                            );
+                          }}
+                        </Route>
+                        <Route path="/profile/:username" component={ProfilePage} />
+                        <Route path="/forum" component={ForumPage} />
+                        <Route path="/messages" component={MessagesPage} />
+                        <Route path="/friends" component={FriendsPage} />
+                        <Route path="/charts/form">
+                          <Suspense fallback={<div>Loading...</div>}>
+                            <FormView />
+                          </Suspense>
+                        </Route>
+                        <Route path="/charts/include">
+                          <Suspense fallback={<div>Loading...</div>}>
+                            <IncludeBuildView />
+                          </Suspense>
+                        </Route>
+                        <Route path="/charts/scaled">
+                          <Suspense fallback={<div>Loading...</div>}>
+                            <ScaledView />
+                          </Suspense>
+                        </Route>
+                        <Route path="/charts/scoped">
+                          <Suspense fallback={<div>Loading...</div>}>
+                            <ScopedView />
+                          </Suspense>
+                        </Route>
+                        <Route path="/form" component={FormView} />
+                        <Route path="/demo" component={DemoPage} />
+                        <Route>404 Page Not Found</Route>
+                      </Switch>
+                    </Suspense>
                   )}
                 </main>
               </div>

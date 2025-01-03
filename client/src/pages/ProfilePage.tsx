@@ -1,17 +1,16 @@
 import { useUser } from "@/hooks/use-user";
 import { UserProfile } from "@/components/UserProfile";
 import { ProfileEditForm } from "@/components/ProfileEditForm";
-import { FriendList } from "@/components/FriendList";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useParams } from "wouter";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Loader2, UserPlus, UserMinus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
 
 interface Friend {
   id: number;
@@ -24,34 +23,41 @@ interface Friend {
   } | null;
 }
 
-export default function ProfilePage() {
-  const { username } = useParams();
+interface ProfilePageProps {
+  username?: string;
+}
+
+export default function ProfilePage({ username: propUsername }: ProfilePageProps) {
+  const params = useParams();
+  const pageUsername = propUsername || params.username;
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editSection, setEditSection] = useState<string | null>(null);
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: [`/api/users/${username}`],
+    queryKey: [`/api/users/${pageUsername}`],
     queryFn: async () => {
-      const response = await fetch(`/api/users/${username}`);
+      const response = await fetch(`/api/users/${pageUsername}`);
       if (!response.ok) throw new Error('Failed to fetch profile');
       return response.json();
-    }
+    },
+    enabled: !!pageUsername
   });
 
   const { data: friends, isLoading: isLoadingFriends } = useQuery<Friend[]>({
-    queryKey: [`/api/users/${username}/friends`],
+    queryKey: [`/api/users/${pageUsername}/friends`],
     queryFn: async () => {
-      const response = await fetch(`/api/users/${username}/friends`);
+      const response = await fetch(`/api/users/${pageUsername}/friends`);
       if (!response.ok) throw new Error('Failed to fetch friends');
       return response.json();
-    }
+    },
+    enabled: !!pageUsername
   });
 
   const updateProfileMutation = useMutation({
     mutationFn: async ({ section, data }: { section: string; data: any }) => {
-      const response = await fetch(`/api/users/${username}/profile/${section}`, {
+      const response = await fetch(`/api/users/${pageUsername}/profile/${section}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -60,14 +66,14 @@ export default function ProfilePage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${username}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${pageUsername}`] });
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
       setEditSection(null);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message,
@@ -78,7 +84,7 @@ export default function ProfilePage() {
 
   const addFriendMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/users/${username}/friends`, {
+      const response = await fetch(`/api/users/${pageUsername}/friends`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -86,27 +92,27 @@ export default function ProfilePage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${username}/friends`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${pageUsername}/friends`] });
       toast({
         title: "Friend request sent",
-        description: `Friend request sent to ${username}`,
+        description: `Friend request sent to ${pageUsername}`,
       });
     },
   });
 
   const removeFriendMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/users/${username}/friends`, {
+    mutationFn: async (friendshipId?: number) => {
+      const response = await fetch(`/api/users/${pageUsername}/friends${friendshipId ? `/${friendshipId}` : ''}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to remove friend');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${username}/friends`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${pageUsername}/friends`] });
       toast({
         title: "Friend removed",
-        description: `${username} has been removed from your friends`,
+        description: `${pageUsername} has been removed from your friends`,
       });
     },
   });
@@ -119,7 +125,7 @@ export default function ProfilePage() {
     );
   }
 
-  const isOwnProfile = user?.username === username;
+  const isOwnProfile = user?.username === pageUsername;
   const isFriend = friends?.some((friend) => friend.friend?.username === user?.username);
 
   if (editSection) {

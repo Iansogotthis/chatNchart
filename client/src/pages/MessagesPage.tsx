@@ -60,6 +60,10 @@ export default function MessagesPage() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [composeOpen, setComposeOpen] = useState(false);
+const [messageType, setMessageType] = useState<Message['messageType']>('DM');
+const [filter, setFilter] = useState<'all' | 'unread' | 'important' | 'sent' | 'drafts'>('all');
+const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+const [folders, setFolders] = useState<string[]>(['storage', 'notations', 'private']);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [messageContent, setMessageContent] = useState("");

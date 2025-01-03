@@ -21,9 +21,24 @@ interface Message {
   content: string;
   senderId: number;
   receiverId: number;
+  messageType: 'DM' | 'TM' | 'GM' | 'LM' | 'AM' | 'CM';
+  status: 'unread' | 'read' | 'sent' | 'draft';
+  isImportant: boolean;
   isRead: boolean;
+  isDraft: boolean;
+  projectId?: number;
+  folder?: string;
   createdAt: string;
 }
+
+const messageTypeLabels = {
+  DM: 'Direct Message',
+  TM: 'Team Message',
+  GM: 'Group Message',
+  LM: 'Lead Message',
+  AM: 'Alike Message',
+  CM: 'Collaboration Message'
+};
 
 interface MessagesProps {
   friendId: number;

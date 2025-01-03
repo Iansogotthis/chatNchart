@@ -291,8 +291,8 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
         .attr("tabindex", "0")
         .attr("aria-label", `${className} square with ${customStyle?.title || 'no'} customization`)
         .on("click", () => handleSquareClick(className, parentText, depth))
-        .on("keypress", (event: KeyboardEvent) => {
-          if (event.key === "Enter" || event.key === " ") {
+        .on("keypress", function(event) {
+          if ((event as KeyboardEvent).key === "Enter" || (event as KeyboardEvent).key === " ") {
             handleSquareClick(className, parentText, depth);
           }
         });

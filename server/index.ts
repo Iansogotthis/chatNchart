@@ -1,8 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { setupAuth } from "./auth";  
-import { db } from "@db";  
 
 const app = express();
 app.use(express.json());
@@ -11,7 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 // Add security headers and CORS
 app.use((req, res, next) => {
   // Allow requests from Replit preview window and browsers
-  const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co', 'https://*.repl.run'];
+  const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co'];
   const origin = req.headers.origin;
   if (origin && allowedOrigins.some(allowed => origin.match(new RegExp(allowed.replace('*', '.*'))))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -52,45 +50,27 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize database connection and start server
 (async () => {
-  try {
-    // Add auth setup
-    setupAuth(app);
+  const server = registerRoutes(app);
 
-    const server = registerRoutes(app);
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    console.error('Server error:', err);
+  });
 
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-      res.status(status).json({ message });
-      console.error('Server error:', err);
-    });
-
-    if (app.get("env") === "development") {
-      await setupVite(app, server);
-    } else {
-      serveStatic(app);
-    }
-
-    const PORT = 3000;
-
-    // Try to start server, handle port conflicts gracefully
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`Server running on http://0.0.0.0:${PORT}`);
-    }).on('error', (error: NodeJS.ErrnoException) => {
-      if (error.code === 'EADDRINUSE') {
-        log(`Port ${PORT} is already in use. Please try a different port.`);
-        process.exit(1);
-      } else {
-        console.error('Server startup error:', error);
-        process.exit(1);
-      }
-    });
-  } catch (error) {
-    console.error('Database initialization error:', error);
-    process.exit(1);
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
   }
+
+  const PORT = process.env.PORT || 3001;
+
+  server.listen(PORT as number, "0.0.0.0", () => {
+    log(`Server running on http://0.0.0.0:${PORT}`);
+  });
 })().catch((error) => {
   console.error('Server startup error:', error);
   process.exit(1);

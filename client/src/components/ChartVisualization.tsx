@@ -11,7 +11,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { useLocation } from 'wouter';
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 type PendingAction = ViewType | 'form' | null;
@@ -38,12 +37,11 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSquareForm, setShowSquareForm] = useState(false);
+  const [pendingView, setPendingView] = useState<PendingAction>(null);
   const [lastClickedSquare, setLastClickedSquare] = useState<SelectedSquare | null>(null);
-  const [buttonsEnabled, setButtonsEnabled] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const queryClient = useQueryClient();
   const { user } = useUser();
-  const [, setLocation] = useLocation();
 
   const [squareStyles, setSquareStyles] = useState<Record<string, {
     title: string;
@@ -147,71 +145,52 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
     const newSquare = { class: className, parent: parentText, depth };
 
-    // First click enables buttons and selects the square
-    if (!buttonsEnabled) {
-      setButtonsEnabled(true);
-      setLastClickedSquare(newSquare);
-      setSelectedSquare(newSquare);
-      return;
-    }
+    // Check if this is a second click on the same square
+    const isSecondClick = lastClickedSquare &&
+      lastClickedSquare.class === className &&
+      lastClickedSquare.parent === parentText &&
+      lastClickedSquare.depth === depth;
 
-    // Second click on the same square shows customization modal
-    if (lastClickedSquare &&
-        lastClickedSquare.class === className &&
-        lastClickedSquare.parent === parentText &&
-        lastClickedSquare.depth === depth) {
+    setSelectedSquare(newSquare);
+
+    if (isSecondClick && (currentView === 'standard' || currentView === 'delineated')) {
+      // Second click - show customization modal
       setIsModalOpen(true);
-      setLastClickedSquare(null);
-      return;
-    }
+      setLastClickedSquare(null); // Reset for next interaction
+    } else if (pendingView) {
+      // Handle pending view change
+      if (pendingView === 'scoped') {
+        const previousClass = getPreviousHierarchyLevel(className);
+        if (previousClass) {
+          // Extract parent information from the current square's path
+          const pathParts = parentText.split('_');
+          const newParent = pathParts.length > 1 ? pathParts.slice(0, -1).join('_') : 'Center';
+          const newDepth = depth - 1;
 
-    // Handle view-specific actions
-    if (currentView === 'scoped') {
-      const previousClass = getPreviousHierarchyLevel(className);
-      if (previousClass) {
-        const pathParts = parentText.split('_');
-        const newParent = pathParts.length > 1 ? pathParts.slice(0, -1).join('_') : 'Center';
-        const newDepth = depth - 1;
-
-        setSelectedSquare({
-          class: previousClass,
-          parent: newParent,
-          depth: newDepth
-        });
-        drawChart(); // Redraw with the new center
+          setSelectedSquare({
+            class: previousClass,
+            parent: newParent,
+            depth: newDepth
+          });
+          setCurrentView('scoped');
+          toast.success(`Centered on parent ${previousClass}`);
+        }
+      } else if (pendingView === 'scaled') {
+        setCurrentView('scaled');
+        toast.success(`Centered on ${className} with all descendants`);
+      } else if (pendingView === 'form') {
+        setShowSquareForm(true);
       }
-    } else if (currentView === 'scaled') {
-      setSelectedSquare(newSquare);
-      drawChart(); // Redraw with the new center
+      setPendingView(null);
     } else {
+      // First click - just select the square and enable buttons
       setLastClickedSquare(newSquare);
-      setSelectedSquare(newSquare);
     }
-  };
-
-  const handleViewChange = (viewType: ViewType) => {
-    if (!lastClickedSquare) {
-      toast.info("Please select a square first");
-      return;
-    }
-
-    setCurrentView(viewType);
-
-    if (viewType === 'standard' || viewType === 'delineated') {
-      setSelectedSquare(null);
-      setLastClickedSquare(null);
-      setIsModalOpen(false);
-      setShowSquareForm(false);
-    } else {
-      // For scoped/scaled views, use the last clicked square
-      setSelectedSquare(lastClickedSquare);
-    }
-
-    drawChart();
   };
 
   const toggleSquareForm = () => {
     if (!lastClickedSquare) {
+      setPendingView('form');
       toast.info("Please select a square first");
       return;
     }
@@ -219,18 +198,23 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
     setIsModalOpen(false);
   };
 
-  const openDetailings = () => {
-    if (!selectedSquare) {
-      toast.error("No square selected");
-      return;
+  const handleViewChange = (viewType: ViewType) => {
+    if (viewType === 'standard' || viewType === 'delineated') {
+      setCurrentView(viewType);
+      setSelectedSquare(null);
+      setLastClickedSquare(null);
+      setIsModalOpen(false);
+      setShowSquareForm(false);
+      setPendingView(null);
+    } else {
+      setPendingView(viewType);
+      toast.info("Please select a square from which you wish to perspect");
     }
-    const params = new URLSearchParams({
-      class: selectedSquare.class,
-      parent: selectedSquare.parent,
-      depth: selectedSquare.depth.toString()
-    });
-    setLocation(`/form?${params.toString()}`);
-    setIsModalOpen(false);
+
+    if (svgRef.current) {
+      const svg = d3.select(svgRef.current);
+      svg.selectAll("*").remove();
+    }
   };
 
   const drawChart = () => {
@@ -339,29 +323,25 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
 
       positions.forEach(([x, y], index) => {
         const childParent = `${parentSquare.parent}_${index + 1}`;
-        const shouldDraw = shouldDrawLeaf(index + 1, parentSquare.depth);
+        drawSquare(
+          x,
+          y,
+          size * 0.8,
+          colors[childClass as keyof typeof colors] || "",
+          childClass,
+          parentSquare.depth + 1,
+          childParent
+        );
 
-        if (shouldDraw) {
-          drawSquare(
+        // Recursively draw grandchildren if needed
+        const grandchildClass = getNextHierarchyLevel(childClass);
+        if (grandchildClass) {
+          drawSquaresForScaled(
+            { class: childClass, parent: childParent, depth: parentSquare.depth + 1 },
             x,
             y,
-            size * 0.8,
-            colors[childClass as keyof typeof colors] || "",
-            childClass,
-            parentSquare.depth + 1,
-            childParent
+            size * 0.4
           );
-
-          // Recursively draw grandchildren if needed
-          const grandchildClass = getNextHierarchyLevel(childClass);
-          if (grandchildClass) {
-            drawSquaresForScaled(
-              { class: childClass, parent: childParent, depth: parentSquare.depth + 1 },
-              x,
-              y,
-              size * 0.4
-            );
-          }
         }
       });
     }
@@ -496,22 +476,19 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       drawSquaresForScaled(selectedSquare, centerX, centerY, centerSquareSize / 2);
     } else if (currentView === 'scoped' && selectedSquare) {
       // Draw the parent square
-      const previousClass = getPreviousHierarchyLevel(selectedSquare.class);
-      if (previousClass) {
-        const pathParts = selectedSquare.parent.split('_');
-        const newParent = pathParts.length > 1 ? pathParts.slice(0, -1).join('_') : 'Center';
+      drawSquare(
+        centerX,
+        centerY,
+        centerSquareSize,
+        colors[selectedSquare.class as keyof typeof colors] || "",
+        selectedSquare.class,
+        selectedSquare.depth,
+        selectedSquare.parent
+      );
 
-        drawSquare(
-          centerX,
-          centerY,
-          centerSquareSize,
-          colors[previousClass as keyof typeof colors] || "",
-          previousClass,
-          selectedSquare.depth - 1,
-          newParent
-        );
-
-        // Draw immediate children
+      // Draw immediate children only
+      const childClass = getNextHierarchyLevel(selectedSquare.class);
+      if (childClass) {
         const positions = [
           [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
           [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
@@ -520,17 +497,15 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
         ];
 
         positions.forEach(([x, y], index) => {
-          if (shouldDrawLeaf(index + 1, selectedSquare.depth - 1)) {
-            drawSquare(
-              x,
-              y,
-              smallSquareSize,
-              colors[selectedSquare.class as keyof typeof colors] || "",
-              selectedSquare.class,
-              selectedSquare.depth,
-              `${newParent}_${index + 1}`
-            );
-          }
+          drawSquare(
+            x,
+            y,
+            smallSquareSize,
+            colors[childClass as keyof typeof colors] || "",
+            childClass,
+            selectedSquare.depth + 1,
+            `${selectedSquare.parent}_${index + 1}`
+          );
         });
       }
     } else if (currentView === 'standard' || currentView === 'delineated') {
@@ -646,7 +621,10 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
                 onClick={() => handleViewChange(viewType as ViewType)}
                 variant={currentView === viewType ? 'default' : 'outline'}
                 className="whitespace-nowrap"
-                disabled={!buttonsEnabled}
+                disabled={
+                  (viewType === 'scaled' || viewType === 'scoped') &&
+                  !lastClickedSquare
+                }
               >
                 {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
               </Button>
@@ -663,7 +641,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
               onClick={toggleSquareForm}
               variant={showSquareForm ? 'default' : 'outline'}
               className="whitespace-nowrap"
-              disabled={!buttonsEnabled}
+              disabled={!lastClickedSquare}
             >
               {showSquareForm ? 'Hide Form' : 'In/Exclude'}
             </Button>
@@ -748,7 +726,6 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
               setIsModalOpen(false);
               if (currentView === 'standard' || currentView === 'delineated') {
                 setSelectedSquare(null);
-                setButtonsEnabled(false);
               }
             }}
             onSave={handleFormSubmit}
@@ -778,7 +755,6 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
             squareClass={selectedSquare.class}
             parentText={selectedSquare.parent}
             depth={selectedSquare.depth}
-            onDetailings={openDetailings}
           />
         )}
       </div>

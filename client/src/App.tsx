@@ -2,6 +2,7 @@
 import { Switch, Route } from "wouter";
 import { Loader2 } from "lucide-react";
 import { useUser } from "./hooks/use-user";
+import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import type { Chart } from "@db/schema";
 import HomePage from "./pages/HomePage";

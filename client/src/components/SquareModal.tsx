@@ -100,7 +100,7 @@ export default function SquareModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-[95vw] md:max-w-md h-[90vh] md:h-auto flex flex-col p-4 md:p-6 gap-4 overflow-hidden">
         <DialogHeader>
           <DialogTitle>Edit Square</DialogTitle>
           <div className="text-sm text-muted-foreground">
@@ -270,18 +270,19 @@ export default function SquareModal({
           <ScrollBar />
         </ScrollArea>
 
-        <div className="flex justify-between items-center space-x-2 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-4">
           <Button
             variant="secondary"
             onClick={openDetailings}
+            className="w-full sm:w-auto"
           >
             View Detailings
           </Button>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={onClose}>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button onClick={() => onSave(data)}>
+            <Button onClick={() => onSave(data)} className="w-full sm:w-auto">
               Save Changes
             </Button>
           </div>

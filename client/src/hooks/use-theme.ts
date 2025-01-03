@@ -3,11 +3,17 @@ import { useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark';
 
+type ThemeStyles = {
+  [key in Theme]: {
+    [key: string]: string;
+  };
+};
+
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme') as Theme;
-      if (saved) return saved;
+      if (saved && (saved === 'light' || saved === 'dark')) return saved;
       
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
@@ -22,7 +28,7 @@ export function useTheme() {
     root.classList.add(theme);
     localStorage.setItem('theme', theme);
 
-    const styles = {
+    const styles: ThemeStyles = {
       light: {
         '--background': '#FFFFFF',
         '--foreground': '#1A1A1A',
@@ -45,9 +51,11 @@ export function useTheme() {
       }
     };
 
-    Object.entries(styles[theme]).forEach(([property, value]) => {
-      root.style.setProperty(property, value);
-    });
+    if (styles[theme]) {
+      Object.entries(styles[theme]).forEach(([property, value]) => {
+        root.style.setProperty(property, value);
+      });
+    }
   }, [theme]);
 
   return { theme, setTheme };

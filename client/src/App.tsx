@@ -9,7 +9,11 @@ import ForumPage from "./pages/ForumPage";
 import MessagesPage from "./pages/MessagesPage";
 import FriendsPage from "./pages/FriendsPage";
 import AuthPage from "./pages/AuthPage";
-import FormView from "./pages/ChartPages/FormView";
+import { lazy, Suspense } from 'react';
+const FormView = lazy(() => import('./pages/ChartPages/FormView'));
+const IncludeBuildView = lazy(() => import('./pages/ChartPages/IncludeBuildView'));
+const ScaledView = lazy(() => import('./pages/ChartPages/ScaledView'));
+const ScopedView = lazy(() => import('./pages/ChartPages/ScopedView'));
 import { ChartsNavigation } from "./components/ChartsNavigation";
 import { ChartVisualization } from "./components/ChartVisualization";
 import Navbar from "./components/Navbar";
@@ -154,6 +158,26 @@ function App() {
                       <Route path="/forum" component={ForumPage} />
                       <Route path="/messages" component={MessagesPage} />
                       <Route path="/friends" component={FriendsPage} />
+                      <Route path="/charts/form">
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <FormView />
+                        </Suspense>
+                      </Route>
+                      <Route path="/charts/include">
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <IncludeBuildView />
+                        </Suspense>
+                      </Route>
+                      <Route path="/charts/scaled">
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <ScaledView />
+                        </Suspense>
+                      </Route>
+                      <Route path="/charts/scoped">
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <ScopedView />
+                        </Suspense>
+                      </Route>
                       <Route path="/form" component={FormView} />
                       <Route>404 Page Not Found</Route>
                     </Switch>

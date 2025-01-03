@@ -13,6 +13,25 @@ export default defineConfig({
     runtimeErrorOverlay(),
     themePlugin(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': [
+            'react',
+            'react-dom',
+            'react-query',
+            'd3',
+            'framer-motion',
+            'recharts'
+          ],
+          'ui': [
+            './src/components/ui'
+          ]
+        }
+      }
+    }
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client", "src"),

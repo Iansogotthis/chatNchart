@@ -12,12 +12,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "baseUrl": ".",
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@db/*": ["./db/*"]
+      "@db/*": ["./db/*"],
+      "@db": ["./db/index"]
     }
   }
 }

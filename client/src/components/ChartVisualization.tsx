@@ -53,7 +53,7 @@ export function ChartVisualization() {
     };
   }>>({});
 
-  // Fetch current chart
+  // Fetch current chart and its customizations
   const { data: charts } = useQuery({
     queryKey: ['charts'],
     queryFn: async () => {
@@ -66,19 +66,51 @@ export function ChartVisualization() {
   const currentChart = charts?.[0];
   const chartId = currentChart?.id;
 
+  // Fetch square customizations for the current chart
+  const { data: customizations } = useQuery({
+    queryKey: ['square-customizations', chartId],
+    queryFn: async () => {
+      if (!chartId) return [];
+      const response = await fetch(`/api/square-customization/${chartId}`);
+      if (!response.ok) throw new Error('Failed to fetch customizations');
+      return response.json();
+    },
+    enabled: !!chartId,
+  });
+
+  // Update squareStyles when customizations change
+  useEffect(() => {
+    if (customizations?.length) {
+      const styles: Record<string, any> = {};
+      customizations.forEach((customization: any) => {
+        const squareId = `${customization.squareClass}_${customization.parentText}_${customization.depth}`;
+        styles[squareId] = {
+          title: customization.title,
+          priority: customization.priority,
+          urgency: customization.urgency,
+          aesthetic: customization.aesthetic,
+        };
+      });
+      setSquareStyles(styles);
+    }
+  }, [customizations]);
+
   // Square customization mutation
   const squareCustomizationMutation = useMutation({
     mutationFn: async (customization: any) => {
       const response = await fetch('/api/square-customization', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customization),
+        body: JSON.stringify({
+          ...customization,
+          chartId,
+        }),
       });
       if (!response.ok) throw new Error('Failed to save square customization');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['charts'] });
+      queryClient.invalidateQueries({ queryKey: ['square-customizations', chartId] });
     },
   });
 
@@ -126,14 +158,14 @@ export function ChartVisualization() {
       // Update local state immediately
       setSquareStyles(prev => ({
         ...prev,
-        [squareId]: data 
+        [squareId]: data
       }));
 
       // Force a redraw by clearing and redrawing
       if (svgRef.current) {
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove();
-        drawChart(); 
+        drawChart();
       }
 
     } catch (error) {
@@ -206,7 +238,7 @@ export function ChartVisualization() {
       const height = boundingRect.height;
       const centerX = width / 2;
       const centerY = height / 2;
-      const centerSquareSize = Math.min(width, height) * 0.4; 
+      const centerSquareSize = Math.min(width, height) * 0.4;
       const smallSquareSize = centerSquareSize / 2;
       const smallestSquareSize = smallSquareSize / 2;
       const tinySquareSize = smallestSquareSize / 2;
@@ -288,14 +320,14 @@ export function ChartVisualization() {
         // branchIndex is 1-based (1-4)
         // leafPosition is the position of the leaf in the branch (0-3, clockwise from top-left)
         switch (branchIndex) {
-          case 1: 
-            return leafPosition !== 3; 
-          case 2: 
-            return leafPosition !== 2; 
-          case 3: 
-            return leafPosition !== 1; 
-          case 4: 
-            return leafPosition !== 0; 
+          case 1:
+            return leafPosition !== 3;
+          case 2:
+            return leafPosition !== 2;
+          case 3:
+            return leafPosition !== 1;
+          case 4:
+            return leafPosition !== 0;
           default:
             return true;
         }
@@ -345,30 +377,30 @@ export function ChartVisualization() {
                   // Draw fruits for this leaf
                   const fruitSize = leafSize / 2;
                   const fruitCorners = {
-                    1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2], 
-                    2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2], 
-                    3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2], 
-                    4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]  
+                    1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2],
+                    2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2],
+                    3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2],
+                    4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]
                   };
 
                   // Determine which corners should have fruits based on branch and leaf position
                   let fruitCornerNumbers: number[] = [];
                   if (branchIndex === 1) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; 
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; 
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; 
+                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
+                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
+                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
                   } else if (branchIndex === 2) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; 
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; 
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; 
+                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
+                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
+                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
                   } else if (branchIndex === 3) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; 
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; 
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; 
+                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
+                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
+                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
                   } else if (branchIndex === 4) {
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; 
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; 
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; 
+                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
+                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
+                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
                   }
 
                   fruitCornerNumbers.forEach(cornerNum => {
@@ -494,7 +526,7 @@ export function ChartVisualization() {
         });
       }
     }
-  }, [currentView, selectedSquare, squareStyles]); 
+  }, [currentView, selectedSquare, squareStyles]);
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">

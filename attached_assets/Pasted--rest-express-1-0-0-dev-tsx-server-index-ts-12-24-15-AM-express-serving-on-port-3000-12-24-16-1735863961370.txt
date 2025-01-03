@@ -1,0 +1,100 @@
+
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+12:24:15 AM [express] serving on port 3000
+12:24:16 AM [express] Auth state for /favicon.ico: not authenticated
+12:24:18 AM [express] Auth state for /: not authenticated
+12:24:18 AM [express] Auth state for /@vite/client: not authenticated
+12:24:18 AM [express] Auth state for /src/main.tsx: not authenticated
+12:24:18 AM [express] Auth state for /@react-refresh: not authenticated
+12:24:18 AM [express] Auth state for /@fs/home/runner/ProjectNavigator/node_modules/vite/dist/client/env.mjs: not authenticated
+12:24:18 AM [express] Auth state for /src/lib/queryClient.ts: not authenticated
+12:24:18 AM [express] Auth state for /src/components/ui/toaster.tsx: not authenticated
+12:24:18 AM [express] Auth state for /src/App.tsx: not authenticated
+12:24:18 AM [express] Auth state for /src/index.css: not authenticated
+12:24:18 AM [express] Auth state for /: not authenticated
+12:24:18 AM [express] Auth state for /src/hooks/use-toast.ts: not authenticated
+12:24:18 AM [express] Auth state for /src/components/ui/toast.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/pages/ForumPage.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/pages/ProfilePage.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/hooks/use-user.ts: not authenticated
+12:24:19 AM [express] Auth state for /src/pages/HomePage.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/pages/MessagesPage.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/pages/AuthPage.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/Navbar.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/lib/utils.ts: not authenticated
+12:24:19 AM [express] Auth state for /src/components/Forum.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/UserProfile.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/FriendList.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ChartVisualization.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/card.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/button.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/scroll-area.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/input.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/avatar.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/dropdown-menu.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/textarea.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/styles/chart.css: not authenticated
+12:24:19 AM [express] Auth state for /src/components/SquareModal.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/dialog.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/label.tsx: not authenticated
+12:24:19 AM [express] Auth state for /src/components/ui/popover.tsx: not authenticated
+12:24:19 AM [express] Auth state for /api/user: not authenticated
+12:24:19 AM [express] GET /api/user 401 in 3ms
+12:24:20 AM [express] Auth state for /favicon.ico: not authenticated
+12:24:21 AM [express] Auth state for /: not authenticated
+12:24:21 AM [express] Auth state for /api/login: not authenticated
+12:24:21 AM [express] POST /api/login 200 in 367ms :: {"message":"Login successful","user":{"id":2,"u…
+12:24:22 AM [express] Auth state for /api/user: not authenticated
+12:24:22 AM [express] GET /api/user 304 in 78ms :: {"id":2,"username":"gryn","password":"48fbec2abc73…
+12:24:22 AM [express] Auth state for /api/charts: not authenticated
+12:24:22 AM [express] GET /api/charts 304 in 152ms :: []
+12:24:22 AM [express] Auth state for /api/charts: not authenticated
+12:24:22 AM [express] GET /api/charts 304 in 153ms :: []
+12:24:39 AM [express] Auth state for /api/square-customization: not authenticated
+12:24:39 AM [express] POST /api/square-customization 200 in 312ms
+12:24:58 AM [express] Auth state for /: not authenticated
+12:25:15 AM [express] Auth state for /: not authenticated
+12:25:16 AM [express] Auth state for /@vite/client: not authenticated
+12:25:16 AM [express] Auth state for /src/main.tsx: not authenticated
+12:25:16 AM [express] Auth state for /@react-refresh: not authenticated
+12:25:16 AM [express] Auth state for /@fs/home/runner/ProjectNavigator/node_modules/vite/dist/client/env.mjs: not authenticated
+12:25:17 AM [express] Auth state for /src/lib/queryClient.ts: not authenticated
+12:25:17 AM [express] Auth state for /src/components/ui/toaster.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/App.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/index.css: not authenticated
+12:25:17 AM [express] Auth state for /src/hooks/use-toast.ts: not authenticated
+12:25:17 AM [express] Auth state for /src/components/ui/toast.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/hooks/use-user.ts: not authenticated
+12:25:17 AM [express] Auth state for /src/pages/ProfilePage.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/pages/HomePage.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/pages/ForumPage.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/pages/MessagesPage.tsx: not authenticated
+12:25:17 AM [express] Auth state for /src/pages/AuthPage.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/Navbar.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/UserProfile.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/lib/utils.ts: not authenticated
+12:25:18 AM [express] Auth state for /src/components/FriendList.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/button.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ChartVisualization.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/Forum.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/card.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/scroll-area.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/avatar.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/input.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/dropdown-menu.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/styles/chart.css: not authenticated
+12:25:18 AM [express] Auth state for /src/components/SquareModal.tsx: not authenticated
+12:25:18 AM [express] Auth state for /src/components/ui/textarea.tsx: not authenticated
+12:25:19 AM [express] Auth state for /src/components/ui/label.tsx: not authenticated
+12:25:19 AM [express] Auth state for /src/components/ui/dialog.tsx: not authenticated
+12:25:19 AM [express] Auth state for /src/components/ui/popover.tsx: not authenticated
+12:25:19 AM [express] Auth state for /api/user: not authenticated
+12:25:19 AM [express] GET /api/user 304 in 76ms :: {"id":2,"username":"gryn","password":"48fbec2abc73…
+12:25:20 AM [express] Auth state for /api/charts: not authenticated
+12:25:20 AM [express] Auth state for /favicon.ico: not authenticated
+12:25:20 AM [express] Auth state for /: not authenticated
+12:25:20 AM [express] GET /api/charts 304 in 146ms :: []
+12:25:20 AM [express] Auth state for /api/charts: not authenticated
+12:25:20 AM [express] GET /api/charts 304 in 147ms :: []

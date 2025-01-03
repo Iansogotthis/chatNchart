@@ -2,14 +2,15 @@ import type { Express } from "express";
 import { createServer } from "http";
 import { setupAuth } from "./auth";
 import { db } from "../db";
-import { charts, forumPosts, friends, users } from "@db/schema";
+import { charts, forumPosts, friends, users, squareCustomizations } from "../db/schema";
 import { eq, and } from "drizzle-orm";
+import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {
   // Register auth routes and middleware first
   setupAuth(app);
   const httpServer = createServer(app);
-  
+
   // Debug route to check auth status
   app.get("/api/auth-status", (req, res) => {
     res.json({
@@ -35,6 +36,10 @@ export function registerRoutes(app: Express) {
     res.json(chart);
   });
 
+  // Square customization routes
+  app.post("/api/square-customization", saveSquareCustomization);
+  app.get("/api/square-customization/:chartId", getSquareCustomizations);
+
   // Forum routes
   app.get("/api/forum/posts", async (_req, res) => {
     const posts = await db.select().from(forumPosts);
@@ -58,15 +63,15 @@ export function registerRoutes(app: Express) {
       .from(users)
       .where(eq(users.username, req.params.username))
       .limit(1);
-    
+
     if (!user) return res.status(404).send("User not found");
-    
+
     const userCharts = await db
       .select()
       .from(charts)
       .where(eq(charts.userId, user.id))
       .limit(5);
-    
+
     res.json({
       ...user,
       topCharts: userCharts,
@@ -80,9 +85,9 @@ export function registerRoutes(app: Express) {
       .from(users)
       .where(eq(users.username, req.params.username))
       .limit(1);
-    
+
     if (!user) return res.status(404).send("User not found");
-    
+
     const userFriends = await db
       .select()
       .from(friends)
@@ -92,7 +97,7 @@ export function registerRoutes(app: Express) {
           eq(friends.status, "accepted")
         )
       );
-    
+
     res.json(userFriends);
   });
 

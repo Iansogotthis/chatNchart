@@ -1,6 +1,6 @@
-import { eq, and } from "drizzle-orm";
-import { db } from "../db";
-import { charts, squareCustomizations } from "@db/schema";
+import { eq } from "drizzle-orm";
+import { db } from "../../db";
+import { charts, squareCustomizations } from "../../db/schema";
 import type { Request, Response } from "express";
 
 export async function saveSquareCustomization(req: Request, res: Response) {

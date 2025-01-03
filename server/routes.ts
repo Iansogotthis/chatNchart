@@ -14,7 +14,7 @@ import {
   users,
   squareCustomizations,
 } from "../db/schema";
-import { eq, and, desc, or, sql, not } from "drizzle-orm";
+import { eq, and, desc, or, sql, not, inArray } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {
@@ -285,10 +285,6 @@ export function registerRoutes(app: Express) {
             id: users.id,
             username: users.username,
           },
-          receiver: {
-            id: users.id,
-            username: users.username,
-          },
         })
         .from(messagesTable)
         .where(or(
@@ -296,10 +292,27 @@ export function registerRoutes(app: Express) {
           eq(messagesTable.receiverId, req.user.id)
         ))
         .leftJoin(users, eq(messagesTable.senderId, users.id))
-        .leftJoin(users, eq(messagesTable.receiverId, users.id))
         .orderBy(desc(messagesTable.createdAt));
 
-      res.json(messages);
+      // Get unique receiver IDs, filtering out null values
+      const receiverIds = Array.from(new Set(messages.map(m => m.receiverId).filter((id): id is number => id !== null)));
+
+      const receivers = await db
+        .select({
+          id: users.id,
+          username: users.username,
+        })
+        .from(users)
+        .where(inArray(users.id, receiverIds));
+
+      const receiverMap = new Map(receivers.map(r => [r.id, r]));
+
+      const completeMessages = messages.map(msg => ({
+        ...msg,
+        receiver: receiverMap.get(msg.receiverId ?? -1) || null,
+      }));
+
+      res.json(completeMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
       res.status(500).json({ error: 'Failed to fetch messages' });
@@ -333,24 +346,32 @@ export function registerRoutes(app: Express) {
           sender: {
             id: users.id,
             username: users.username,
-          },
-          receiver: {
-            id: users.id,
-            username: users.username,
-          },
+          }
         })
         .from(messagesTable)
         .where(eq(messagesTable.id, message.id))
         .leftJoin(users, eq(messagesTable.senderId, users.id))
         .limit(1);
 
-      res.json(completeMessage);
+      // Get receiver information
+      const [receiver] = await db
+        .select({
+          id: users.id,
+          username: users.username,
+        })
+        .from(users)
+        .where(eq(users.id, message.receiverId ?? -1))
+        .limit(1);
+
+      res.json({
+        ...completeMessage,
+        receiver
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       res.status(500).json({ error: 'Failed to send message' });
     }
   });
-
 
   app.get("/api/saved-charts", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");
@@ -361,14 +382,16 @@ export function registerRoutes(app: Express) {
           id: savedCharts.id,
           notes: savedCharts.notes,
           createdAt: savedCharts.createdAt,
+          chartId: savedCharts.chartId,
           chart: {
             id: charts.id,
             title: charts.title,
             data: charts.data,
-            creator: {
-              id: users.id,
-              username: users.username,
-            },
+            creatorId: charts.userId,
+          },
+          creator: {
+            id: users.id,
+            username: users.username,
           },
         })
         .from(savedCharts)
@@ -397,6 +420,73 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error saving chart:', error);
       res.status(500).json({ error: 'Failed to save chart' });
+    }
+  });
+
+  app.put("/api/saved-charts/:id", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const [savedChart] = await db
+        .select()
+        .from(savedCharts)
+        .where(
+          and(
+            eq(savedCharts.id, parseInt(req.params.id)),
+            eq(savedCharts.userId, req.user.id)
+          )
+        )
+        .limit(1);
+
+      if (!savedChart) {
+        return res.status(404).send("Saved chart not found");
+      }
+
+      // Update the saved chart notes
+      const [updatedRequest] = await db
+        .update(savedCharts)
+        .set({
+          notes: req.body.notes,
+        })
+        .where(eq(savedCharts.id, parseInt(req.params.id)))
+        .returning();
+
+      // Update the chart title if provided
+      if (req.body.title) {
+        await db
+          .update(charts)
+          .set({ title: req.body.title })
+          .where(eq(charts.id, savedChart.chartId ?? -1));
+      }
+
+      // Get the complete chart information
+      const [completeChart] = await db
+        .select({
+          id: savedCharts.id,
+          notes: savedCharts.notes,
+          createdAt: savedCharts.createdAt,
+          chartId: savedCharts.chartId,
+          chart: {
+            id: charts.id,
+            title: charts.title,
+            data: charts.data,
+            userId: charts.userId,
+          },
+          creator: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(savedCharts)
+        .where(eq(savedCharts.id, updatedRequest.id))
+        .leftJoin(charts, eq(savedCharts.chartId, charts.id))
+        .leftJoin(users, eq(charts.userId, users.id))
+        .limit(1);
+
+      res.json(completeChart);
+    } catch (error) {
+      console.error('Error updating saved chart:', error);
+      res.status(500).json({ error: 'Failed to update saved chart' });
     }
   });
 

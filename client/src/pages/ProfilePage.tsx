@@ -11,6 +11,17 @@ import { Button } from "@/components/ui/button";
 import { Loader2, UserPlus, UserMinus } from "lucide-react";
 import { useState } from "react";
 
+interface Friend {
+  id: number;
+  status: "accepted";
+  createdAt: string;
+  friend: {
+    id: number;
+    username: string;
+    bio?: string | null;
+  } | null;
+}
+
 export default function ProfilePage() {
   const { username } = useParams();
   const { user } = useUser();
@@ -27,7 +38,7 @@ export default function ProfilePage() {
     }
   });
 
-  const { data: friends, isLoading: isLoadingFriends } = useQuery({
+  const { data: friends, isLoading: isLoadingFriends } = useQuery<Friend[]>({
     queryKey: [`/api/users/${username}/friends`],
     queryFn: async () => {
       const response = await fetch(`/api/users/${username}/friends`);
@@ -107,7 +118,7 @@ export default function ProfilePage() {
   }
 
   const isOwnProfile = user?.username === username;
-  const isFriend = friends?.some((friend: any) => friend.username === user?.username);
+  const isFriend = friends?.some((friend) => friend.friend?.username === user?.username);
 
   if (editSection) {
     return (
@@ -178,12 +189,14 @@ export default function ProfilePage() {
                   <TabsContent value="friends">
                     <FriendList
                       friends={friends}
-                      onRemove={isOwnProfile ? (id) => removeFriendMutation.mutate() : undefined}
+                      pendingRequests={[]}
+                      onRemoveFriend={isOwnProfile ? (id: number) => removeFriendMutation.mutate() : undefined}
                     />
                   </TabsContent>
                   <TabsContent value="mutuals">
                     <FriendList
-                      friends={friends.filter((friend: any) => friend.isMutual)}
+                      friends={friends.filter((friend) => friend.friend?.isMutual)}
+                      pendingRequests={[]}
                     />
                   </TabsContent>
                 </Tabs>

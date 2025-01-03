@@ -29,7 +29,7 @@ interface Friend {
 
 interface FriendListProps {
   friends: Friend[];
-  pendingRequests: FriendRequest[];
+  pendingRequests?: FriendRequest[];
   onAcceptRequest?: (requestId: number) => void;
   onRejectRequest?: (requestId: number) => void;
   onRemoveFriend?: (friendId: number) => void;
@@ -76,24 +76,28 @@ export function FriendList({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => onAcceptRequest?.(request.id)}
-                          className="bg-primary/10 hover:bg-primary/20 text-primary"
-                        >
-                          <UserCheck className="h-4 w-4 mr-1" />
-                          Accept
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onRejectRequest?.(request.id)}
-                          className="hover:bg-destructive/10 text-destructive hover:text-destructive"
-                        >
-                          <UserX className="h-4 w-4 mr-1" />
-                          Decline
-                        </Button>
+                        {onAcceptRequest && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => onAcceptRequest(request.id)}
+                            className="bg-primary/10 hover:bg-primary/20 text-primary"
+                          >
+                            <UserCheck className="h-4 w-4 mr-1" />
+                            Accept
+                          </Button>
+                        )}
+                        {onRejectRequest && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onRejectRequest(request.id)}
+                            className="hover:bg-destructive/10 text-destructive hover:text-destructive"
+                          >
+                            <UserX className="h-4 w-4 mr-1" />
+                            Decline
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </Card>
@@ -119,8 +123,8 @@ export function FriendList({
           ) : (
             <div className="space-y-4">
               {friends.map((friendship) => {
-                // Skip rendering if friend is null
                 if (!friendship.friend) return null;
+                const { friend } = friendship;
 
                 return (
                   <Card key={friendship.id} className="p-4">
@@ -128,16 +132,16 @@ export function FriendList({
                       <div className="flex items-center space-x-4">
                         <Avatar>
                           <AvatarFallback>
-                            {friendship.friend.username.charAt(0).toUpperCase()}
+                            {friend.username.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <Link href={`/profile/${friendship.friend.username}`} className="font-medium hover:underline">
-                            {friendship.friend.username}
+                          <Link href={`/profile/${friend.username}`} className="font-medium hover:underline">
+                            {friend.username}
                           </Link>
-                          {friendship.friend.bio && (
+                          {friend.bio && (
                             <p className="text-sm text-muted-foreground line-clamp-1">
-                              {friendship.friend.bio}
+                              {friend.bio}
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground">
@@ -146,22 +150,22 @@ export function FriendList({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {onMessage && friendship.friend && (
+                        {onMessage && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onMessage(friendship.friend.id)}
+                            onClick={() => onMessage(friend.id)}
                             className="hover:bg-primary/10 text-primary hover:text-primary"
                           >
                             <MessageSquare className="h-4 w-4 mr-1" />
                             Message
                           </Button>
                         )}
-                        {onRemoveFriend && friendship.friend && (
+                        {onRemoveFriend && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onRemoveFriend(friendship.friend.id)}
+                            onClick={() => onRemoveFriend(friend.id)}
                             className="hover:bg-destructive/10 text-destructive hover:text-destructive"
                           >
                             <UserMinus className="h-4 w-4 mr-1" />

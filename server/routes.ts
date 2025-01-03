@@ -3,9 +3,9 @@ import type { Express } from "express";
 import { createServer } from "http";
 import { setupAuth } from "./auth";
 import { db } from "../db";
+import messageRoutes from "./routes/messages";
 import {
   charts,
-  messages as messagesTable,
   savedCharts,
   chartLikes,
   notifications as notificationsTable,
@@ -20,6 +20,9 @@ import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart
 export function registerRoutes(app: Express) {
   setupAuth(app);
   const httpServer = createServer(app);
+
+  // Register message routes first
+  app.use("/api/messages", messageRoutes);
 
   app.get("/api/users/search", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");
@@ -269,109 +272,6 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.get("/api/messages", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
-
-    try {
-      const messages = await db
-        .select({
-          id: messagesTable.id,
-          content: messagesTable.content,
-          isRead: messagesTable.isRead,
-          createdAt: messagesTable.createdAt,
-          senderId: messagesTable.senderId,
-          receiverId: messagesTable.receiverId,
-          sender: {
-            id: users.id,
-            username: users.username,
-          },
-        })
-        .from(messagesTable)
-        .where(or(
-          eq(messagesTable.senderId, req.user.id),
-          eq(messagesTable.receiverId, req.user.id)
-        ))
-        .leftJoin(users, eq(messagesTable.senderId, users.id))
-        .orderBy(desc(messagesTable.createdAt));
-
-      // Get unique receiver IDs, filtering out null values
-      const receiverIds = Array.from(new Set(messages.map(m => m.receiverId).filter((id): id is number => id !== null)));
-
-      const receivers = await db
-        .select({
-          id: users.id,
-          username: users.username,
-        })
-        .from(users)
-        .where(inArray(users.id, receiverIds));
-
-      const receiverMap = new Map(receivers.map(r => [r.id, r]));
-
-      const completeMessages = messages.map(msg => ({
-        ...msg,
-        receiver: receiverMap.get(msg.receiverId ?? -1) || null,
-      }));
-
-      res.json(completeMessages);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      res.status(500).json({ error: 'Failed to fetch messages' });
-    }
-  });
-
-  app.post("/api/messages", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
-
-    try {
-      const [message] = await db.insert(messagesTable).values({
-        senderId: req.user.id,
-        receiverId: parseInt(req.body.receiverId),
-        content: req.body.content,
-      }).returning();
-
-      await db.insert(notificationsTable).values({
-        userId: parseInt(req.body.receiverId),
-        type: 'message',
-        sourceId: message.id,
-      });
-
-      const [completeMessage] = await db
-        .select({
-          id: messagesTable.id,
-          content: messagesTable.content,
-          isRead: messagesTable.isRead,
-          createdAt: messagesTable.createdAt,
-          senderId: messagesTable.senderId,
-          receiverId: messagesTable.receiverId,
-          sender: {
-            id: users.id,
-            username: users.username,
-          }
-        })
-        .from(messagesTable)
-        .where(eq(messagesTable.id, message.id))
-        .leftJoin(users, eq(messagesTable.senderId, users.id))
-        .limit(1);
-
-      // Get receiver information
-      const [receiver] = await db
-        .select({
-          id: users.id,
-          username: users.username,
-        })
-        .from(users)
-        .where(eq(users.id, message.receiverId ?? -1))
-        .limit(1);
-
-      res.json({
-        ...completeMessage,
-        receiver
-      });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      res.status(500).json({ error: 'Failed to send message' });
-    }
-  });
 
   app.get("/api/saved-charts", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");

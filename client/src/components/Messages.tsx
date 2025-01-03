@@ -24,27 +24,35 @@ interface MessagesProps {
 interface Message {
   id: number;
   content: string;
-  createdAt: string;
   senderId: number;
   receiverId: number;
   isRead: boolean;
+  createdAt: string;
 }
 
-export function Messages({ friendId, friendUsername, friendAvatarUrl }: MessagesProps) {
+export function Messages({ friendId, friendUsername }: MessagesProps) {
   const [newMessage, setNewMessage] = useState("");
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch messages for this conversation
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isLoading } = useQuery<Message[]>({
     queryKey: ['direct-messages', friendId],
     queryFn: async () => {
-      const response = await fetch(`/api/messages/direct/${friendId}`, {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error("Failed to fetch messages");
-      return response.json();
+      try {
+        const response = await fetch(`/api/messages/direct/${friendId}`, {
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(error || 'Failed to fetch messages');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        throw error;
+      }
     },
     refetchInterval: 5000, // Poll for new messages every 5 seconds
   });
@@ -52,13 +60,21 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
   // Mark messages as read
   const markAsReadMutation = useMutation({
     mutationFn: async (messageIds: number[]) => {
-      const response = await fetch('/api/messages/read', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageIds }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error("Failed to mark messages as read");
+      try {
+        const response = await fetch('/api/messages/read', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messageIds }),
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(error || 'Failed to mark messages as read');
+        }
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] });
@@ -68,14 +84,22 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
   // Send new message
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await fetch("/api/messages/direct", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiverId: friendId, content }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error("Failed to send message");
-      return response.json();
+      try {
+        const response = await fetch("/api/messages/direct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ receiverId: friendId, content }),
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(error || 'Failed to send message');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error sending message:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] });
@@ -96,9 +120,11 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
 
   // Mark unread messages as read when they're viewed
   useEffect(() => {
+    if (!user) return;
+
     const unreadMessages = messages
-      .filter(m => m.receiverId === user?.id && !m.isRead)
-      .map(m => m.id);
+      .filter((m: Message) => m.receiverId === user.id && !m.isRead)
+      .map((m: Message) => m.id);
 
     if (unreadMessages.length > 0) {
       markAsReadMutation.mutate(unreadMessages);
@@ -147,7 +173,7 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
       <CardContent className="p-0">
         <ScrollArea className="h-[400px]">
           <div className="flex flex-col space-y-4 p-4">
-            {messages.map((message) => {
+            {messages.map((message: Message) => {
               const isSentByMe = message.senderId === user?.id;
               return (
                 <div

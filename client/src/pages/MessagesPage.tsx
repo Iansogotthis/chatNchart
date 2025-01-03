@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Messages } from "@/components/Messages";
 import {
   Mail,
   Users,
@@ -18,7 +19,8 @@ import {
   MailPlus,
   RefreshCw,
   Filter,
-  Loader2
+  Loader2,
+  Search
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -35,22 +37,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+
+interface User {
+  id: number;
+  username: string;
+}
 
 interface Message {
   id: number;
-  senderId: number;
-  recipientId: number;
-  subject: string;
   content: string;
-  timestamp: string;
+  senderId: number;
+  receiverId: number;
   isRead: boolean;
-  isImportant: boolean;
-  messageType: 'direct' | 'group' | 'project';
-  groupId?: number;
-  projectId?: number;
+  createdAt: string;
 }
 
 export default function MessagesPage() {
@@ -59,43 +59,44 @@ export default function MessagesPage() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [composeOpen, setComposeOpen] = useState(false);
-  const [messageType, setMessageType] = useState<'direct' | 'group' | 'project'>('direct');
-  const [newMessage, setNewMessage] = useState({
-    recipientId: "",
-    subject: "",
-    content: "",
-    messageType: "direct" as const
-  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [messageContent, setMessageContent] = useState("");
 
-  // Fetch messages
-  const { data: messages = [], isLoading } = useQuery({
-    queryKey: ['messages'],
+  // Search users
+  const { data: searchResults = [], isLoading: isSearching } = useQuery({
+    queryKey: ['user-search', searchQuery],
     queryFn: async () => {
-      const response = await fetch('/api/messages', {
+      if (!searchQuery || searchQuery.length < 2) return [];
+      const response = await fetch(`/api/users/search?q=${encodeURIComponent(searchQuery)}`, {
         credentials: 'include'
       });
-      if (!response.ok) throw new Error('Failed to fetch messages');
+      if (!response.ok) throw new Error('Failed to search users');
       return response.json();
-    }
+    },
+    enabled: searchQuery.length >= 2
   });
 
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: async (message: typeof newMessage) => {
-      const response = await fetch('/api/messages', {
+    mutationFn: async ({ receiverId, content }: { receiverId: number, content: string }) => {
+      const response = await fetch('/api/messages/direct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(message),
+        body: JSON.stringify({ receiverId, content }),
         credentials: 'include'
       });
-      if (!response.ok) throw new Error('Failed to send message');
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to send message');
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
-      setNewMessage({ recipientId: "", subject: "", content: "", messageType: "direct" });
+      setMessageContent("");
       setComposeOpen(false);
       toast({
         title: "Success",
@@ -119,93 +120,33 @@ export default function MessagesPage() {
 
     if (shouldCompose && recipientId) {
       setComposeOpen(true);
-      setNewMessage(prev => ({
-        ...prev,
-        recipientId,
-        messageType: 'direct'
-      }));
+      // Fetch user details for the recipient
+      fetch(`/api/users/${recipientId}`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(user => {
+          setSelectedUser(user);
+        })
+        .catch(console.error);
+
       // Clean up the URL
       setLocation('/messages', { replace: true });
     }
   }, [setLocation]);
 
   const handleSendMessage = () => {
-    if (!newMessage.recipientId || !newMessage.subject || !newMessage.content) {
+    if (!selectedUser || !messageContent.trim()) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please select a recipient and enter a message",
         variant: "destructive"
       });
       return;
     }
-    sendMessageMutation.mutate(newMessage);
-  };
 
-  const handleMarkAsImportant = async (messageId: number) => {
-    try {
-      const response = await fetch(`/api/messages/${messageId}/important`, {
-        method: 'PUT',
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to update message');
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
-      toast({
-        title: "Success",
-        description: "Message updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update message",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDelete = async (messageId: number) => {
-    try {
-      const response = await fetch(`/api/messages/${messageId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to delete message');
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
-      toast({
-        title: "Success",
-        description: "Message deleted successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete message",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleMarkAsUnread = async (messageId: number) => {
-    try {
-      const response = await fetch(`/api/messages/${messageId}/read`, {
-        method: 'PUT',
-        body: JSON.stringify({ isRead: false }),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to update message');
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
-      toast({
-        title: "Success",
-        description: "Message marked as unread",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update message",
-        variant: "destructive"
-      });
-    }
+    sendMessageMutation.mutate({
+      receiverId: selectedUser.id,
+      content: messageContent.trim()
+    });
   };
 
   return (
@@ -225,53 +166,71 @@ export default function MessagesPage() {
                 <DialogHeader>
                   <DialogTitle>New Message</DialogTitle>
                   <DialogDescription>
-                    Compose and send a new message to a user, group, or project.
+                    Search for a user to send a message
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2">Message Type</label>
-                    <Tabs defaultValue="direct" className="w-full" onValueChange={(value) => setMessageType(value as any)}>
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="direct">Direct</TabsTrigger>
-                        <TabsTrigger value="group">Group</TabsTrigger>
-                        <TabsTrigger value="project">Project</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </div>
-                  <Input
-                    placeholder="Recipient ID"
-                    value={newMessage.recipientId}
-                    onChange={(e) => setNewMessage({ ...newMessage, recipientId: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Subject"
-                    value={newMessage.subject}
-                    onChange={(e) => setNewMessage({ ...newMessage, subject: e.target.value })}
-                  />
-                  <Textarea
-                    placeholder="Type your message here..."
-                    value={newMessage.content}
-                    onChange={(e) => setNewMessage({ ...newMessage, content: e.target.value })}
-                    rows={5}
-                  />
-                  <Button 
-                    onClick={handleSendMessage} 
-                    className="w-full"
-                    disabled={sendMessageMutation.isPending}
-                  >
-                    {sendMessageMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Send Message
-                      </>
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Search users..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="mb-2"
+                    />
+                    {isSearching ? (
+                      <div className="flex justify-center p-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <Card>
+                        <CardContent className="p-2">
+                          {searchResults.map((result: User) => (
+                            <Button
+                              key={result.id}
+                              variant={selectedUser?.id === result.id ? "default" : "ghost"}
+                              className="w-full justify-start"
+                              onClick={() => setSelectedUser(result)}
+                            >
+                              {result.username}
+                            </Button>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    ) : searchQuery.length >= 2 && (
+                      <p className="text-sm text-muted-foreground">No users found</p>
                     )}
-                  </Button>
+                  </div>
+                  {selectedUser && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">To:</span>
+                        <span className="text-sm">{selectedUser.username}</span>
+                      </div>
+                      <Textarea
+                        placeholder="Type your message here..."
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        rows={5}
+                      />
+                      <Button 
+                        onClick={handleSendMessage} 
+                        className="w-full"
+                        disabled={sendMessageMutation.isPending}
+                      >
+                        {sendMessageMutation.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="mr-2 h-4 w-4" />
+                            Send Message
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </DialogContent>
             </Dialog>
@@ -282,20 +241,8 @@ export default function MessagesPage() {
                 Inbox
               </Button>
               <Button variant="ghost" className="w-full justify-start">
-                <Star className="mr-2 h-4 w-4" />
-                Important
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
                 <Users className="mr-2 h-4 w-4" />
-                Group Messages
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <FolderKanban className="mr-2 h-4 w-4" />
-                Project Messages
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Trash
+                Friends
               </Button>
             </nav>
           </CardContent>
@@ -303,115 +250,27 @@ export default function MessagesPage() {
 
         {/* Main Content */}
         <Card className="flex-1">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Messages</CardTitle>
-              <CardDescription>Manage your conversations</CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={() => queryClient.invalidateQueries({ queryKey: ['messages'] })}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>Show All</DropdownMenuItem>
-                  <DropdownMenuItem>Unread Only</DropdownMenuItem>
-                  <DropdownMenuItem>Important Only</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          <CardHeader>
+            <CardTitle>Messages</CardTitle>
+            <CardDescription>
+              Your conversations
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[calc(100vh-16rem)]">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : messages.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  No messages yet. Start a conversation!
+            {selectedUser ? (
+              <Messages
+                friendId={selectedUser.id}
+                friendUsername={selectedUser.username}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                <Mail className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium">No conversation selected</h3>
+                <p className="text-sm text-muted-foreground">
+                  Choose a friend to start messaging or compose a new message
                 </p>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((message: Message) => (
-                    <Card
-                      key={message.id}
-                      className={`cursor-pointer transition-all hover:bg-accent/50 ${
-                        !message.isRead ? 'bg-primary/5' : ''
-                      }`}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <Avatar>
-                              <AvatarFallback>
-                                {message.senderId === user?.id ? 'You' : 'U'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold">
-                                  {message.senderId === user?.id ? 'You' : 'User'}
-                                </h4>
-                                <Badge variant={message.messageType === 'direct' ? 'default' : 'secondary'}>
-                                  {message.messageType}
-                                </Badge>
-                                {message.isImportant && (
-                                  <Star className="h-4 w-4 text-yellow-500" />
-                                )}
-                              </div>
-                              <p className="text-sm font-medium">{message.subject}</p>
-                              <p className="text-sm text-muted-foreground line-clamp-1">
-                                {message.content}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {format(new Date(message.timestamp), 'PPpp')}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleMarkAsImportant(message.id);
-                              }}
-                            >
-                              <Star className={`h-4 w-4 ${message.isImportant ? 'text-yellow-500' : ''}`} />
-                            </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  •••
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => handleMarkAsUnread(message.id)}>
-                                  Mark as unread
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDelete(message.id)}>
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

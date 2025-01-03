@@ -29,11 +29,12 @@ interface Friend {
 
 interface FriendListProps {
   friends: Friend[];
-  pendingRequests: FriendRequest[];
+  pendingRequests?: FriendRequest[];
   onAcceptRequest?: (requestId: number) => void;
   onRejectRequest?: (requestId: number) => void;
   onRemoveFriend?: (friendId: number) => void;
   onMessage?: (friendId: number) => void;
+  isMutualView?: boolean;
 }
 
 export function FriendList({
@@ -43,10 +44,11 @@ export function FriendList({
   onRejectRequest,
   onRemoveFriend,
   onMessage,
+  isMutualView = false,
 }: FriendListProps) {
   return (
     <div className="space-y-6">
-      {(pendingRequests?.length ?? 0) > 0 && (
+      {!isMutualView && (pendingRequests?.length ?? 0) > 0 && (
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -108,18 +110,17 @@ export function FriendList({
         <CardHeader>
           <div className="flex items-center gap-2">
             <UserCheck className="w-5 h-5 text-primary" />
-            <CardTitle>Your Friends</CardTitle>
+            <CardTitle>{isMutualView ? 'Mutual Friends' : 'Your Friends'}</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           {(friends?.length ?? 0) === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              No friends added yet. Start by sending friend requests!
+              {isMutualView ? 'No mutual friends yet.' : 'No friends added yet. Start by sending friend requests!'}
             </p>
           ) : (
             <div className="space-y-4">
               {friends.map((friendship) => {
-                // Skip rendering if friend is null
                 if (!friendship.friend) return null;
 
                 return (
@@ -146,7 +147,7 @@ export function FriendList({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {onMessage && friendship.friend && (
+                        {onMessage && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -157,7 +158,7 @@ export function FriendList({
                             Message
                           </Button>
                         )}
-                        {onRemoveFriend && friendship.friend && (
+                        {onRemoveFriend && (
                           <Button
                             variant="ghost"
                             size="sm"

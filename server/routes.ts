@@ -610,24 +610,51 @@ export function registerRoutes(app: Express) {
   });
 
   app.get("/api/users/:username", async (req, res) => {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, req.params.username))
-      .limit(1);
+    try {
+      const [user] = await db
+        .select({
+          id: users.id,
+          username: users.username,
+          bio: users.bio,
+          createdAt: users.createdAt,
+          email: users.email,
+          phone: users.phone,
+          city: users.city,
+          state: users.state,
+          zipCode: users.zipCode,
+          socials: users.socials,
+          favorites: users.favorites,
+          hobbies: users.hobbies,
+          talents: users.talents,
+          professional: users.professional,
+        })
+        .from(users)
+        .where(eq(users.username, req.params.username))
+        .limit(1);
 
-    if (!user) return res.status(404).send("User not found");
+      if (!user) return res.status(404).send("User not found");
 
-    const userCharts = await db
-      .select()
-      .from(charts)
-      .where(eq(charts.userId, user.id))
-      .limit(5);
+      const userCharts = await db
+        .select({
+          id: charts.id,
+          title: charts.title,
+          data: charts.data,
+          createdAt: charts.createdAt,
+          updatedAt: charts.updatedAt,
+          isPublic: charts.isPublic,
+        })
+        .from(charts)
+        .where(eq(charts.userId, user.id))
+        .limit(5);
 
-    res.json({
-      ...user,
-      topCharts: userCharts,
-    });
+      res.json({
+        ...user,
+        topCharts: userCharts,
+      });
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ error: 'Failed to fetch user data' });
+    }
   });
 
   app.get("/api/users/:username/friends", async (req, res) => {

@@ -83,6 +83,19 @@ function App() {
             <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
             <div className="fixed top-4 right-4 z-50 flex gap-2">
               {!sidebarOpen && selectedChart ? (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="rounded-full"
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
+                </Button>
+              ) : (
                 <>
                   <Button
                     variant="outline"
@@ -96,19 +109,25 @@ function App() {
                       <Moon className="h-5 w-5" />
                     )}
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleFullscreen}
-                    className="rounded-full"
-                  >
-                    {isFullscreen ? (
-                      <Minimize2 className="h-5 w-5" />
-                    ) : (
-                      <Maximize2 className="h-5 w-5" />
-                    )}
-                  </Button>
                 </>
+              )}
+            </div>
+            {!sidebarOpen && selectedChart && (
+              <div className="fixed top-4 left-4 z-50">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={toggleFullscreen}
+                  className="rounded-full"
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="h-5 w-5" />
+                  ) : (
+                    <Maximize2 className="h-5 w-5" />
+                  )}
+                </Button>
+              </div>
+            )}
               ) : (
                 <>
                   <Button

@@ -8,8 +8,14 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const db = drizzle({
-  connection: process.env.DATABASE_URL,
-  schema,
-  ws: ws,
-});
+try {
+  export const db = drizzle({
+    connection: process.env.DATABASE_URL,
+    schema,
+    ws: ws,
+    prepare: true,
+  });
+} catch (error) {
+  console.error("Failed to initialize database connection:", error);
+  throw error;
+}

@@ -1,8 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { setupAuth } from "./auth";  // Add this import
-import { db } from "@db";  // Add this import
+import { setupAuth } from "./auth";  
+import { db } from "@db";  
 
 const app = express();
 app.use(express.json());
@@ -52,7 +52,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize database connection
+// Initialize database connection and start server
 (async () => {
   try {
     // Add auth setup
@@ -73,10 +73,19 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
 
-    const PORT = process.env.PORT || 3001;
+    const PORT = 3000;
 
-    server.listen(PORT as number, "0.0.0.0", () => {
+    // Try to start server, handle port conflicts gracefully
+    server.listen(PORT, "0.0.0.0", () => {
       log(`Server running on http://0.0.0.0:${PORT}`);
+    }).on('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'EADDRINUSE') {
+        log(`Port ${PORT} is already in use. Please try a different port.`);
+        process.exit(1);
+      } else {
+        console.error('Server startup error:', error);
+        process.exit(1);
+      }
     });
   } catch (error) {
     console.error('Database initialization error:', error);

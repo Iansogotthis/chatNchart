@@ -1,17 +1,26 @@
 
-import { PerplexityClient } from '@perplexity-ai/sdk';
-
-const client = new PerplexityClient({
-  apiKey: process.env.PERPLEXITY_API_KEY || ''
-});
+const API_URL = 'https://api.perplexity.ai/chat/completions';
 
 export async function generateResponse(prompt: string) {
   try {
-    const response = await client.chat.completions.create({
-      model: "mixtral-8x7b-instruct",
-      messages: [{ role: "user", content: prompt }]
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "mixtral-8x7b-instruct",
+        messages: [{ role: "user", content: prompt }]
+      })
     });
-    return response.choices[0]?.message?.content || '';
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || '';
   } catch (error) {
     console.error('Perplexity API error:', error);
     throw error;

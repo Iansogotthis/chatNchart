@@ -12,6 +12,7 @@ import FriendsPage from "./pages/FriendsPage";
 import AuthPage from "./pages/AuthPage";
 import DemoPage from "./pages/DemoPage";
 import { lazy, Suspense } from 'react';
+import { Suspense, startTransition } from 'react';
 const FormView = lazy(() => import('./pages/ChartPages/FormView'));
 const IncludeBuildView = lazy(() => import('./pages/ChartPages/IncludeBuildView'));
 const ScaledView = lazy(() => import('./pages/ChartPages/ScaledView'));
@@ -158,10 +159,11 @@ function App() {
                       isFullscreen={isFullscreen} 
                     />
                   ) : (
-                    <Switch>
-                      <Route path="/" exact>
-                        {user && <ProfilePage username={user.username} />}
-                      </Route>
+                    <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                      <Switch>
+                        <Route path="/" exact>
+                          {user && startTransition(() => <ProfilePage username={user.username} />)}
+                        </Route>
                       <Route path="/home">
                         <HomePage />
                       </Route>

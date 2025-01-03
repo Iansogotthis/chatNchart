@@ -57,14 +57,12 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
         throw error;
       }
     },
-    refetchInterval: (data, query) => query.state.error ? false : 5000,
-    retry: (failureCount, error) => {
-      if (error?.message?.includes('Unauthorized')) {
-        return false;
-      }
-      return failureCount < 3;
-    },
+    refetchInterval: 5000,
+    retry: 3,
+    retryDelay: 1000,
     staleTime: 1000,
+    refetchOnWindowFocus: false,
+    enabled: !!friendId,
   });
 
   // Mark messages as read

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { UseQueryResult } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -15,12 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { format } from "date-fns";
 
-interface MessagesProps {
-  friendId: number;
-  friendUsername: string;
-  friendAvatarUrl?: string;
-}
-
 interface Message {
   id: number;
   content: string;
@@ -30,16 +25,22 @@ interface Message {
   createdAt: string;
 }
 
+interface MessagesProps {
+  friendId: number;
+  friendUsername: string;
+  friendAvatarUrl?: string;
+}
+
 export function Messages({ friendId, friendUsername }: MessagesProps) {
   const [newMessage, setNewMessage] = useState("");
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch messages for this conversation
-  const { data: messages = [], isLoading, error, previousData } = useQuery<Message[]>({
+  // Fixed useQuery with proper types
+  const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['direct-messages', friendId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Message[]> => {
       try {
         const response = await fetch(`/api/messages/direct/${friendId}`, {
           credentials: 'include',
@@ -63,9 +64,9 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     staleTime: 1000,
     refetchOnWindowFocus: false,
     enabled: !!friendId,
-    onSuccess: (data) => {
-      if (previousData && data.length > previousData.length) {
-        const newMessages = data.slice(previousData.length);
+    onSuccess: (newData: Message[], { data: oldData }) => {
+      if (oldData && newData.length > oldData.length) {
+        const newMessages = newData.slice(oldData.length);
         newMessages.forEach(msg => {
           if (msg.receiverId === user?.id && !msg.isRead) {
             toast({
@@ -143,7 +144,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
   useEffect(() => {
     if (!user) return;
 
-    const unreadMessages = messages
+    const unreadMessages = (messages || [])
       .filter((m: Message) => m.receiverId === user.id && !m.isRead)
       .map((m: Message) => m.id);
 
@@ -187,7 +188,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
         <p className="text-destructive mb-4">
           {error instanceof Error ? error.message : "Failed to load messages"}
         </p>
-        <Button 
+        <Button
           onClick={() => queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] })}
           variant="outline"
         >
@@ -198,7 +199,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full flex flex-col">
       <CardHeader className="pb-4 border-b">
         <CardTitle className="text-xl font-semibold tracking-tight">
           Chat with {friendUsername}
@@ -207,9 +208,9 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
           Send and receive messages with your friend
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[400px]">
-          <div className="flex flex-col space-y-4 p-4">
+      <CardContent className="p-0 flex-1 flex flex-col">
+        <ScrollArea className="flex-1 p-4">
+          <div className="flex flex-col space-y-4">
             {messages.map((message: Message) => {
               const isSentByMe = message.senderId === user?.id;
               return (
@@ -224,7 +225,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
                         : "bg-muted"
                     } rounded-lg px-4 py-2 shadow-sm`}
                   >
-                    <p className="text-sm">{message.content}</p>
+                    <p className="text-sm break-words">{message.content}</p>
                     <div className={`flex items-center gap-1 mt-1 text-xs ${
                       isSentByMe ? "text-primary-foreground/80" : "text-muted-foreground"
                     }`}>

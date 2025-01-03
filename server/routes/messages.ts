@@ -72,7 +72,7 @@ router.get("/direct/:friendId", requireAuth, async (req, res, next) => {
     res.json(directMessages);
   } catch (error) {
     console.error("Error fetching direct messages:", error);
-    next(error);
+    res.status(500).json({ message: "Failed to fetch direct messages" });
   }
 });
 

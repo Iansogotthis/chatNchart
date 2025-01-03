@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { MessageSquare, UserMinus, UserCheck, UserX, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface FriendRequest {
   id: number;
@@ -34,6 +35,7 @@ interface FriendListProps {
   onRejectRequest?: (requestId: number) => void;
   onRemoveFriend?: (friendId: number) => void;
   onMessage?: (friendId: number) => void;
+  className?: string;
 }
 
 export function FriendList({
@@ -43,9 +45,10 @@ export function FriendList({
   onRejectRequest,
   onRemoveFriend,
   onMessage,
+  className
 }: FriendListProps) {
   return (
-    <div className="space-y-6">
+    <div className={cn("space-y-6", className)}>
       {(pendingRequests?.length ?? 0) > 0 && (
         <Card className="w-full">
           <CardHeader>
@@ -59,7 +62,7 @@ export function FriendList({
               <div className="space-y-4">
                 {pendingRequests.map((request) => request.sender && (
                   <Card key={request.id} className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center space-x-4">
                         <Avatar>
                           <AvatarFallback>
@@ -81,7 +84,7 @@ export function FriendList({
                             variant="default"
                             size="sm"
                             onClick={() => onAcceptRequest(request.id)}
-                            className="bg-primary/10 hover:bg-primary/20 text-primary"
+                            className="bg-primary/10 hover:bg-primary/20 text-primary w-full sm:w-auto"
                           >
                             <UserCheck className="h-4 w-4 mr-1" />
                             Accept
@@ -92,7 +95,7 @@ export function FriendList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onRejectRequest(request.id)}
-                            className="hover:bg-destructive/10 text-destructive hover:text-destructive"
+                            className="hover:bg-destructive/10 text-destructive hover:text-destructive w-full sm:w-auto"
                           >
                             <UserX className="h-4 w-4 mr-1" />
                             Decline
@@ -128,7 +131,7 @@ export function FriendList({
 
                 return (
                   <Card key={friendship.id} className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center space-x-4">
                         <Avatar>
                           <AvatarFallback>
@@ -155,7 +158,7 @@ export function FriendList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onMessage(friend.id)}
-                            className="hover:bg-primary/10 text-primary hover:text-primary"
+                            className="hover:bg-primary/10 text-primary hover:text-primary w-full sm:w-auto"
                           >
                             <MessageSquare className="h-4 w-4 mr-1" />
                             Message
@@ -166,7 +169,7 @@ export function FriendList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onRemoveFriend(friend.id)}
-                            className="hover:bg-destructive/10 text-destructive hover:text-destructive"
+                            className="hover:bg-destructive/10 text-destructive hover:text-destructive w-full sm:w-auto"
                           >
                             <UserMinus className="h-4 w-4 mr-1" />
                             Remove

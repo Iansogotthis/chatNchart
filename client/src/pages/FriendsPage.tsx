@@ -74,7 +74,6 @@ export default function FriendsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality
     if (searchQuery.trim()) {
       setLocation(`/friends/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
@@ -83,36 +82,49 @@ export default function FriendsPage() {
   if (!user) return null;
 
   return (
-    <div className="container p-4 mx-auto" role="main">
+    <div className="container mx-auto px-4 py-6 max-w-7xl" role="main">
       <header className="mb-6 space-y-4">
-        <h1 className="text-2xl md:text-3xl font-bold" role="heading" aria-label="Friends and Requests Page">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight" role="heading" aria-label="Friends and Requests Page">
           Friends & Requests
         </h1>
 
-        {/* Search Form - Mobile Responsive */}
-        <form onSubmit={handleSearch} className="flex gap-2 w-full max-w-md">
-          <Input
-            type="search"
-            placeholder="Search users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1"
-            aria-label="Search for users"
-          />
-          <Button type="submit" aria-label="Search">
-            <Search className="h-4 w-4" />
-            <span className="sr-only">Search</span>
+        {/* Search Form - Enhanced Mobile Responsive */}
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
+          <div className="flex-1 min-w-0">
+            <Input
+              type="search"
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+              aria-label="Search for users"
+            />
+          </div>
+          <Button 
+            type="submit" 
+            className="w-full sm:w-auto"
+            aria-label="Search"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            <span className="sm:hidden">Search</span>
+            <span className="sr-only">Search for users</span>
           </Button>
         </form>
       </header>
 
       <Card className="mb-6">
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Stats */}
-            <div className="text-sm">
-              <p>Total Friends: {friends.length}</p>
-              <p>Pending Requests: {pendingRequests.length}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Stats with improved mobile layout */}
+            <div className="space-y-2 text-sm">
+              <p className="flex justify-between">
+                <span>Total Friends:</span>
+                <span className="font-medium">{friends.length}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Pending Requests:</span>
+                <span className="font-medium">{pendingRequests.length}</span>
+              </p>
             </div>
           </div>
         </CardContent>

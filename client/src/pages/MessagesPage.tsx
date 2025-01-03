@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import { Link } from "wouter"; // Assuming Next.js is used for routing; adjust if necessary.
+import { Link } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
@@ -50,7 +50,7 @@ interface Conversation {
   participantId: number;
   participantName: string;
   lastMessageAt: string;
-  lastMessage: string | null; // Added lastMessage field
+  lastMessage: string | null;
 }
 
 
@@ -176,9 +176,9 @@ export default function MessagesPage() {
 
   return (
     <div className="container mx-auto max-w-6xl p-4 md:py-6">
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
-        {/* Sidebar */}
-        <Card className="lg:w-64 w-full">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 h-[calc(100vh-2rem)]">
+        {/* Sidebar - Enhanced for mobile */}
+        <Card className="lg:w-80 w-full flex-shrink-0">
           <CardContent className="p-4">
             <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
               <DialogTrigger asChild>
@@ -187,7 +187,7 @@ export default function MessagesPage() {
                   Compose
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[425px] w-[95vw] sm:w-full">
                 <DialogHeader>
                   <DialogTitle>New Message</DialogTitle>
                   <DialogDescription>
@@ -237,10 +237,11 @@ export default function MessagesPage() {
                         value={messageContent}
                         onChange={(e) => setMessageContent(e.target.value)}
                         rows={5}
+                        className="min-h-[100px]"
                         aria-label="Message content"
                       />
-                      <Button 
-                        onClick={handleSendMessage} 
+                      <Button
+                        onClick={handleSendMessage}
                         className="w-full"
                         disabled={sendMessageMutation.isPending}
                       >
@@ -262,27 +263,27 @@ export default function MessagesPage() {
               </DialogContent>
             </Dialog>
 
-            <ScrollArea className="h-[calc(100vh-12rem)]">
+            <ScrollArea className="h-[calc(100vh-16rem)] lg:h-[calc(100vh-12rem)]">
               <div className="space-y-2">
-                {conversations?.map((convo) => (
-                  <Link 
+                {conversations?.map((convo: Conversation) => (
+                  <Link
                     key={convo.id}
                     href={`/messages?user=${convo.participantId}`}
                     className={`block w-full p-3 rounded-lg transition-colors ${
-                      selectedUser?.id === convo.participantId 
-                        ? "bg-primary/10 hover:bg-primary/20" 
+                      selectedUser?.id === convo.participantId
+                        ? "bg-primary/10 hover:bg-primary/20"
                         : "hover:bg-muted"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-10 w-10 flex-shrink-0">
                         <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${convo.participantName}`} />
                         <AvatarFallback>{convo.participantName[0]}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-baseline">
-                          <span className="font-medium">{convo.participantName}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="font-medium truncate">{convo.participantName}</span>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
                             {format(new Date(convo.lastMessageAt), 'MMM d, h:mm a')}
                           </span>
                         </div>
@@ -300,25 +301,27 @@ export default function MessagesPage() {
           </CardContent>
         </Card>
 
-        {/* Main Content */}
-        <Card className="flex-1">
-          <CardHeader>
-            <CardTitle>Messages</CardTitle>
+        {/* Main Content - Enhanced for mobile */}
+        <Card className="flex-1 flex flex-col h-full">
+          <CardHeader className="border-b">
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              {selectedUser ? `Chat with ${selectedUser.username}` : 'Messages'}
+            </CardTitle>
             <CardDescription>
-              Your conversations
+              {selectedUser ? 'Send and receive messages with your friend' : 'Select a conversation to start messaging'}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 flex-1 flex flex-col">
             {selectedUser ? (
               <Messages
                 friendId={selectedUser.id}
                 friendUsername={selectedUser.username}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center h-[400px] text-center">
+              <div className="flex flex-col items-center justify-center h-full p-4 text-center">
                 <Mail className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium">No conversation selected</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mt-2">
                   Choose a friend to start messaging or compose a new message
                 </p>
               </div>

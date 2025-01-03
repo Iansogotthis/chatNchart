@@ -30,12 +30,15 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-[250px,1fr] gap-8">
-          <ChartsNavigation onSelect={setSelectedChart} />
-          <div className="min-h-[600px]">
+      <div className="flex-1 overflow-hidden">
+        <div className="grid grid-cols-[250px,1fr] h-[calc(100vh-4rem)]">
+          <ChartsNavigation 
+            onSelect={setSelectedChart} 
+            selectedChart={selectedChart}
+          />
+          <main className="overflow-auto p-8">
             <Switch>
               <Route path="/">
                 {selectedChart ? (
@@ -52,9 +55,9 @@ function App() {
               <Route path="/messages" component={MessagesPage} />
               <Route>404 Page Not Found</Route>
             </Switch>
-          </div>
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -28,12 +28,51 @@ export function registerRoutes(app: Express) {
 
   app.post("/api/charts", async (req, res) => {
     if (!req.user) return res.status(401).send("Not authenticated");
-    const [chart] = await db.insert(charts).values({
-      userId: req.user.id,
-      title: req.body.title,
-      data: req.body.data,
-    }).returning();
-    res.json(chart);
+    try {
+      const [chart] = await db.insert(charts).values({
+        userId: req.user.id,
+        title: req.body.title,
+        data: req.body.data,
+      }).returning();
+      res.json(chart);
+    } catch (error) {
+      console.error('Error creating chart:', error);
+      res.status(500).json({ error: 'Failed to create chart' });
+    }
+  });
+
+  app.put("/api/charts/:id", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const [chart] = await db
+        .select()
+        .from(charts)
+        .where(and(
+          eq(charts.id, parseInt(req.params.id)),
+          eq(charts.userId, req.user.id)
+        ))
+        .limit(1);
+
+      if (!chart) {
+        return res.status(404).send("Chart not found");
+      }
+
+      const [updatedChart] = await db
+        .update(charts)
+        .set({
+          title: req.body.title,
+          data: req.body.data,
+          updatedAt: new Date(),
+        })
+        .where(eq(charts.id, parseInt(req.params.id)))
+        .returning();
+
+      res.json(updatedChart);
+    } catch (error) {
+      console.error('Error updating chart:', error);
+      res.status(500).json({ error: 'Failed to update chart' });
+    }
   });
 
   // Square customization routes

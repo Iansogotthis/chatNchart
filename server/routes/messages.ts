@@ -9,11 +9,12 @@ const router = Router();
 // Authentication middleware with proper error handling
 const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Unauthorized", details: "Session invalid or expired" });
     }
     next();
   } catch (error) {
+    console.error("Auth middleware error:", error);
     next(error);
   }
 };

@@ -42,11 +42,14 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     queryFn: async () => {
       try {
         const response = await fetch(`/api/messages/direct/${friendId}`, {
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
         });
         if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Failed to fetch messages');
+          const errorData = await response.json().catch(() => ({ message: 'Failed to fetch messages' }));
+          throw new Error(errorData.message);
         }
         return response.json();
       } catch (error) {
@@ -54,8 +57,14 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
         throw error;
       }
     },
-    refetchInterval: 5000, // Poll for new messages every 5 seconds
-    retry: 3, // Retry failed requests 3 times
+    refetchInterval: (data, query) => query.state.error ? false : 5000,
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('Unauthorized')) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+    staleTime: 1000,
   });
 
   // Mark messages as read

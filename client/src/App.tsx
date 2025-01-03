@@ -23,8 +23,9 @@ import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Maximize2, Minimize2 } from "lucide-react";
+import { Moon, Sun, Maximize2, Minimize2, Home } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { useLocation } from "wouter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +41,8 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { theme, setTheme } = useTheme();
-  
+  const [, setLocation] = useLocation();
+
   useEffect(() => {
     if (user && window.location.pathname === '/') {
       window.location.href = `/profile/${user.username}`;
@@ -62,6 +64,10 @@ function App() {
     } else {
       document.exitFullscreen();
     }
+  };
+
+  const handleReset = () => {
+    setLocation("/home");
   };
 
   return (
@@ -203,6 +209,15 @@ function App() {
                 </main>
               </div>
             </div>
+            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+              <Button
+                onClick={handleReset}
+                className="rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                <Home className="h-5 w-5 mr-2" />
+                Back to Home
+              </Button>
+            </div>
             <Toaster />
           </>
         )}
@@ -212,30 +227,3 @@ function App() {
 }
 
 export default App;
-import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
-import { Home } from "lucide-react";
-
-export default function App() {
-  const [, setLocation] = useLocation();
-
-  const handleReset = () => {
-    // Reset app state if needed
-    setLocation("/home");
-  };
-
-  return (
-    <>
-      {/* Your existing app content */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-        <Button
-          onClick={handleReset}
-          className="rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
-        >
-          <Home className="h-5 w-5 mr-2" />
-          Back to Home
-        </Button>
-      </div>
-    </>
-  );
-}

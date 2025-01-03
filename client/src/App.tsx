@@ -9,6 +9,7 @@ import ForumPage from "./pages/ForumPage";
 import MessagesPage from "./pages/MessagesPage";
 import FriendsPage from "./pages/FriendsPage";
 import AuthPage from "./pages/AuthPage";
+import DemoPage from "./pages/DemoPage";
 import { lazy, Suspense } from 'react';
 const FormView = lazy(() => import('./pages/ChartPages/FormView'));
 const IncludeBuildView = lazy(() => import('./pages/ChartPages/IncludeBuildView'));

@@ -1,5 +1,5 @@
 import { useUser } from "@/hooks/use-user";
-import { UserDetails } from "@/components/UserDetails";
+import { UserProfile } from "@/components/UserProfile";
 import { FriendList } from "@/components/FriendList";
 import { AllChartsView } from "@/components/AllChartsView";
 import { useToast } from "@/hooks/use-toast";
@@ -89,8 +89,8 @@ export default function ProfilePage() {
 
   if (profileLoading || friendsLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-border" />
       </div>
     );
   }
@@ -98,10 +98,10 @@ export default function ProfilePage() {
   if (!profile) {
     return (
       <div className="container mx-auto max-w-7xl p-4">
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">User not found</h1>
-          <p className="text-lg text-muted-foreground max-w-md">
-            The user you're looking for doesn't exist or may have been removed.
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">User not found</h1>
+          <p className="text-muted-foreground">
+            The user you're looking for doesn't exist.
           </p>
         </div>
       </div>
@@ -109,85 +109,39 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-8">
-          <div className="flex flex-col lg:flex-row justify-between gap-8">
-            <div className="flex-1">
-              <UserDetails
-                user={profile}
-                isEditable={isOwnProfile}
-                onEdit={isOwnProfile ? () => {} : undefined}
-              />
-            </div>
-            {!isOwnProfile && (
-              <div className="lg:pt-4">
-                <Button 
-                  size="lg"
-                  className="w-full lg:w-auto"
-                  onClick={handleFriendRequest}
-                >
-                  Add Friend
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <Tabs defaultValue="projects" className="w-full">
-            <TabsList className="w-full justify-start overflow-x-auto">
-              <TabsTrigger value="projects">Projects</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="likes">Likes</TabsTrigger>
-              <TabsTrigger value="saves">Saves</TabsTrigger>
-              <TabsTrigger value="friends">Friends</TabsTrigger>
-              <TabsTrigger value="charts">Charts</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="projects" className="mt-6">
-              <div className="rounded-lg border bg-card text-card-foreground p-8 text-center">
-                <p className="text-lg text-muted-foreground">
-                  Coming soon: Projects feature
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="notes" className="mt-6">
-              <div className="rounded-lg border bg-card text-card-foreground p-8 text-center">
-                <p className="text-lg text-muted-foreground">
-                  Coming soon: Notes feature
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="likes" className="mt-6">
-              <div className="rounded-lg border bg-card text-card-foreground p-8 text-center">
-                <p className="text-lg text-muted-foreground">
-                  Coming soon: Likes feature
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="saves" className="mt-6">
-              <div className="rounded-lg border bg-card text-card-foreground p-8 text-center">
-                <p className="text-lg text-muted-foreground">
-                  Coming soon: Saves feature
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="friends" className="mt-6">
-              <FriendList
-                friends={friends || []}
-                onMessage={handleMessage}
-                onRemove={isOwnProfile ? () => {} : undefined}
-              />
-            </TabsContent>
-
-            <TabsContent value="charts" className="mt-6">
-              <AllChartsView />
-            </TabsContent>
-          </Tabs>
+    <div className="container mx-auto max-w-7xl">
+      <div className="grid gap-6 p-4">
+        <div className="flex items-start justify-between">
+          <UserProfile
+            username={profile.username}
+            bio={profile.bio}
+            funFacts={profile.funFacts}
+            topCharts={profile.topCharts}
+            onEditProfile={isOwnProfile ? () => {} : undefined}
+          />
+          {!isOwnProfile && (
+            <Button onClick={handleFriendRequest}>Add Friend</Button>
+          )}
         </div>
+
+        <Tabs defaultValue="charts" className="w-full">
+          <TabsList>
+            <TabsTrigger value="charts">Charts</TabsTrigger>
+            <TabsTrigger value="friends">Friends</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="charts">
+            <AllChartsView />
+          </TabsContent>
+
+          <TabsContent value="friends">
+            <FriendList
+              friends={friends || []}
+              onMessage={handleMessage}
+              onRemove={isOwnProfile ? () => {} : undefined}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

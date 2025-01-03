@@ -6,6 +6,11 @@ import SquareModal from '@/components/SquareModal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 
+interface Chart {
+  id: string;
+  // Add other chart properties as needed
+}
+
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped' | 'included-build';
 
 interface SelectedSquare {
@@ -21,7 +26,11 @@ const colors = {
   "fruit": "lightcoral"
 } as const;
 
-export function ChartVisualization() {
+interface ChartVisualizationProps {
+  chart: Chart;
+}
+
+export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const [currentView, setCurrentView] = useState<ViewType>('standard');
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,20 +62,8 @@ export function ChartVisualization() {
     };
   }>>({});
 
-  // Fetch current chart and its customizations
-  const { data: charts } = useQuery({
-    queryKey: ['charts'],
-    queryFn: async () => {
-      const response = await fetch('/api/charts');
-      if (!response.ok) throw new Error('Failed to fetch charts');
-      return response.json();
-    },
-  });
+  const chartId = chart.id;
 
-  const currentChart = charts?.[0];
-  const chartId = currentChart?.id;
-
-  // Fetch square customizations for the current chart
   const { data: customizations } = useQuery({
     queryKey: ['square-customizations', chartId],
     queryFn: async () => {
@@ -78,7 +75,6 @@ export function ChartVisualization() {
     enabled: !!chartId,
   });
 
-  // Update squareStyles when customizations change
   useEffect(() => {
     if (customizations?.length) {
       const styles: Record<string, any> = {};
@@ -95,7 +91,6 @@ export function ChartVisualization() {
     }
   }, [customizations]);
 
-  // Square customization mutation
   const squareCustomizationMutation = useMutation({
     mutationFn: async (customization: any) => {
       const response = await fetch('/api/square-customization', {
@@ -120,23 +115,307 @@ export function ChartVisualization() {
   };
 
   const handleViewChange = (viewType: ViewType) => {
-    // Reset the view if changing to standard or delineated without a square selected
     if ((viewType === 'standard' || viewType === 'delineated')) {
       setCurrentView(viewType);
       setSelectedSquare(null);
       setIsModalOpen(false);
-    }
-    // Only allow scale/scope views when a square is selected
-    else if ((viewType === 'scaled' || viewType === 'scoped') && selectedSquare) {
+    } else if ((viewType === 'scaled' || viewType === 'scoped') && selectedSquare) {
       setCurrentView(viewType);
       setIsModalOpen(false);
     }
-    // Force re-render of the chart
     if (svgRef.current) {
       const svg = d3.select(svgRef.current);
       svg.selectAll("*").remove();
     }
   };
+
+  const drawChart = () => {
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
+
+    if (!selectedSquare && (currentView === 'scaled' || currentView === 'scoped')) {
+      setCurrentView('standard');
+    }
+
+    const svgElement = svgRef.current;
+    if (!svgElement) return;
+
+    const boundingRect = svgElement.getBoundingClientRect();
+    const width = boundingRect.width;
+    const height = boundingRect.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const centerSquareSize = Math.min(width, height) * 0.4;
+    const smallSquareSize = centerSquareSize / 2;
+    const smallestSquareSize = smallSquareSize / 2;
+    const tinySquareSize = smallestSquareSize / 2;
+
+    const delineationFactor = currentView === 'delineated' ? 0.75 : 1;
+
+    svg.attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet");
+
+    function drawSquare(x: number, y: number, size: number, color: string, className: string, depth: number, parentText: string) {
+      const squareId = `${className}_${parentText}_${depth}`;
+      const customStyle = squareStyles[squareId];
+
+      const group = svg.append("g")
+        .attr("class", `square-group ${className}`)
+        .attr("role", "button")
+        .attr("tabindex", "0")
+        .attr("aria-label", `${className} square with ${customStyle?.title || 'no'} customization`)
+        .on("click", () => handleSquareClick(className, parentText, depth))
+        .on("keypress", (event: KeyboardEvent) => {
+          if (event.key === "Enter" || event.key === " ") {
+            handleSquareClick(className, parentText, depth);
+          }
+        });
+
+      const rect = group.append("rect")
+        .attr("x", x - size / 2)
+        .attr("y", y - size / 2)
+        .attr("width", size)
+        .attr("height", size)
+        .attr("class", `square ${className}`)
+        .attr("fill", customStyle?.urgency || color)
+        .attr("rx", 4)
+        .attr("ry", 4);
+
+      if (customStyle?.priority) {
+        rect.style("stroke", customStyle.priority.decor || "none")
+          .style("stroke-width", `${customStyle.priority.density || 1}px`)
+          .style("stroke-dasharray", (() => {
+            switch (customStyle.priority.durability) {
+              case 'dotted': return "3,3";
+              case 'dashed': return "5,5";
+              case 'double': return "8,2";
+              default: return "none";
+            }
+          })());
+      }
+
+      const text = group.append("text")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "middle")
+        .attr("pointer-events", "none");
+
+      if (customStyle?.aesthetic) {
+        const { impact, affect, effect } = customStyle.aesthetic;
+        text.style("font-weight", impact.bold ? "bold" : "normal")
+          .style("font-style", impact.italic ? "italic" : "normal")
+          .style("text-decoration", impact.underline ? "underline" : "none")
+          .style("font-family", affect.fontFamily || "Arial")
+          .style("font-size", `${affect.fontSize || size / 5}px`)
+          .style("fill", effect.color || "black");
+      } else {
+        text.style("font-size", `${size / 5}px`)
+          .style("fill", "black");
+      }
+
+      text.text(customStyle?.title || className);
+    }
+
+    function shouldDrawLeaf(branchIndex: number, leafPosition: number): boolean {
+      switch (branchIndex) {
+        case 1:
+          return leafPosition !== 3;
+        case 2:
+          return leafPosition !== 2;
+        case 3:
+          return leafPosition !== 1;
+        case 4:
+          return leafPosition !== 0;
+        default:
+          return true;
+      }
+    }
+
+    function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
+      if (depth > 2) return;
+
+      corners.forEach(([x, y], index) => {
+        const branchIndex = index + 1;
+        let currentClassName = className;
+
+        if (depth === 0) {
+          currentClassName = "branch";
+          drawSquare(
+            x,
+            y,
+            size,
+            colors[currentClassName as keyof typeof colors] || "",
+            currentClassName,
+            depth,
+            `${parentText}_${branchIndex}`
+          );
+
+          if (size > tinySquareSize) {
+            const leafSize = size / 2;
+            const leafCorners = [
+              [x - size / 2, y - size / 2],
+              [x + size / 2, y - size / 2],
+              [x - size / 2, y + size / 2],
+              [x + size / 2, y + size / 2],
+            ] as [number, number][];
+
+            leafCorners.forEach((corner, leafIndex) => {
+              if (shouldDrawLeaf(branchIndex, leafIndex)) {
+                drawSquare(
+                  corner[0],
+                  corner[1],
+                  leafSize,
+                  colors["leaf"],
+                  "leaf",
+                  depth + 1,
+                  `${parentText}_${branchIndex}_${leafIndex + 1}`
+                );
+
+                const fruitSize = leafSize / 2;
+                const fruitCorners = {
+                  1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2],
+                  2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2],
+                  3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2],
+                  4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]
+                };
+
+                let fruitCornerNumbers: number[] = [];
+                if (branchIndex === 1) {
+                  if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
+                } else if (branchIndex === 2) {
+                  if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
+                } else if (branchIndex === 3) {
+                  if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
+                } else if (branchIndex === 4) {
+                  if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
+                  if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
+                  if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
+                }
+
+                fruitCornerNumbers.forEach(cornerNum => {
+                  const fruitCorner = fruitCorners[cornerNum as keyof typeof fruitCorners];
+                  if (fruitCorner) {
+                    drawSquare(
+                      fruitCorner[0],
+                      fruitCorner[1],
+                      fruitSize,
+                      colors["fruit"],
+                      "fruit",
+                      depth + 2,
+                      `${parentText}_${branchIndex}_${leafIndex + 1}_${cornerNum}`
+                    );
+                  }
+                });
+              }
+            });
+          }
+        }
+      });
+    }
+
+    const getAdjustedPosition = (x: number, y: number): [number, number] => {
+      if (currentView !== 'delineated') return [x, y];
+
+      const dx = x - centerX;
+      const dy = y - centerY;
+      return [
+        centerX + dx * delineationFactor,
+        centerY + dy * delineationFactor
+      ];
+    };
+
+    if (currentView === 'standard' || currentView === 'delineated') {
+      drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
+
+      const baseCorners = [
+        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+      ].map(([x, y]) => getAdjustedPosition(x, y)) as [number, number][];
+
+      drawSquares(baseCorners, smallSquareSize, 0, "root", "Center");
+    } else if (currentView === 'scoped' && selectedSquare) {
+      drawSquare(
+        centerX,
+        centerY,
+        centerSquareSize,
+        colors[selectedSquare.class as keyof typeof colors] || "",
+        selectedSquare.class,
+        selectedSquare.depth,
+        selectedSquare.parent
+      );
+
+      const childCorners = [
+        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+      ] as [number, number][];
+
+      childCorners.forEach(([x, y], index) => {
+        let childClass = "";
+        if (selectedSquare.class === "root") childClass = "branch";
+        else if (selectedSquare.class === "branch") childClass = "leaf";
+        else if (selectedSquare.class === "leaf") childClass = "fruit";
+
+        if (childClass) {
+          drawSquare(
+            x,
+            y,
+            smallSquareSize,
+            colors[childClass as keyof typeof colors] || "",
+            `${childClass}${index + 1}`,
+            selectedSquare.depth + 1,
+            `${selectedSquare.parent}_${index + 1}`
+          );
+        }
+      });
+    } else if (currentView === 'scaled' && selectedSquare) {
+      drawSquare(
+        centerX,
+        centerY,
+        centerSquareSize * 1.5,
+        colors[selectedSquare.class as keyof typeof colors] || "",
+        selectedSquare.class,
+        selectedSquare.depth,
+        selectedSquare.parent
+      );
+
+      const expandedCorners = [
+        [centerX - centerSquareSize, centerY - centerSquareSize],
+        [centerX + centerSquareSize, centerY - centerSquareSize],
+        [centerX - centerSquareSize, centerY + centerSquareSize],
+        [centerX + centerSquareSize, centerY + centerSquareSize],
+      ] as [number, number][];
+
+      expandedCorners.forEach(([x, y], index) => {
+        let childClass = "";
+        if (selectedSquare.class === "root") childClass = "branch";
+        else if (selectedSquare.class === "branch") childClass = "leaf";
+        else if (selectedSquare.class === "leaf") childClass = "fruit";
+
+        if (childClass && (!childClass || shouldDrawLeaf(index + 1, index))) {
+          drawSquare(
+            x,
+            y,
+            smallSquareSize * 1.5,
+            colors[childClass as keyof typeof colors] || "",
+            `${childClass}${index + 1}`,
+            selectedSquare.depth + 1,
+            `${selectedSquare.parent}_${index + 1}`
+          );
+        }
+      });
+    }
+  }
 
   const handleFormSubmit = async (data: any) => {
     if (!selectedSquare || !user) {
@@ -147,26 +426,32 @@ export function ChartVisualization() {
     const squareId = `${selectedSquare.class}_${selectedSquare.parent}_${selectedSquare.depth}`;
 
     try {
-      // Save to backend
       await squareCustomizationMutation.mutateAsync({
         squareClass: selectedSquare.class,
         parentText: selectedSquare.parent,
         depth: selectedSquare.depth,
+        chartId,
         ...data
       });
 
-      // Update local state immediately
       setSquareStyles(prev => ({
         ...prev,
-        [squareId]: data
+        [squareId]: {
+          title: data.title,
+          priority: data.priority,
+          urgency: data.urgency,
+          aesthetic: data.aesthetic
+        }
       }));
 
-      // Force a redraw by clearing and redrawing
       if (svgRef.current) {
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove();
         drawChart();
       }
+
+      setIsModalOpen(false);
+      setSelectedSquare(null);
 
     } catch (error) {
       console.error('Error saving square customization:', error);
@@ -183,18 +468,15 @@ export function ChartVisualization() {
       const boundingRect = container.getBoundingClientRect();
       const svg = d3.select(svgRef.current!);
 
-      // Set explicit dimensions
       svg
         .attr("width", boundingRect.width)
         .attr("height", boundingRect.height)
         .attr("viewBox", `0 0 ${boundingRect.width} ${boundingRect.height}`);
     }
 
-    // Initial update
     updateSVGDimensions();
     drawChart();
 
-    // Debounced resize handler
     let resizeTimeout: number;
     const handleResize = () => {
       if (resizeTimeout) {
@@ -207,7 +489,6 @@ export function ChartVisualization() {
       }, 250);
     };
 
-    // Event listeners
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
     window.addEventListener('orientationchange', handleResize);
@@ -219,313 +500,6 @@ export function ChartVisualization() {
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', handleResize);
     };
-
-    function drawChart() {
-      const svg = d3.select(svgRef.current);
-      svg.selectAll("*").remove();
-
-      // Reset view if selected square is cleared
-      if (!selectedSquare && (currentView === 'scaled' || currentView === 'scoped')) {
-        setCurrentView('standard');
-      }
-
-      // Get the SVG container's dimensions
-      const svgElement = svgRef.current;
-      if (!svgElement) return;
-
-      const boundingRect = svgElement.getBoundingClientRect();
-      const width = boundingRect.width;
-      const height = boundingRect.height;
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const centerSquareSize = Math.min(width, height) * 0.4;
-      const smallSquareSize = centerSquareSize / 2;
-      const smallestSquareSize = smallSquareSize / 2;
-      const tinySquareSize = smallestSquareSize / 2;
-
-      // For delineated view, calculate branch positions with 25% closer spacing
-      const delineationFactor = currentView === 'delineated' ? 0.75 : 1;
-
-      svg.attr("viewBox", `0 0 ${width} ${height}`)
-        .attr("preserveAspectRatio", "xMidYMid meet");
-
-      function drawSquare(x: number, y: number, size: number, color: string, className: string, depth: number, parentText: string) {
-        const squareId = `${className}_${parentText}_${depth}`;
-        const customStyle = squareStyles[squareId];
-
-        // Create a group for better organization and accessibility
-        const group = svg.append("g")
-          .attr("class", `square-group ${className}`)
-          .attr("role", "button")
-          .attr("tabindex", "0")
-          .attr("aria-label", `${className} square with ${customStyle?.title || 'no'} customization`)
-          .on("click", () => handleSquareClick(className, parentText, depth))
-          .on("keypress", (event: KeyboardEvent) => {
-            if (event.key === "Enter" || event.key === " ") {
-              handleSquareClick(className, parentText, depth);
-            }
-          });
-
-        // Draw the square
-        const rect = group.append("rect")
-          .attr("x", x - size / 2)
-          .attr("y", y - size / 2)
-          .attr("width", size)
-          .attr("height", size)
-          .attr("class", `square ${className}`)
-          .attr("fill", customStyle?.urgency || color)
-          .attr("rx", 4)
-          .attr("ry", 4);
-
-        // Apply border styles if priority is set
-        if (customStyle?.priority) {
-          rect.style("stroke", customStyle.priority.decor || "none")
-            .style("stroke-width", `${customStyle.priority.density || 1}px`)
-            .style("stroke-dasharray", (() => {
-              switch (customStyle.priority.durability) {
-                case 'dotted': return "3,3";
-                case 'dashed': return "5,5";
-                case 'double': return "8,2";
-                default: return "none";
-              }
-            })());
-        }
-
-        // Add text with all aesthetic properties
-        const text = group.append("text")
-          .attr("x", x)
-          .attr("y", y)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "middle")
-          .attr("pointer-events", "none");
-
-        // Apply text styles if aesthetic is set
-        if (customStyle?.aesthetic) {
-          const { impact, affect, effect } = customStyle.aesthetic;
-          text.style("font-weight", impact.bold ? "bold" : "normal")
-            .style("font-style", impact.italic ? "italic" : "normal")
-            .style("text-decoration", impact.underline ? "underline" : "none")
-            .style("font-family", affect.fontFamily || "Arial")
-            .style("font-size", `${affect.fontSize || size / 5}px`)
-            .style("fill", effect.color || "black");
-        } else {
-          text.style("font-size", `${size / 5}px`)
-            .style("fill", "black");
-        }
-
-        text.text(customStyle?.title || className);
-      }
-
-      function shouldDrawLeaf(branchIndex: number, leafPosition: number): boolean {
-        // branchIndex is 1-based (1-4)
-        // leafPosition is the position of the leaf in the branch (0-3, clockwise from top-left)
-        switch (branchIndex) {
-          case 1:
-            return leafPosition !== 3;
-          case 2:
-            return leafPosition !== 2;
-          case 3:
-            return leafPosition !== 1;
-          case 4:
-            return leafPosition !== 0;
-          default:
-            return true;
-        }
-      }
-
-      function drawSquares(corners: [number, number][], size: number, depth: number, className: string, parentText: string) {
-        if (depth > 2) return;
-
-        corners.forEach(([x, y], index) => {
-          const branchIndex = index + 1;
-          let currentClassName = className;
-
-          if (depth === 0) {
-            currentClassName = "branch";
-            drawSquare(
-              x,
-              y,
-              size,
-              colors[currentClassName as keyof typeof colors] || "",
-              currentClassName,
-              depth,
-              `${parentText}_${branchIndex}`
-            );
-
-            // Draw leaves
-            if (size > tinySquareSize) {
-              const leafSize = size / 2;
-              const leafCorners = [
-                [x - size / 2, y - size / 2],
-                [x + size / 2, y - size / 2],
-                [x - size / 2, y + size / 2],
-                [x + size / 2, y + size / 2],
-              ] as [number, number][];
-
-              leafCorners.forEach((corner, leafIndex) => {
-                if (shouldDrawLeaf(branchIndex, leafIndex)) {
-                  drawSquare(
-                    corner[0],
-                    corner[1],
-                    leafSize,
-                    colors["leaf"],
-                    "leaf",
-                    depth + 1,
-                    `${parentText}_${branchIndex}_${leafIndex + 1}`
-                  );
-
-                  // Draw fruits for this leaf
-                  const fruitSize = leafSize / 2;
-                  const fruitCorners = {
-                    1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2],
-                    2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2],
-                    3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2],
-                    4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]
-                  };
-
-                  // Determine which corners should have fruits based on branch and leaf position
-                  let fruitCornerNumbers: number[] = [];
-                  if (branchIndex === 1) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
-                  } else if (branchIndex === 2) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
-                  } else if (branchIndex === 3) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3];
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
-                  } else if (branchIndex === 4) {
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4];
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4];
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4];
-                  }
-
-                  fruitCornerNumbers.forEach(cornerNum => {
-                    const fruitCorner = fruitCorners[cornerNum as keyof typeof fruitCorners];
-                    if (fruitCorner) {
-                      drawSquare(
-                        fruitCorner[0],
-                        fruitCorner[1],
-                        fruitSize,
-                        colors["fruit"],
-                        "fruit",
-                        depth + 2,
-                        `${parentText}_${branchIndex}_${leafIndex + 1}_${cornerNum}`
-                      );
-                    }
-                  });
-                }
-              });
-            }
-          }
-        });
-      }
-
-      // Calculate adjusted positions for delineated view
-      const getAdjustedPosition = (x: number, y: number): [number, number] => {
-        if (currentView !== 'delineated') return [x, y];
-
-        // Move points closer to center
-        const dx = x - centerX;
-        const dy = y - centerY;
-        return [
-          centerX + dx * delineationFactor,
-          centerY + dy * delineationFactor
-        ];
-      };
-
-      if (currentView === 'standard' || currentView === 'delineated') {
-        // Draw root square
-        drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
-
-        // Draw branches and their children
-        const baseCorners = [
-          [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-          [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-          [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-          [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-        ].map(([x, y]) => getAdjustedPosition(x, y)) as [number, number][];
-
-        drawSquares(baseCorners, smallSquareSize, 0, "root", "Center");
-      } else if (currentView === 'scoped' && selectedSquare) {
-        // Draw only the selected square and its immediate children
-        drawSquare(
-          centerX,
-          centerY,
-          centerSquareSize,
-          colors[selectedSquare.class as keyof typeof colors] || "",
-          selectedSquare.class,
-          selectedSquare.depth,
-          selectedSquare.parent
-        );
-
-        const childCorners = [
-          [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-          [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-          [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-          [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-        ] as [number, number][];
-
-        childCorners.forEach(([x, y], index) => {
-          let childClass = "";
-          if (selectedSquare.class === "root") childClass = "branch";
-          else if (selectedSquare.class === "branch") childClass = "leaf";
-          else if (selectedSquare.class === "leaf") childClass = "fruit";
-
-          if (childClass) {
-            drawSquare(
-              x,
-              y,
-              smallSquareSize,
-              colors[childClass as keyof typeof colors] || "",
-              `${childClass}${index + 1}`,
-              selectedSquare.depth + 1,
-              `${selectedSquare.parent}_${index + 1}`
-            );
-          }
-        });
-      } else if (currentView === 'scaled' && selectedSquare) {
-        // Draw an expanded view starting from the selected square
-        drawSquare(
-          centerX,
-          centerY,
-          centerSquareSize * 1.5,
-          colors[selectedSquare.class as keyof typeof colors] || "",
-          selectedSquare.class,
-          selectedSquare.depth,
-          selectedSquare.parent
-        );
-
-        const expandedCorners = [
-          [centerX - centerSquareSize, centerY - centerSquareSize],
-          [centerX + centerSquareSize, centerY - centerSquareSize],
-          [centerX - centerSquareSize, centerY + centerSquareSize],
-          [centerX + centerSquareSize, centerY + centerSquareSize],
-        ] as [number, number][];
-
-        expandedCorners.forEach(([x, y], index) => {
-          let childClass = "";
-          if (selectedSquare.class === "root") childClass = "branch";
-          else if (selectedSquare.class === "branch") childClass = "leaf";
-          else if (selectedSquare.class === "leaf") childClass = "fruit";
-
-          if (childClass && (!childClass || shouldDrawLeaf(index + 1, index))) {
-            drawSquare(
-              x,
-              y,
-              smallSquareSize * 1.5,
-              colors[childClass as keyof typeof colors] || "",
-              `${childClass}${index + 1}`,
-              selectedSquare.depth + 1,
-              `${selectedSquare.parent}_${index + 1}`
-            );
-          }
-        });
-      }
-    }
   }, [currentView, selectedSquare, squareStyles]);
 
   return (

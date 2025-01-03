@@ -1,0 +1,142 @@
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+message: "{"message":"Unauthorized"}"
+stack: "Error: {"message":"Unauthorized"}↵ at queryFn (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/src/components/Messages.tsx:49:17)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+at t.value (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+message: "{"message":"Unauthorized"}"
+stack: "Error: {"message":"Unauthorized"}↵ at queryFn (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/src/components/Messages.tsx:49:17)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+message: "{"message":"Unauthorized"}"
+stack: "Error: {"message":"Unauthorized"}↵ at queryFn (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/src/components/Messages.tsx:49:17)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+Error fetching messages: 
+Error {}
+message: "{"message":"Unauthorized"}"
+stack: "Error: {"message":"Unauthorized"}↵ at queryFn (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/src/components/Messages.tsx:49:17)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+Error fetching messages: 
+Error {}
+
+Error fetching messages: 
+Error {}
+message: "{"message":"Unauthorized"}"
+stack: "Error: {"message":"Unauthorized"}↵ at queryFn (https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/src/components/Messages.tsx:49:17)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object

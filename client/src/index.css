@@ -30,26 +30,14 @@
 }
 
 
-@media (max-width: 720px) {
-  nav.fixed.z-50 {
-    top: 1rem;
-    left: 1rem;
-    transform: none;
-    width: auto;
-    height: auto;
-    border-radius: 0.5rem;
-  }
+nav.fixed.z-50 {
+  top: 1rem;
+  left: 50%;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  transform: translateX(-50%);
 }
-
-@media (min-width: 720px) {
-  nav.fixed.z-50 {
-    top: 1rem;
-    left: 50%;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 9999px;
-    transform: translateX(-50%);
-  }
 
   nav.fixed.z-50 .container {
     opacity: 0;

@@ -66,17 +66,13 @@ export default function HomePage() {
       <section className="py-16 px-4 bg-muted/50">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">Live Demo</h2>
-          <div className="bg-background rounded-lg shadow-lg p-6">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-[800px]">
-                Loading demo...
+          <a href="/demo" className="block transition-transform hover:scale-[1.02]">
+            <div className="bg-background rounded-lg shadow-lg p-6 cursor-pointer">
+              <div className="aspect-video bg-muted/30 rounded-md flex items-center justify-center">
+                <p className="text-xl">Click to try the interactive demo</p>
               </div>
-            ) : (
-              <div className="h-[800px]">
-                <ChartVisualization chart={chartData} />
-              </div>
-            )}
-          </div>
+            </div>
+          </a>
         </div>
       </section>
 

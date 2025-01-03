@@ -179,6 +179,7 @@ function App() {
                         </Suspense>
                       </Route>
                       <Route path="/form" component={FormView} />
+                      <Route path="/demo" component={DemoPage} />
                       <Route>404 Page Not Found</Route>
                     </Switch>
                   )}

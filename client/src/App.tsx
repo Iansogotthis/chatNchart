@@ -7,6 +7,7 @@ import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import ForumPage from "./pages/ForumPage";
 import MessagesPage from "./pages/MessagesPage";
+import FriendsPage from "./pages/FriendsPage";
 import AuthPage from "./pages/AuthPage";
 import FormView from "./pages/ChartPages/FormView";
 import { ChartsNavigation } from "./components/ChartsNavigation";
@@ -70,6 +71,7 @@ function App() {
                     <Route path="/form" component={FormView} />
                     <Route path="/profile/:username" component={ProfilePage} />
                     <Route path="/forum" component={ForumPage} />
+                    <Route path="/friends" component={FriendsPage} />
                     <Route path="/messages" component={MessagesPage} />
                     <Route>404 Page Not Found</Route>
                   </Switch>

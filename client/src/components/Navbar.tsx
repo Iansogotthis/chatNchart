@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { MenuIcon, ArrowUp } from "lucide-react";
 import {
   DropdownMenu,

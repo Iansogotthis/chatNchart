@@ -11,8 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 interface SearchResult {
   id: number;
   username: string;
-  isFriend: boolean;
-  hasRequestPending: boolean;
+  isFriend?: boolean;
+  hasRequestPending?: boolean;
 }
 
 export function SearchFriends() {
@@ -41,17 +41,16 @@ export function SearchFriends() {
         throw new Error('Failed to search users');
       }
 
-      const users = await response.json();
+      const users: SearchResult[] = await response.json();
 
-      // Filter out current user and map with friend status
-      const searchResults = users
-        .filter((u: { id: number }) => u.id !== user?.id)
-        .map((u: { id: number; username: string }) => ({
-          id: u.id,
-          username: u.username,
-          isFriend: friends.some(f => f.friend.id === u.id),
-          hasRequestPending: pendingRequests.some(r => r.sender.id === u.id)
-        }));
+      // Transform results with friend status
+      const searchResults = users.map(user => ({
+        id: user.id,
+        username: user.username,
+        isFriend: friends.some(f => f.friend?.id === user.id),
+        hasRequestPending: pendingRequests.some(r => r.sender?.id === user.id) || 
+                         friends.some(f => f.friend?.id === user.id && f.status === "pending")
+      }));
 
       setResults(searchResults);
     } catch (error) {
@@ -81,6 +80,8 @@ export function SearchFriends() {
             : r
         )
       );
+      // Close the popover after successful request
+      setOpen(false);
     } catch (error) {
       console.error('Friend request error:', error);
       toast({

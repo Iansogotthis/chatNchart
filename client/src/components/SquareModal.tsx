@@ -25,6 +25,7 @@ interface SquareModalProps {
   squareClass?: string;
   parentText?: string;
   depth?: number;
+  onDetailings: () => void; // Add this prop
 }
 
 interface SquareData {
@@ -58,7 +59,8 @@ export default function SquareModal({
   initialData,
   squareClass,
   parentText,
-  depth
+  depth,
+  onDetailings
 }: SquareModalProps) {
   const [data, setData] = useState<SquareData>(initialData);
   const [, setLocation] = useLocation();
@@ -82,20 +84,6 @@ export default function SquareModal({
       current[path[path.length - 1]] = value;
       return newData;
     });
-  };
-
-  const openDetailings = () => {
-    if (!squareClass || !parentText || depth === undefined) {
-      toast.error("Square information is incomplete");
-      return;
-    }
-    const params = new URLSearchParams({
-      class: squareClass,
-      parent: parentText,
-      depth: depth.toString()
-    });
-    setLocation(`/form?${params.toString()}`);
-    onClose(); 
   };
 
   return (
@@ -273,7 +261,7 @@ export default function SquareModal({
         <div className="flex justify-between items-center space-x-2 pt-4">
           <Button
             variant="secondary"
-            onClick={openDetailings}
+            onClick={onDetailings}
           >
             View Detailings
           </Button>

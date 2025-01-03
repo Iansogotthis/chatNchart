@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { setupAuth } from "./auth";  // Add this import
+import { db } from "@db";  // Add this import
 
 const app = express();
 app.use(express.json());
@@ -50,27 +52,36 @@ app.use((req, res, next) => {
   next();
 });
 
+// Initialize database connection
 (async () => {
-  const server = registerRoutes(app);
+  try {
+    // Add auth setup
+    setupAuth(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    console.error('Server error:', err);
-  });
+    const server = registerRoutes(app);
 
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
+      res.status(status).json({ message });
+      console.error('Server error:', err);
+    });
+
+    if (app.get("env") === "development") {
+      await setupVite(app, server);
+    } else {
+      serveStatic(app);
+    }
+
+    const PORT = process.env.PORT || 3001;
+
+    server.listen(PORT as number, "0.0.0.0", () => {
+      log(`Server running on http://0.0.0.0:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    process.exit(1);
   }
-
-  const PORT = process.env.PORT || 3001;
-
-  server.listen(PORT as number, "0.0.0.0", () => {
-    log(`Server running on http://0.0.0.0:${PORT}`);
-  });
 })().catch((error) => {
   console.error('Server startup error:', error);
   process.exit(1);

@@ -117,16 +117,24 @@ function App() {
                   "overflow-auto relative",
                   isFullscreen && selectedChart ? "fixed inset-0 z-50 bg-background pl-[250px]" : ""
                 )}>
-                  <Switch>
-                    <Route path="/">
-                      {user && <ProfilePage username={user.username} />}
-                    </Route>
-                    <Route path="/form" component={FormView} />
-                    <Route path="/profile/:username" component={ProfilePage} />
-                    <Route path="/forum" component={ForumPage} />
-                    <Route path="/friends" component={FriendsPage} />
-                    <Route path="/messages" component={MessagesPage} />
-                    <Route>404 Page Not Found</Route>
+                  {selectedChart ? (
+                    <ChartVisualization 
+                      chart={selectedChart}
+                      isFullscreen={isFullscreen} 
+                    />
+                  ) : (
+                    <Switch>
+                      <Route path="/">
+                        {user && <ProfilePage username={user.username} />}
+                      </Route>
+                      <Route path="/form" component={FormView} />
+                      <Route path="/profile/:username" component={ProfilePage} />
+                      <Route path="/forum" component={ForumPage} />
+                      <Route path="/friends" component={FriendsPage} />
+                      <Route path="/messages" component={MessagesPage} />
+                      <Route>404 Page Not Found</Route>
+                    </Switch>
+                  )}
                   </Switch>
                 </main>
               </div>

@@ -29,8 +29,8 @@ export function useTheme() {
         '--foreground': '#1A1A1A',
       },
       dark: {
-        '--background': '#1A1A1A',
-        '--foreground': '#E6E6E6',
+        '--background': '#121212',
+        '--foreground': '#E0E0E0',
       },
       grey: {
         '--background': '#F5F5F5',

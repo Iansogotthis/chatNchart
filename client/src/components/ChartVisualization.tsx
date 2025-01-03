@@ -736,10 +736,11 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
           }
 
           [data-theme='dark'] {
-            --root-color: rgb(100, 120, 140);
-            --branch-color: rgb(80, 80, 80);
-            --leaf-color: rgb(60, 100, 60);
-            --fruit-color: rgb(140, 60, 60);
+            --root-color: rgb(70, 90, 110);
+            --branch-color: rgb(50, 50, 50);
+            --leaf-color: rgb(40, 80, 40);
+            --fruit-color: rgb(110, 40, 40);
+            background-color: #121212;
           }
 
           .chart-container {

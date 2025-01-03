@@ -11,9 +11,11 @@ if (!process.env.DATABASE_URL) {
 
 // Enable WebSocket support for the neon client
 neonConfig.webSocketConstructor = ws;
+neonConfig.useSecureWebSocket = true;
+neonConfig.pipelineConnect = false;
 
-// Create SQL client
-const sql = neon(process.env.DATABASE_URL!);
+// Create SQL client with proper configuration for serverless environment
+const sql = neon(process.env.DATABASE_URL);
 
-// Create drizzle instance with serverless configuration
-export const db = drizzle(sql, { schema });
+// Create drizzle instance with schema
+export const db = drizzle(sql, { schema: schema });

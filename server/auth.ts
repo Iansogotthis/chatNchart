@@ -41,7 +41,11 @@ export function setupAuth(app: Express) {
     secret: process.env.REPL_ID || "porygon-supremacy",
     resave: false,
     saveUninitialized: false,
-    cookie: {},
+    cookie: {
+      secure: app.get("env") === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    },
     store: new MemoryStore({
       checkPeriod: 86400000, // prune expired entries every 24h
     }),
@@ -49,9 +53,6 @@ export function setupAuth(app: Express) {
 
   if (app.get("env") === "production") {
     app.set("trust proxy", 1);
-    sessionSettings.cookie = {
-      secure: true,
-    };
   }
 
   app.use(session(sessionSettings));
@@ -76,6 +77,7 @@ export function setupAuth(app: Express) {
         }
         return done(null, user);
       } catch (err) {
+        console.error("Auth error:", err);
         return done(err);
       }
     })
@@ -94,6 +96,7 @@ export function setupAuth(app: Express) {
         .limit(1);
       done(null, user);
     } catch (err) {
+      console.error("Deserialize error:", err);
       done(err);
     }
   });
@@ -143,6 +146,7 @@ export function setupAuth(app: Express) {
         });
       });
     } catch (error) {
+      console.error("Registration error:", error);
       next(error);
     }
   });
@@ -157,6 +161,7 @@ export function setupAuth(app: Express) {
 
     const cb = (err: any, user: Express.User, info: IVerifyOptions) => {
       if (err) {
+        console.error("Login error:", err);
         return next(err);
       }
 
@@ -181,6 +186,7 @@ export function setupAuth(app: Express) {
   app.post("/api/logout", (req, res) => {
     req.logout((err) => {
       if (err) {
+        console.error("Logout error:", err);
         return res.status(500).send("Logout failed");
       }
 

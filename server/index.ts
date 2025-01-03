@@ -8,18 +8,23 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Add security headers and CORS
+// Add security headers and CORS with proper cookie handling
 app.use((req, res, next) => {
   // Allow requests from Replit preview window and browsers
-  const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co', 'https://*.repl.run'];
+  const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co'];
   const origin = req.headers.origin;
+
   if (origin && allowedOrigins.some(allowed => origin.match(new RegExp(allowed.replace('*', '.*'))))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
   next();
 });
 
@@ -27,25 +32,15 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   // Debug auth state
   log(`Auth state for ${path}: ${req.isAuthenticated?.() ? 'authenticated' : 'not authenticated'}`);
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  log(`Session ID: ${req.sessionID}`);
 
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-      log(logLine);
+      log(`${req.method} ${path} ${res.statusCode} in ${duration}ms`);
     }
   });
 
@@ -55,16 +50,17 @@ app.use((req, res, next) => {
 // Initialize database connection and start server
 (async () => {
   try {
-    // Add auth setup
+    // Add auth setup first before routes
     setupAuth(app);
 
     const server = registerRoutes(app);
 
+    // Global error handler
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      console.error('Server error:', err);
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
       res.status(status).json({ message });
-      console.error('Server error:', err);
     });
 
     if (app.get("env") === "development") {
@@ -75,7 +71,6 @@ app.use((req, res, next) => {
 
     const PORT = 3000;
 
-    // Try to start server, handle port conflicts gracefully
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server running on http://0.0.0.0:${PORT}`);
     }).on('error', (error: NodeJS.ErrnoException) => {
@@ -87,8 +82,9 @@ app.use((req, res, next) => {
         process.exit(1);
       }
     });
+
   } catch (error) {
-    console.error('Database initialization error:', error);
+    console.error('Server initialization error:', error);
     process.exit(1);
   }
 })().catch((error) => {

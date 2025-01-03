@@ -1,0 +1,41 @@
+Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this errorAI
+:3000/api/login:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+:3000/api/user:1 
+        
+        
+       Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this errorAI
+use-user.ts:22 
+        
+        
+       POST https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3000/api/login 500 (Internal Server Error)
+handleRequest @ use-user.ts:22
+mutationFn @ use-user.ts:75
+fn @ @tanstack_react-query.js?v=1c8c7097:1188
+run @ @tanstack_react-query.js?v=1c8c7097:493
+start @ @tanstack_react-query.js?v=1c8c7097:535
+execute @ @tanstack_react-query.js?v=1c8c7097:1224
+await in execute
+mutate @ @tanstack_react-query.js?v=1c8c7097:2621
+handleSubmit @ AuthPage.tsx:19
+callCallback2 @ chunk-WERSD76P.js?v=1c8c7097:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1c8c7097:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1c8c7097:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=1c8c7097:3736
+executeDispatch @ chunk-WERSD76P.js?v=1c8c7097:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=1c8c7097:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=1c8c7097:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=1c8c7097:7051
+(anonymous) @ chunk-WERSD76P.js?v=1c8c7097:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=1c8c7097:18913
+batchedUpdates @ chunk-WERSD76P.js?v=1c8c7097:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=1c8c7097:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=1c8c7097:5478
+dispatchEvent @ chunk-WERSD76P.js?v=1c8c7097:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=1c8c7097:5449Understand this errorAI
+use-user.ts:45 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3000/api/user 401 (Unauthorized)

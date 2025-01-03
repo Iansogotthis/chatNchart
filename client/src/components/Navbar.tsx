@@ -91,7 +91,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 </DropdownMenu>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button variant="outline" className="relative h-8 w-8 rounded-full border-2 border-primary">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback>
                           {user.username.charAt(0).toUpperCase()}

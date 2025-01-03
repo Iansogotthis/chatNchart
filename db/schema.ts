@@ -17,6 +17,20 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   bio: text("bio"),
   funFacts: text("fun_facts").array(),
+  // New fields for enhanced profile
+  hobbies: text("hobbies"),
+  area: text("area"),
+  favoriteMovie: text("favorite_movie"),
+  favoriteSong: text("favorite_song"),
+  favoriteBook: text("favorite_book"),
+  skills: text("skills"),
+  // Work information
+  field: text("field"),
+  timeInField: text("time_in_field"),
+  company: text("company"),
+  position: text("position"),
+  department: text("department"),
+  pointOfView: text("point_of_view"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

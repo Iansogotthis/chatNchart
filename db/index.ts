@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
+import { neon, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
 import * as schema from "@db/schema";
 
@@ -8,14 +9,11 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-try {
-  export const db = drizzle({
-    connection: process.env.DATABASE_URL,
-    schema,
-    ws: ws,
-    prepare: true,
-  });
-} catch (error) {
-  console.error("Failed to initialize database connection:", error);
-  throw error;
-}
+// Enable WebSocket support for the neon client
+neonConfig.webSocketConstructor = ws;
+
+// Create SQL client
+const sql = neon(process.env.DATABASE_URL!);
+
+// Create drizzle instance with serverless configuration
+export const db = drizzle(sql, { schema });

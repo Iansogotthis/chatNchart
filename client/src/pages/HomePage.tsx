@@ -2,6 +2,7 @@ import { ChartVisualization } from "@/components/ChartVisualization";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { PerplexityChat } from "@/components/PerplexityChat";
 
 export default function HomePage() {
   const { toast } = useToast();
@@ -44,6 +45,7 @@ export default function HomePage() {
           <ChartVisualization data={chartData} onSave={saveMutation.mutate} />
         )}
       </div>
+      <PerplexityChat />
     </div>
   );
 }

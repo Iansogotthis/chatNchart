@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { Maximize2, Minimize2 } from 'lucide-react';
+
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
 type PendingViewType = ViewType | 'form' | null;
@@ -581,6 +583,11 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
     }
   };
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+
   useEffect(() => {
     const svgElement = svgRef.current;
     if (!svgElement) return;
@@ -721,6 +728,25 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
             </TooltipTrigger>
             <TooltipContent>
               Add or remove square details
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={toggleFullscreen}
+                variant="outline"
+                size="icon"
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-5 w-5" />
+                ) : (
+                  <Maximize2 className="h-5 w-5" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Toggle fullscreen mode
             </TooltipContent>
           </Tooltip>
         </div>

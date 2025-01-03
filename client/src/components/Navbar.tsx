@@ -58,7 +58,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
               </span>
             </Link>
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              <Link href="/">Charts</Link>
+              <Link href="/charts">Charts</Link>
               <Link href="/forum">Forum</Link>
               <Link href="/friends">Friends</Link>
               <Link href="/messages">Messages</Link>

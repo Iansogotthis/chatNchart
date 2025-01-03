@@ -124,14 +124,34 @@ function App() {
                     />
                   ) : (
                     <Switch>
-                      <Route path="/">
+                      <Route path="/" exact>
                         {user && <ProfilePage username={user.username} />}
                       </Route>
-                      <Route path="/form" component={FormView} />
+                      <Route path="/charts">
+                        <div className="flex h-screen pt-14">
+                          <ChartsNavigation 
+                            onSelect={(chart) => setSelectedChart(chart)} 
+                            selectedChart={selectedChart} 
+                          />
+                          <div className="flex-1 p-4 overflow-auto">
+                            {selectedChart ? (
+                              <ChartVisualization 
+                                chart={selectedChart} 
+                                isFullscreen={isFullscreen}
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center h-full text-muted-foreground">
+                                Select a chart or create a new one to get started
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Route>
                       <Route path="/profile/:username" component={ProfilePage} />
                       <Route path="/forum" component={ForumPage} />
-                      <Route path="/friends" component={FriendsPage} />
                       <Route path="/messages" component={MessagesPage} />
+                      <Route path="/friends" component={FriendsPage} />
+                      <Route path="/form" component={FormView} />
                       <Route>404 Page Not Found</Route>
                     </Switch>
                   )}

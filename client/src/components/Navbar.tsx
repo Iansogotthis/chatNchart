@@ -62,15 +62,11 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
           <div className="flex items-center flex-1 justify-center">
             <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
-              <Button variant="ghost" asChild>
-                <Link href="/home" className="font-bold">
-                  Chart Visualizer
-                </Link>
-              </Button>
-              <Link href="/charts" className="hover:text-primary">Charts</Link>
-              <Link href="/forum" className="hover:text-primary">Forum</Link>
-              <Link href="/friends" className="hover:text-primary">Friends</Link>
-              <Link href="/messages" className="hover:text-primary">Messages</Link>
+              <Link href="/home" className="font-bold text-lg">Chart Visualizer</Link>
+              <Link href="/charts">Charts</Link>
+              <Link href="/forum">Forum</Link>
+              <Link href="/friends">Friends</Link>
+              <Link href="/messages">Messages</Link>
             </div>
             
             <div className="md:hidden relative group">

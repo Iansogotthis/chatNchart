@@ -2,7 +2,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db } from "../db";
-import { users } from "../db/schema";
 import { sql } from "drizzle-orm";
 
 const app = express();
@@ -57,13 +56,21 @@ async function startServer() {
   try {
     log("Starting server initialization...");
 
-    // Test database connection
+    // Test database connection and schema
     try {
       await db.execute(sql`SELECT 1`);
       log("Database connection successful");
+
+      // Check if users table exists and has the required columns
+      const tables = await db.execute(sql`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'users'
+      `);
+      log("Database schema verified:", JSON.stringify(tables));
     } catch (error) {
-      log("Database connection failed:", error instanceof Error ? error.message : String(error));
-      throw new Error("Failed to connect to database");
+      log("Database error:", error instanceof Error ? error.message : String(error));
+      throw new Error("Failed to connect to database or verify schema");
     }
 
     const server = registerRoutes(app);
@@ -84,29 +91,12 @@ async function startServer() {
       serveStatic(app);
     }
 
-    const PORT = process.env.PORT || 3000;
-    const HOST = "0.0.0.0";
+    const port = Number(process.env.PORT) || 3001;
 
-    return new Promise((resolve, reject) => {
-      server.listen(PORT, HOST, () => {
-        log(`Server running on http://${HOST}:${PORT}`);
-        resolve(server);
-      }).on('error', (error: any) => {
-        if (error.syscall !== 'listen') {
-          reject(error);
-          return;
-        }
-
-        switch (error.code) {
-          case 'EACCES':
-            reject(new Error(`Port ${PORT} requires elevated privileges`));
-            break;
-          case 'EADDRINUSE':
-            reject(new Error(`Port ${PORT} is already in use`));
-            break;
-          default:
-            reject(error);
-        }
+    return new Promise<void>((resolve) => {
+      server.listen(port, '0.0.0.0', () => {
+        log(`Server running on port ${port}`);
+        resolve();
       });
     });
   } catch (error) {
@@ -115,7 +105,7 @@ async function startServer() {
   }
 }
 
-// Start the server
+// Start the server with error handling
 (async () => {
   try {
     await startServer();

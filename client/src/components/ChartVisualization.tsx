@@ -99,35 +99,56 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           chartId,
         }),
       });
+
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Failed to save square customization');
+        throw new Error(data.error || 'Failed to save square customization');
       }
-      return response.json();
+
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['square-customizations', chartId] });
     },
+    onError: (error) => {
+      console.error('Error saving square customization:', error);
+      // You might want to show a toast notification here
+    }
   });
 
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
     setSelectedSquare({ class: className, parent: parentText, depth });
-    setIsModalOpen(true);
+
+    // Only show modal if we're not in scoped/scaled view
+    if (currentView === 'standard' || currentView === 'delineated') {
+      setIsModalOpen(true);
+    }
   };
 
   const toggleSquareForm = () => {
+    if (!selectedSquare) {
+      return; // Don't toggle if no square is selected
+    }
     setShowSquareForm(!showSquareForm);
   };
 
   const handleViewChange = (viewType: ViewType) => {
-    if ((viewType === 'standard' || viewType === 'delineated')) {
+    if (!selectedSquare && (viewType === 'scaled' || viewType === 'scoped')) {
+      return; // Don't change view if no square is selected
+    }
+
+    if (viewType === 'standard' || viewType === 'delineated') {
       setCurrentView(viewType);
+      // Reset selection when going back to standard views
       setSelectedSquare(null);
       setIsModalOpen(false);
-    } else if ((viewType === 'scaled' || viewType === 'scoped') && selectedSquare) {
+      setShowSquareForm(false);
+    } else {
       setCurrentView(viewType);
       setIsModalOpen(false);
     }
+
     if (svgRef.current) {
       const svg = d3.select(svgRef.current);
       svg.selectAll("*").remove();
@@ -512,7 +533,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <div className="flex space-x-4">
           <Button
             onClick={() => handleViewChange('standard')}
@@ -531,7 +552,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           <Button
             onClick={() => handleViewChange('scaled')}
             variant={currentView === 'scaled' ? 'default' : 'outline'}
-            className={`w-32 ${!selectedSquare && 'opacity-50'}`}
+            className={`w-32`}
             disabled={!selectedSquare}
             title={!selectedSquare ? "Select a square first" : "View scaled version"}
           >
@@ -540,19 +561,29 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           <Button
             onClick={() => handleViewChange('scoped')}
             variant={currentView === 'scoped' ? 'default' : 'outline'}
-            className={`w-32 ${!selectedSquare && 'opacity-50'}`}
+            className={`w-32`}
             disabled={!selectedSquare}
             title={!selectedSquare ? "Select a square first" : "View scoped version"}
           >
             Scope View
           </Button>
         </div>
-        <Button
-          onClick={toggleSquareForm}
-          variant={showSquareForm ? 'default' : 'outline'}
-        >
-          {showSquareForm ? 'Hide Form' : 'Include/Exclude'}
-        </Button>
+
+        <div className="flex items-center gap-2">
+          {selectedSquare && (
+            <span className="text-sm text-muted-foreground">
+              Selected: {selectedSquare.class}
+            </span>
+          )}
+          <Button
+            onClick={toggleSquareForm}
+            variant={showSquareForm ? 'default' : 'outline'}
+            disabled={!selectedSquare}
+            title={!selectedSquare ? "Select a square first" : undefined}
+          >
+            {showSquareForm ? 'Hide Form' : 'Include/Exclude'}
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 flex gap-4">
@@ -587,10 +618,10 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           </div>
         </div>
 
-        {showSquareForm && (
+        {showSquareForm && selectedSquare && (
           <div className="w-1/3 overflow-auto border rounded-lg p-4">
             <SquareForm
-              squareData={selectedSquare ? {
+              squareData={{
                 title: '',
                 plane: '',
                 purpose: '',
@@ -603,7 +634,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
                 color: '',
                 type: selectedSquare.class,
                 parent_id: selectedSquare.parent
-              } : undefined}
+              }}
               onSubmit={handleFormSubmit}
             />
           </div>
@@ -615,7 +646,10 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            setSelectedSquare(null);
+            // Only clear selection if we're in standard or delineated view
+            if (currentView === 'standard' || currentView === 'delineated') {
+              setSelectedSquare(null);
+            }
           }}
           onSave={handleFormSubmit}
           initialData={{

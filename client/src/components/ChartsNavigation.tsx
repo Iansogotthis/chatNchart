@@ -1,11 +1,12 @@
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Chart } from '@db/schema';
 import type { FC } from 'react';
-import { Save, Plus } from 'lucide-react';
+import { Save, Plus, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 
 interface ChartListProps {
   onSelect: (chart: Chart) => void;
@@ -14,6 +15,7 @@ interface ChartListProps {
 
 export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }) => {
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   const { data: charts, isLoading } = useQuery<Chart[]>({
     queryKey: ['charts'],
@@ -24,8 +26,35 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
     },
   });
 
-  const handleNewChart = async () => {
-    try {
+  const saveChartMutation = useMutation({
+    mutationFn: async (chart: Chart) => {
+      const response = await fetch(`/api/charts/${chart.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(chart),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to save chart');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['charts'] });
+      toast.success('Chart saved successfully');
+    },
+    onError: (error) => {
+      console.error('Error saving chart:', error);
+      toast.error('Failed to save chart');
+    }
+  });
+
+  const createChartMutation = useMutation({
+    mutationFn: async () => {
       const response = await fetch('/api/charts', {
         method: 'POST',
         headers: {
@@ -38,51 +67,50 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create new chart');
+        const error = await response.text();
+        throw new Error(error || 'Failed to create new chart');
       }
 
-      const newChart = await response.json();
+      return response.json();
+    },
+    onSuccess: (newChart) => {
+      queryClient.invalidateQueries({ queryKey: ['charts'] });
       onSelect(newChart);
-    } catch (error) {
+      toast.success('New chart created');
+    },
+    onError: (error) => {
       console.error('Error creating new chart:', error);
+      toast.error('Failed to create new chart');
     }
-  };
-
-  const handleSaveChart = async () => {
-    if (!selectedChart) return;
-
-    try {
-      const response = await fetch(`/api/charts/${selectedChart.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(selectedChart),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save chart');
-      }
-    } catch (error) {
-      console.error('Error saving chart:', error);
-    }
-  };
+  });
 
   return (
     <div className="flex flex-col h-full border-r border-border">
       <div className="p-4 border-b border-border flex gap-2">
-        <Button onClick={handleNewChart} className="flex-1 gap-2">
-          <Plus className="h-4 w-4" />
+        <Button 
+          onClick={() => createChartMutation.mutate()} 
+          className="flex-1 gap-2"
+          disabled={createChartMutation.isPending}
+        >
+          {createChartMutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
           New Chart
         </Button>
         <Button 
-          onClick={handleSaveChart} 
-          disabled={!selectedChart}
+          onClick={() => selectedChart && saveChartMutation.mutate(selectedChart)} 
+          disabled={!selectedChart || saveChartMutation.isPending}
           variant="outline"
           size="icon"
           title="Save Chart"
         >
-          <Save className="h-4 w-4" />
+          {saveChartMutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
@@ -94,7 +122,9 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
           <Separator className="my-2" />
           <div className="space-y-2">
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading charts...</p>
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
             ) : charts?.length ? (
               charts.map((chart) => (
                 <Button

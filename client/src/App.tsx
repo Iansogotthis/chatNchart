@@ -12,6 +12,7 @@ import FormView from "./pages/ChartPages/FormView";
 import { ChartsNavigation } from "./components/ChartsNavigation";
 import { ChartVisualization } from "./components/ChartVisualization";
 import Navbar from "./components/Navbar";
+import { Toaster } from "sonner";
 
 function App() {
   const { user, isLoading } = useUser();
@@ -26,7 +27,12 @@ function App() {
   }
 
   if (!user) {
-    return <AuthPage />;
+    return (
+      <>
+        <AuthPage />
+        <Toaster />
+      </>
+    );
   }
 
   return (
@@ -38,7 +44,7 @@ function App() {
             onSelect={setSelectedChart} 
             selectedChart={selectedChart}
           />
-          <main className="overflow-auto p-8">
+          <main className="overflow-auto">
             <Switch>
               <Route path="/">
                 {selectedChart ? (
@@ -58,6 +64,7 @@ function App() {
           </main>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

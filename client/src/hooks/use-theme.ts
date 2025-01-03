@@ -29,52 +29,53 @@ export function useTheme() {
 
     const styles: ThemeStyles = {
       light: {
-        '--background': '0 0% 100%',
-        '--foreground': '#111111',
-        '--muted': '#F5F5F5',
-        '--muted-foreground': '#737373',
-        '--card': '#FFFFFF',
-        '--card-foreground': '#111111',
-        '--border': '#E5E5E5',
-        '--input': '#F5F5F5',
-        '--accent': '#EF4444', // Red for light theme
-        '--accent-foreground': '#FFFFFF',
-      },
-      dark: {
-        '--background': '0 0% 3%',
-        '--foreground': '0 0% 100%',
-        '--muted': '0 0% 7%',
-        '--muted-foreground': '#D4D4D4',
+        '--background': '0 0% 0%',
+        '--foreground': '#FFFFFF',
+        '--muted': '#1A1A1A',
+        '--muted-foreground': '#A1A1A1',
         '--card': '#0A0A0A',
         '--card-foreground': '#FFFFFF',
         '--border': '#262626',
         '--input': '#111111',
-        '--accent': '#3B82F6', // Blue for dark theme
+        '--accent': '#8B4513', // Brown for light theme
         '--accent-foreground': '#FFFFFF',
+      },
+      dark: {
+        '--background': '0 0% 0%',
+        '--foreground': '#00FF00',
+        '--muted': '0 0% 7%',
+        '--muted-foreground': '#00FF00',
+        '--card': '#0A0A0A',
+        '--card-foreground': '#00FF00',
+        '--border': '#262626',
+        '--input': '#111111',
+        '--accent': '#87CEEB', // Light blue for dark theme
+        '--accent-foreground': '#000000',
       },
       grey: {
-        '--background': '#1E293B',
-        '--foreground': '#FFFFFF',
-        '--muted': '#334155',
-        '--muted-foreground': '#94A3B8',
-        '--card': '#1E293B',
-        '--card-foreground': '#FFFFFF',
-        '--border': '#334155',
-        '--input': '#334155',
-        '--accent': '#475569', // Slate blue for grey theme
+        '--background': '0 0% 0%',
+        '--foreground': '#006400',
+        '--muted': '#1A1A1A',
+        '--muted-foreground': '#006400',
+        '--card': '#0A0A0A',
+        '--card-foreground': '#006400',
+        '--border': '#262626',
+        '--input': '#111111',
+        '--accent': '#006400', // Dark green for grey theme
         '--accent-foreground': '#FFFFFF',
+        'font-weight': 'bold',
       },
       almond: {
-        '--background': '#FFEDD5',
-        '--foreground': '#451A03',
-        '--muted': '#FED7AA',
-        '--muted-foreground': '#9A3412',
-        '--card': '#FFEDD5',
-        '--card-foreground': '#451A03',
-        '--border': '#FED7AA',
-        '--input': '#FED7AA',
-        '--accent': '#F97316', // Bright orange for almond theme
-        '--accent-foreground': '#FFFFFF',
+        '--background': '0 0% 0%',
+        '--foreground': '#D3D3D3',
+        '--muted': '#1A1A1A',
+        '--muted-foreground': '#D3D3D3',
+        '--card': '#0A0A0A',
+        '--card-foreground': '#D3D3D3',
+        '--border': '#262626',
+        '--input': '#111111',
+        '--accent': '#FFD700', // Gold for almond theme
+        '--accent-foreground': '#000000',
       }
     };
 

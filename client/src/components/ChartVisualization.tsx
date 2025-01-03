@@ -10,8 +10,10 @@ import type { Chart } from "@db/schema";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 type ViewType = 'standard' | 'delineated' | 'scaled' | 'scoped';
+type PendingAction = ViewType | 'form' | null;
 
 interface SelectedSquare {
   class: string;
@@ -35,7 +37,8 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSquareForm, setShowSquareForm] = useState(false);
-  const [pendingView, setPendingView] = useState<ViewType | null>(null);
+  const [pendingView, setPendingView] = useState<PendingAction>(null);
+  const [lastClickedSquare, setLastClickedSquare] = useState<SelectedSquare | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const queryClient = useQueryClient();
   const { user } = useUser();
@@ -140,9 +143,21 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   };
 
   const handleSquareClick = (className: string, parentText: string, depth: number) => {
-    setSelectedSquare({ class: className, parent: parentText, depth });
+    const newSquare = { class: className, parent: parentText, depth };
 
-    if (pendingView) {
+    // Check if this is a second click on the same square
+    const isSecondClick = lastClickedSquare &&
+      lastClickedSquare.class === className &&
+      lastClickedSquare.parent === parentText &&
+      lastClickedSquare.depth === depth;
+
+    setSelectedSquare(newSquare);
+
+    if (isSecondClick && (currentView === 'standard' || currentView === 'delineated')) {
+      // Second click - show customization modal
+      setIsModalOpen(true);
+      setLastClickedSquare(null); // Reset for next interaction
+    } else if (pendingView) {
       // Handle pending view change
       if (pendingView === 'scoped') {
         const previousClass = getPreviousHierarchyLevel(className);
@@ -161,16 +176,18 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       } else if (pendingView === 'scaled') {
         setCurrentView('scaled');
         toast.success(`Centered on ${className} with all descendants`);
+      } else if (pendingView === 'form') {
+        setShowSquareForm(true);
       }
       setPendingView(null);
-    } else if (currentView === 'standard' || currentView === 'delineated') {
-      setIsModalOpen(true);
+    } else {
+      // First click - just select the square and enable buttons
+      setLastClickedSquare(newSquare);
     }
   };
 
   const toggleSquareForm = () => {
-    setPendingView(null);
-    if (!selectedSquare) {
+    if (!lastClickedSquare) {
       setPendingView('form');
       toast.info("Please select a square first");
       return;
@@ -183,6 +200,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
     if (viewType === 'standard' || viewType === 'delineated') {
       setCurrentView(viewType);
       setSelectedSquare(null);
+      setLastClickedSquare(null);
       setIsModalOpen(false);
       setShowSquareForm(false);
       setPendingView(null);
@@ -574,146 +592,153 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
   }, [currentView, selectedSquare, squareStyles]);
 
   return (
-    <div className="flex flex-col h-full space-y-4 p-4">
-      <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
-        <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
-          {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
-            <Button
-              key={viewType}
-              onClick={() => handleViewChange(viewType as ViewType)}
-              variant={currentView === viewType ? 'default' : 'outline'}
-              className="whitespace-nowrap"
-            >
-              {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
-            </Button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 ml-4">
-          {selectedSquare && (
-            <span className="text-sm text-muted-foreground whitespace-nowrap">
-              Selected: {selectedSquare.class}
-            </span>
-          )}
-          <Button
-            onClick={toggleSquareForm}
-            variant={showSquareForm ? 'default' : 'outline'}
-            className="whitespace-nowrap"
-          >
-            {showSquareForm ? 'Hide Form' : 'In/Exclude'}
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex-1 flex gap-4 min-h-0">
-        <div className={`flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative ${
-          showSquareForm ? 'w-2/3' : 'w-full'
-        }`}>
-          <div className="absolute inset-0 overflow-auto">
-            <div className="aspect-square w-full h-full relative">
-              <svg
-                ref={svgRef}
-                className="w-full h-full"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  overflow: 'visible'
-                }}
-                aria-label="Chart visualization"
-                role="img"
+    <TooltipProvider>
+      <div className="flex flex-col h-full space-y-4 p-4">
+        <div className="flex justify-between items-center sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4">
+          <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
+            {['standard', 'delineated', 'scaled', 'scoped'].map((viewType) => (
+              <Button
+                key={viewType}
+                onClick={() => handleViewChange(viewType as ViewType)}
+                variant={currentView === viewType ? 'default' : 'outline'}
+                className="whitespace-nowrap"
+                disabled={
+                  (viewType === 'scaled' || viewType === 'scoped') &&
+                  !lastClickedSquare
+                }
               >
-                <title>Interactive Chart Visualization</title>
-                <desc>A visualization of nested squares representing different hierarchical levels</desc>
-                <defs>
-                  <style type="text/css">
-                    {`
-                      .square { transition: all 0.3s ease-in-out; }
-                      .square:hover { filter: brightness(0.9); cursor: pointer; }
-                      .square-selected { 
-                        filter: brightness(1.1);
-                        stroke: var(--primary);
-                        stroke-width: 2px;
-                      }
-                      text { user-select: none; }
-                      .square-group:focus { outline: none; }
-                      .square-group:focus .square { 
-                        stroke: var(--primary);
-                        stroke-width: 2px;
-                      }
-                    `}
-                  </style>
-                </defs>
-              </svg>
+                {viewType.charAt(0).toUpperCase() + viewType.slice(1)} View
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 ml-4">
+            {selectedSquare && (
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Selected: {selectedSquare.class}
+              </span>
+            )}
+            <Button
+              onClick={toggleSquareForm}
+              variant={showSquareForm ? 'default' : 'outline'}
+              className="whitespace-nowrap"
+              disabled={!lastClickedSquare}
+            >
+              {showSquareForm ? 'Hide Form' : 'In/Exclude'}
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex-1 flex gap-4 min-h-0">
+          <div className={`flex-1 min-h-0 border rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative ${
+            showSquareForm ? 'w-2/3' : 'w-full'
+          }`}>
+            <div className="absolute inset-0 overflow-auto">
+              <div className="aspect-square w-full h-full relative">
+                <svg
+                  ref={svgRef}
+                  className="w-full h-full"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    overflow: 'visible'
+                  }}
+                  aria-label="Chart visualization"
+                  role="img"
+                >
+                  <title>Interactive Chart Visualization</title>
+                  <desc>A visualization of nested squares representing different hierarchical levels</desc>
+                  <defs>
+                    <style type="text/css">
+                      {`
+                        .square { transition: all 0.3s ease-in-out; }
+                        .square:hover { filter: brightness(0.9); cursor: pointer; }
+                        .square-selected { 
+                          filter: brightness(1.1);
+                          stroke: var(--primary);
+                          stroke-width: 2px;
+                        }
+                        text { user-select: none; }
+                        .square-group:focus { outline: none; }
+                        .square-group:focus .square { 
+                          stroke: var(--primary);
+                          stroke-width: 2px;
+                        }
+                      `}
+                    </style>
+                  </defs>
+                </svg>
+              </div>
             </div>
           </div>
+
+          {showSquareForm && selectedSquare && (
+            <div className="w-1/3 overflow-auto border rounded-lg p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <ScrollArea className="h-full pr-4">
+                <SquareForm
+                  squareData={{
+                    title: '',
+                    plane: '',
+                    purpose: '',
+                    delineator: '',
+                    notations: '',
+                    details: '',
+                    extraData: '',
+                    name: selectedSquare.class,
+                    size: '',
+                    color: '',
+                    type: selectedSquare.class,
+                    parent_id: selectedSquare.parent
+                  }}
+                  onSubmit={handleFormSubmit}
+                />
+              </ScrollArea>
+            </div>
+          )}
         </div>
 
-        {showSquareForm && selectedSquare && (
-          <div className="w-1/3 overflow-auto border rounded-lg p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <ScrollArea className="h-full pr-4">
-              <SquareForm
-                squareData={{
-                  title: '',
-                  plane: '',
-                  purpose: '',
-                  delineator: '',
-                  notations: '',
-                  details: '',
-                  extraData: '',
-                  name: selectedSquare.class,
-                  size: '',
-                  color: '',
-                  type: selectedSquare.class,
-                  parent_id: selectedSquare.parent
-                }}
-                onSubmit={handleFormSubmit}
-              />
-            </ScrollArea>
-          </div>
+        {selectedSquare && (
+          <SquareModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              if (currentView === 'standard' || currentView === 'delineated') {
+                setSelectedSquare(null);
+              }
+            }}
+            onSave={handleFormSubmit}
+            initialData={{
+              title: selectedSquare.class,
+              priority: {
+                density: 1,
+                durability: 'single',
+                decor: '#000000',
+              },
+              urgency: 'black',
+              aesthetic: {
+                impact: {
+                  bold: false,
+                  italic: false,
+                  underline: false,
+                },
+                affect: {
+                  fontFamily: 'Arial',
+                  fontSize: 16,
+                },
+                effect: {
+                  color: '#000000',
+                },
+              },
+            }}
+            squareClass={selectedSquare.class}
+            parentText={selectedSquare.parent}
+            depth={selectedSquare.depth}
+          />
         )}
       </div>
-
-      {selectedSquare && (
-        <SquareModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            if (currentView === 'standard' || currentView === 'delineated') {
-              setSelectedSquare(null);
-            }
-          }}
-          onSave={handleFormSubmit}
-          initialData={{
-            title: selectedSquare.class,
-            priority: {
-              density: 1,
-              durability: 'single',
-              decor: '#000000',
-            },
-            urgency: 'black',
-            aesthetic: {
-              impact: {
-                bold: false,
-                italic: false,
-                underline: false,
-              },
-              affect: {
-                fontFamily: 'Arial',
-                fontSize: 16,
-              },
-              effect: {
-                color: '#000000',
-              },
-            },
-          }}
-          squareClass={selectedSquare.class}
-          parentText={selectedSquare.parent}
-          depth={selectedSquare.depth}
-        />
-      )}
-    </div>
+    </TooltipProvider>
   );
 }

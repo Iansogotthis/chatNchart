@@ -25,7 +25,7 @@ export function registerRoutes(app: Express) {
   app.use("/api/messages", messageRoutes);
 
   app.get("/api/users/search", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const searchQuery = req.query.q as string;
@@ -53,7 +53,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.post("/api/friends/request/:username", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const [targetUser] = await db
@@ -63,7 +63,7 @@ export function registerRoutes(app: Express) {
         .limit(1);
 
       if (!targetUser) {
-        return res.status(404).send("User not found");
+        return res.status(404).json({ error: "User not found" });
       }
 
       if (targetUser.id === req.user.id) {
@@ -117,7 +117,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.put("/api/friends/request/:requestId", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const { action } = req.body;
@@ -175,7 +175,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.delete("/api/friends/:friendId", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       await db
@@ -201,7 +201,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.get("/api/friends", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const friendsList = await db
@@ -274,7 +274,7 @@ export function registerRoutes(app: Express) {
 
 
   app.get("/api/saved-charts", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const saved = await db
@@ -307,7 +307,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.post("/api/saved-charts", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const [saved] = await db.insert(savedCharts).values({
@@ -324,7 +324,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.put("/api/saved-charts/:id", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const [savedChart] = await db
@@ -391,7 +391,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.post("/api/charts/:id/like", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const [like] = await db.insert(chartLikes).values({
@@ -421,7 +421,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.delete("/api/charts/:id/like", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       await db
@@ -439,7 +439,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.get("/api/notifications", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const notifications = await db
@@ -456,7 +456,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.patch("/api/notifications/:id", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const [notification] = await db
@@ -476,13 +476,13 @@ export function registerRoutes(app: Express) {
   });
 
   app.get("/api/charts", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
     const userCharts = await db.select().from(charts).where(eq(charts.userId, req.user.id));
     res.json(userCharts);
   });
 
   app.post("/api/charts", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
     try {
       const [chart] = await db.insert(charts).values({
         userId: req.user.id,
@@ -497,7 +497,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.put("/api/charts/:id", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
       const [chart] = await db
@@ -563,7 +563,7 @@ export function registerRoutes(app: Express) {
   });
 
   app.post("/api/forum/posts", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
     try {
       const [post] = await db.insert(forumPosts).values({
         userId: req.user.id,
@@ -606,7 +606,7 @@ export function registerRoutes(app: Express) {
       .where(eq(users.username, req.params.username))
       .limit(1);
 
-    if (!user) return res.status(404).send("User not found");
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     const userCharts = await db
       .select({
@@ -635,7 +635,7 @@ export function registerRoutes(app: Express) {
       .where(eq(users.username, req.params.username))
       .limit(1);
 
-    if (!user) return res.status(404).send("User not found");
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     const userFriends = await db
       .select()

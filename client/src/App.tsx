@@ -40,6 +40,14 @@ function App() {
   const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { data: charts } = useQuery<Chart[]>({
+    queryKey: ['charts'],
+    queryFn: async () => {
+      const response = await fetch('/api/charts');
+      if (!response.ok) throw new Error('Failed to fetch charts');
+      return response.json();
+    },
+  });
   const { theme, setTheme } = useTheme();
   const [, setLocation] = useLocation();
 

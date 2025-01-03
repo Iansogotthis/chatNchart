@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UseQueryResult } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -21,7 +20,6 @@ interface Message {
   content: string;
   senderId: number;
   receiverId: number;
-  messageType: 'DM' | 'TM' | 'GM' | 'LM' | 'AM' | 'CM';
   status: 'unread' | 'read' | 'sent' | 'draft';
   isImportant: boolean;
   isRead: boolean;
@@ -30,15 +28,6 @@ interface Message {
   folder?: string;
   createdAt: string;
 }
-
-const messageTypeLabels = {
-  DM: 'Direct Message',
-  TM: 'Team Message',
-  GM: 'Group Message',
-  LM: 'Lead Message',
-  AM: 'Alike Message',
-  CM: 'Collaboration Message'
-};
 
 interface MessagesProps {
   friendId: number;
@@ -52,10 +41,9 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fixed useQuery with proper types
-  const { data: messages = [], isLoading, error } = useQuery({
+  const { data: messages = [], isLoading, error } = useQuery<Message[]>({
     queryKey: ['direct-messages', friendId],
-    queryFn: async (): Promise<Message[]> => {
+    queryFn: async () => {
       try {
         const response = await fetch(`/api/messages/direct/${friendId}`, {
           credentials: 'include',
@@ -78,39 +66,21 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     retryDelay: 1000,
     staleTime: 1000,
     refetchOnWindowFocus: false,
-    enabled: !!friendId,
-    onSuccess: (newData: Message[], { data: oldData }) => {
-      if (oldData && newData.length > oldData.length) {
-        const newMessages = newData.slice(oldData.length);
-        newMessages.forEach(msg => {
-          if (msg.receiverId === user?.id && !msg.isRead) {
-            toast({
-              title: "New Message",
-              description: `${friendUsername}: ${msg.content.substring(0, 50)}${msg.content.length > 50 ? '...' : ''}`,
-            });
-          }
-        });
-      }
-    },
+    enabled: !!friendId && !!user,
   });
 
-  // Mark messages as read
   const markAsReadMutation = useMutation({
     mutationFn: async (messageIds: number[]) => {
-      try {
-        const response = await fetch('/api/messages/read', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messageIds }),
-          credentials: 'include'
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Failed to mark messages as read');
-        }
-      } catch (error) {
-        console.error('Error marking messages as read:', error);
-        throw error;
+      const response = await fetch('/api/messages/read', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageIds }),
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to mark messages as read');
       }
     },
     onSuccess: () => {
@@ -118,25 +88,20 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     }
   });
 
-  // Send new message
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      try {
-        const response = await fetch("/api/messages/direct", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ receiverId: friendId, content }),
-          credentials: 'include'
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Failed to send message');
-        }
-        return response.json();
-      } catch (error) {
-        console.error('Error sending message:', error);
-        throw error;
+      const response = await fetch("/api/messages/direct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiverId: friendId, content }),
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to send message');
       }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] });
@@ -146,22 +111,21 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
         description: "Your message has been sent successfully",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message",
+        description: error.message || "Failed to send message",
         variant: "destructive",
       });
     },
   });
 
-  // Mark unread messages as read when they're viewed
   useEffect(() => {
-    if (!user) return;
+    if (!user || !messages?.length) return;
 
-    const unreadMessages = (messages || [])
-      .filter((m: Message) => m.receiverId === user.id && !m.isRead)
-      .map((m: Message) => m.id);
+    const unreadMessages = messages
+      .filter(m => m.receiverId === user.id && !m.isRead)
+      .map(m => m.id);
 
     if (unreadMessages.length > 0) {
       markAsReadMutation.mutate(unreadMessages);
@@ -226,7 +190,7 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
       <CardContent className="p-0 flex-1 flex flex-col">
         <ScrollArea className="flex-1 p-4">
           <div className="flex flex-col space-y-4">
-            {messages.map((message: Message) => {
+            {messages.map((message) => {
               const isSentByMe = message.senderId === user?.id;
               return (
                 <div

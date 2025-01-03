@@ -3,8 +3,15 @@ import { db } from "../../db";
 import { messages, notifications, users } from "../../db/schema";
 import { eq, and, or } from "drizzle-orm";
 import type { Request, Response, NextFunction } from "express";
+import { z } from "zod";
 
 const router = Router();
+
+// Message validation schema
+const messageSchema = z.object({
+  content: z.string().min(1, "Message cannot be empty"),
+  receiverId: z.number().int().positive("Invalid receiver ID"),
+});
 
 // Authentication middleware with proper error handling
 const requireAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -72,29 +79,29 @@ router.get("/direct/:friendId", requireAuth, async (req, res, next) => {
     res.json(directMessages);
   } catch (error) {
     console.error("Error fetching direct messages:", error);
-    res.status(500).json({ message: "Failed to fetch direct messages" });
+    next(error);
   }
 });
 
 // Send a direct message
 router.post("/direct", requireAuth, async (req, res, next) => {
   try {
-    const { receiverId, content } = req.body;
+    const validation = messageSchema.safeParse(req.body);
 
-    if (!receiverId || !content) {
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!validation.success) {
+      return res.status(400).json({ 
+        message: "Invalid message data", 
+        details: validation.error.errors 
+      });
     }
 
-    const parsedReceiverId = parseInt(receiverId);
-    if (isNaN(parsedReceiverId)) {
-      return res.status(400).json({ message: "Invalid receiver ID" });
-    }
+    const { receiverId, content } = validation.data;
 
     // Check if receiver exists
     const [receiver] = await db
       .select()
       .from(users)
-      .where(eq(users.id, parsedReceiverId))
+      .where(eq(users.id, receiverId))
       .limit(1);
 
     if (!receiver) {
@@ -106,20 +113,24 @@ router.post("/direct", requireAuth, async (req, res, next) => {
       .insert(messages)
       .values({
         senderId: req.user!.id,
-        receiverId: parsedReceiverId,
+        receiverId: receiverId,
         content: content.trim(),
         isRead: false,
+        status: 'unread',
+        isImportant: false,
+        isDraft: false
       })
       .returning();
 
     // Create notification for the receiver
     await db.insert(notifications).values({
-      userId: parsedReceiverId,
+      userId: receiverId,
       type: 'message',
       sourceId: newMessage.id,
+      isRead: false,
     });
 
-    res.json(newMessage);
+    res.status(201).json(newMessage);
   } catch (error) {
     console.error("Error sending message:", error);
     next(error);
@@ -137,7 +148,10 @@ router.put("/read", requireAuth, async (req, res, next) => {
     // Only update messages where the current user is the recipient
     const [updatedMessages] = await db
       .update(messages)
-      .set({ isRead: true })
+      .set({ 
+        isRead: true,
+        status: 'read'
+      })
       .where(
         and(
           eq(messages.receiverId, req.user!.id),

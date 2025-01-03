@@ -123,50 +123,22 @@ export function ChartVisualization() {
         ...data
       });
 
-      // Ensure data has all required properties with proper types
-      const updatedStyles = {
-        title: data.title || selectedSquare.class,
-        priority: {
-          density: Number(data.priority?.density) || 1,
-          durability: data.priority?.durability || 'single',
-          decor: data.priority?.decor || '#000000'
-        },
-        urgency: data.urgency || 'black',
-        aesthetic: {
-          impact: {
-            bold: Boolean(data.aesthetic?.impact?.bold),
-            italic: Boolean(data.aesthetic?.impact?.italic),
-            underline: Boolean(data.aesthetic?.impact?.underline)
-          },
-          affect: {
-            fontFamily: data.aesthetic?.affect?.fontFamily || 'Arial',
-            fontSize: Number(data.aesthetic?.affect?.fontSize) || 14
-          },
-          effect: {
-            color: data.aesthetic?.effect?.color || '#000000'
-          }
-        }
-      };
-
-      // Update local state
+      // Update local state immediately
       setSquareStyles(prev => ({
         ...prev,
-        [squareId]: updatedStyles
+        [squareId]: data 
       }));
 
-      // Force a re-render of the chart
+      // Force a redraw by clearing and redrawing
       if (svgRef.current) {
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove();
-        drawChart(); // This will redraw with updated styles
+        drawChart(); 
       }
 
     } catch (error) {
       console.error('Error saving square customization:', error);
     }
-
-    setIsModalOpen(false);
-    setSelectedSquare(null);
   };
 
   useEffect(() => {
@@ -234,7 +206,7 @@ export function ChartVisualization() {
       const height = boundingRect.height;
       const centerX = width / 2;
       const centerY = height / 2;
-      const centerSquareSize = Math.min(width, height) * 0.4; // Reduced to ensure visibility
+      const centerSquareSize = Math.min(width, height) * 0.4; 
       const smallSquareSize = centerSquareSize / 2;
       const smallestSquareSize = smallSquareSize / 2;
       const tinySquareSize = smallestSquareSize / 2;
@@ -316,14 +288,14 @@ export function ChartVisualization() {
         // branchIndex is 1-based (1-4)
         // leafPosition is the position of the leaf in the branch (0-3, clockwise from top-left)
         switch (branchIndex) {
-          case 1: // top-left branch
-            return leafPosition !== 3; // skip bottom-right leaf
-          case 2: // top-right branch
-            return leafPosition !== 2; // skip bottom-left leaf
-          case 3: // bottom-right branch
-            return leafPosition !== 1; // skip top-right leaf
-          case 4: // bottom-left branch
-            return leafPosition !== 0; // skip top-left leaf
+          case 1: 
+            return leafPosition !== 3; 
+          case 2: 
+            return leafPosition !== 2; 
+          case 3: 
+            return leafPosition !== 1; 
+          case 4: 
+            return leafPosition !== 0; 
           default:
             return true;
         }
@@ -373,30 +345,30 @@ export function ChartVisualization() {
                   // Draw fruits for this leaf
                   const fruitSize = leafSize / 2;
                   const fruitCorners = {
-                    1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2], // top-left
-                    2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2], // top-right
-                    3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2], // bottom-left
-                    4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]  // bottom-right
+                    1: [corner[0] - leafSize / 2, corner[1] - leafSize / 2], 
+                    2: [corner[0] + leafSize / 2, corner[1] - leafSize / 2], 
+                    3: [corner[0] - leafSize / 2, corner[1] + leafSize / 2], 
+                    4: [corner[0] + leafSize / 2, corner[1] + leafSize / 2]  
                   };
 
                   // Determine which corners should have fruits based on branch and leaf position
                   let fruitCornerNumbers: number[] = [];
                   if (branchIndex === 1) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; // Leaf 1: top-left, top-right, bottom-left
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // Leaf 2: top-left, top-right, bottom-right
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // Leaf 3: top-left, bottom-left, bottom-right
+                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; 
+                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; 
+                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; 
                   } else if (branchIndex === 2) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; // Leaf 1: top-left, top-right, bottom-left
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // Leaf 2: top-left, top-right, bottom-right
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // Leaf 4: top-right, bottom-left, bottom-right
+                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; 
+                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; 
+                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; 
                   } else if (branchIndex === 3) {
-                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; // Leaf 1: top-left, top-right, bottom-left
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // Leaf 3: top-left, bottom-left, bottom-right
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // Leaf 4: top-right, bottom-left, bottom-right
+                    if (leafIndex === 0) fruitCornerNumbers = [1, 2, 3]; 
+                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; 
+                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; 
                   } else if (branchIndex === 4) {
-                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; // Leaf 2: top-left, top-right, bottom-right
-                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; // Leaf 3: top-left, bottom-left, bottom-right
-                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; // Leaf 4: top-right, bottom-left, bottom-right
+                    if (leafIndex === 1) fruitCornerNumbers = [1, 2, 4]; 
+                    if (leafIndex === 2) fruitCornerNumbers = [1, 3, 4]; 
+                    if (leafIndex === 3) fruitCornerNumbers = [2, 3, 4]; 
                   }
 
                   fruitCornerNumbers.forEach(cornerNum => {
@@ -522,7 +494,7 @@ export function ChartVisualization() {
         });
       }
     }
-  }, [currentView, selectedSquare, squareStyles]); // Added squareStyles dependency
+  }, [currentView, selectedSquare, squareStyles]); 
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">

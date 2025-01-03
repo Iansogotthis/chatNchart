@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,8 +49,13 @@ interface SquareData {
 export default function SquareModal({ isOpen, onClose, onSave, initialData }: SquareModalProps) {
   const [data, setData] = useState<SquareData>(initialData);
 
+  // Reset form data when modal opens with new initialData
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
   const handleSave = () => {
-    // Ensure all required fields are properly typed
+    // Ensure all required fields are properly typed and all values are present
     const formattedData: SquareData = {
       title: data.title || initialData.title,
       priority: {
@@ -182,7 +187,7 @@ export default function SquareModal({ isOpen, onClose, onSave, initialData }: Sq
                   variant={data.urgency === color ? 'default' : 'outline'}
                   onClick={() => handleDataChange(['urgency'], color)}
                   className={data.urgency === color ? 'bg-opacity-90' : ''}
-                  style={{ 
+                  style={{
                     backgroundColor: data.urgency === color ? color : undefined,
                     color: data.urgency === color ? (color === 'black' ? 'white' : 'black') : undefined
                   }}

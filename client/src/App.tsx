@@ -16,11 +16,16 @@ import Navbar from "./components/Navbar";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { Moon, Sun, Maximize2, Minimize2 } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
 
 function App() {
   const { user, isLoading } = useUser();
   const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -28,9 +33,22 @@ function App() {
     }
   }, []);
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className={cn(
+        "min-h-screen bg-background flex flex-col",
+        "transition-colors duration-300"
+      )}>
         {isLoading ? (
           <div className="flex items-center justify-center min-h-screen">
             <Loader2 className="h-8 w-8 animate-spin text-border" />
@@ -43,25 +61,64 @@ function App() {
         ) : (
           <>
             <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+            <div className="fixed top-4 right-4 z-50 flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="rounded-full"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </Button>
+              {selectedChart && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={toggleFullscreen}
+                  className="rounded-full"
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className="h-5 w-5" />
+                  ) : (
+                    <Maximize2 className="h-5 w-5" />
+                  )}
+                </Button>
+              )}
+            </div>
             <div className="flex-1 pt-14">
-              <div className="grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out" 
-                   style={{ 
-                     gridTemplateColumns: sidebarOpen ? '250px 1fr' : '0px 1fr'
-                   }}>
+              <div 
+                className={cn(
+                  "grid h-[calc(100vh-3.5rem)] transition-[grid-template-columns] duration-300 ease-in-out",
+                  {
+                    'lg:grid-cols-[250px_1fr] grid-cols-[0px_1fr]': sidebarOpen,
+                    'grid-cols-[0px_1fr]': !sidebarOpen
+                  }
+                )}
+              >
                 <div className={cn(
-                  "overflow-hidden transition-all duration-300",
-                  sidebarOpen ? "w-[250px]" : "w-0"
+                  "overflow-hidden transition-all duration-300 lg:block",
+                  sidebarOpen ? "lg:w-[250px]" : "w-0"
                 )}>
                   <ChartsNavigation 
                     onSelect={setSelectedChart} 
                     selectedChart={selectedChart}
                   />
                 </div>
-                <main className="overflow-auto">
+                <main className={cn(
+                  "overflow-auto",
+                  isFullscreen ? "fixed inset-0 z-50 bg-background pl-[250px]" : ""
+                )}>
                   <Switch>
                     <Route path="/">
                       {selectedChart ? (
-                        <ChartVisualization chart={selectedChart} />
+                        <ChartVisualization 
+                          chart={selectedChart} 
+                          isFullscreen={isFullscreen}
+                        />
                       ) : (
                         <div className="flex items-center justify-center h-full text-muted-foreground">
                           Select or create a chart to get started

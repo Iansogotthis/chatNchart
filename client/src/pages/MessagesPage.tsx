@@ -114,9 +114,9 @@ export default function MessagesPage() {
 
   return (
     <div className="container mx-auto max-w-6xl py-6">
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar */}
-        <Card className="w-64">
+        <Card className="lg:w-64 w-full">
           <CardContent className="p-4">
             <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
               <DialogTrigger asChild>
@@ -125,7 +125,7 @@ export default function MessagesPage() {
                   Compose
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>New Message</DialogTitle>
                 </DialogHeader>
@@ -215,7 +215,7 @@ export default function MessagesPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[600px]">
+            <ScrollArea className="h-[calc(100vh-16rem)]">
               <div className="space-y-4">
                 {messages.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
@@ -228,7 +228,6 @@ export default function MessagesPage() {
                       className={`cursor-pointer transition-all hover:bg-accent/50 ${
                         !message.isRead ? 'bg-primary/5' : ''
                       }`}
-                      onClick={() => setSelectedMessage(message)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">

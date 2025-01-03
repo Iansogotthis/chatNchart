@@ -46,7 +46,7 @@ export function FriendList({
 }: FriendListProps) {
   return (
     <div className="space-y-6">
-      {pendingRequests?.length > 0 && (
+      {(pendingRequests?.length ?? 0) > 0 && (
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -112,7 +112,7 @@ export function FriendList({
           </div>
         </CardHeader>
         <CardContent>
-          {friends.length === 0 ? (
+          {(friends?.length ?? 0) === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               No friends added yet. Start by sending friend requests!
             </p>
@@ -142,17 +142,18 @@ export function FriendList({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {onMessage && (
+                      {onMessage && friendship.friend && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onMessage(friendship.friend.id)}
+                          className="hover:bg-primary/10 text-primary hover:text-primary"
                         >
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Message
                         </Button>
                       )}
-                      {onRemoveFriend && (
+                      {onRemoveFriend && friendship.friend && (
                         <Button
                           variant="ghost"
                           size="sm"

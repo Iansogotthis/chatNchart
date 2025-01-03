@@ -34,9 +34,10 @@ const colors = {
 
 interface ChartVisualizationProps {
   chart: Chart;
+  isFullscreen?: boolean;
 }
 
-export function ChartVisualization({ chart }: ChartVisualizationProps) {
+export function ChartVisualization({ chart, isFullscreen = false }: ChartVisualizationProps) {
   const [currentView, setCurrentView] = useState<ViewType>('standard');
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -584,7 +585,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', handleResize);
     };
-  }, [currentView, selectedSquare, squareStyles]);
+  }, [currentView, selectedSquare, squareStyles, isFullscreen]);
 
   return (
     <div className="flex flex-col h-full space-y-4 p-4">

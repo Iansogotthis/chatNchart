@@ -49,9 +49,8 @@ export function SearchFriends() {
       // Transform results with friend status
       const searchResults = users.map(user => ({
         ...user,
-        isFriend: friends.some(f => f.friend?.id === user.id),
-        hasRequestPending: pendingRequests.some(r => r.sender?.id === user.id) || 
-                         friends.some(f => f.friend?.id === user.id)
+        isFriend: friends.some(f => f.friend && f.friend.id === user.id),
+        hasRequestPending: pendingRequests.some(r => r.sender && (r.sender.id === user.id || r.sender.username === user.username))
       }));
 
       setResults(searchResults);
@@ -59,7 +58,7 @@ export function SearchFriends() {
       console.error('Search error:', error);
       toast({
         title: "Error",
-        description: "Failed to search users. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to search users",
         variant: "destructive"
       });
     } finally {
@@ -67,28 +66,30 @@ export function SearchFriends() {
     }
   };
 
-  const handleSendRequest = async (userId: number, username: string) => {
+  const handleSendRequest = async (username: string) => {
     try {
       await sendRequest(username);
       toast({
         title: "Success",
         description: "Friend request sent successfully!"
       });
+
       // Update the results to show pending status
       setResults(prev =>
         prev.map(r =>
-          r.id === userId
+          r.username === username
             ? { ...r, hasRequestPending: true }
             : r
         )
       );
+
       // Close the popover after successful request
       setOpen(false);
     } catch (error) {
       console.error('Friend request error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send friend request. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send friend request",
         variant: "destructive"
       });
     }
@@ -142,7 +143,7 @@ export function SearchFriends() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleSendRequest(result.id, result.username)}
+                        onClick={() => handleSendRequest(result.username)}
                         disabled={isMutating}
                       >
                         <UserPlus2 className="h-4 w-4 mr-1" />

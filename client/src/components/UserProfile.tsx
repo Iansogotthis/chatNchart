@@ -16,7 +16,8 @@ import {
   Calendar,
   Users,
   ChartPieIcon,
-  Clock
+  Clock,
+  Edit
 } from "lucide-react";
 import type { User, Chart } from "@db/schema";
 
@@ -55,11 +56,12 @@ export function UserProfile({
     if (!isOwnProfile) return null;
     return (
       <Button 
-        variant="outline" 
+        variant="ghost" 
         size="sm" 
         onClick={() => onEditSection?.(section)}
-        className="mt-2"
+        className="w-full mt-2 text-muted-foreground hover:text-primary hover:bg-primary/10"
       >
+        <Edit className="h-4 w-4 mr-2" />
         Edit {section}
       </Button>
     );
@@ -68,19 +70,23 @@ export function UserProfile({
   const professional = user.professional as Professional;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-4xl mx-auto px-4">
       {/* Bio Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-20 w-20">
+      <Card className="w-full">
+        <CardHeader className="space-y-6">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-6">
+              <Avatar className="h-24 w-24">
                 <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username}`} />
                 <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
               </Avatar>
-              <div className="space-y-1">
-                <CardTitle className="text-2xl">{user.username}</CardTitle>
-                {user.bio && <CardDescription className="max-w-md">{user.bio}</CardDescription>}
+              <div className="space-y-2">
+                <CardTitle className="text-3xl font-bold tracking-tight">{user.username}</CardTitle>
+                {user.bio && (
+                  <CardDescription className="max-w-2xl text-base">
+                    {user.bio}
+                  </CardDescription>
+                )}
               </div>
             </div>
           </div>
@@ -89,52 +95,52 @@ export function UserProfile({
 
         <CardContent>
           {/* User Meta Data */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-            <Card>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <Card className="bg-primary/5">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <Calendar className="h-5 w-5 text-primary" />
                   <div className="text-2xl font-bold">
                     {formatDate(user.createdAt)?.split('/')[2] || 'N/A'}
                   </div>
+                  <p className="text-xs text-muted-foreground">Member Since</p>
                 </div>
-                <p className="text-xs text-center text-muted-foreground">Member Since</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-primary/5">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center gap-2">
-                  <ChartPieIcon className="h-4 w-4" />
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <ChartPieIcon className="h-5 w-5 text-primary" />
                   <div className="text-2xl font-bold">{totalCharts}</div>
+                  <p className="text-xs text-muted-foreground">Charts</p>
                 </div>
-                <p className="text-xs text-center text-muted-foreground">Charts</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-primary/5">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center gap-2">
-                  <Users className="h-4 w-4" />
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <Users className="h-5 w-5 text-primary" />
                   <div className="text-2xl font-bold">{totalFriends}</div>
+                  <p className="text-xs text-muted-foreground">Friends</p>
                 </div>
-                <p className="text-xs text-center text-muted-foreground">Friends</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-primary/5">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center gap-2">
-                  <Share2 className="h-4 w-4" />
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <Share2 className="h-5 w-5 text-primary" />
                   <div className="text-2xl font-bold">{totalCollaborations}</div>
+                  <p className="text-xs text-muted-foreground">Collaborations</p>
                 </div>
-                <p className="text-xs text-center text-muted-foreground">Collaborations</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-primary/5">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <div className="text-2xl font-bold">{formatDate(user.lastOnline)}</div>
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <div className="text-sm font-medium">{formatDate(user.lastOnline)}</div>
+                  <p className="text-xs text-muted-foreground">Last Online</p>
                 </div>
-                <p className="text-xs text-center text-muted-foreground">Last Online</p>
               </CardContent>
             </Card>
           </div>
@@ -144,32 +150,34 @@ export function UserProfile({
       {/* Personal Information */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCircle className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <UserCircle className="h-6 w-6 text-primary" />
             Personal Information
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Area */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> Area
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" /> Area
               </h3>
-              <p className="text-muted-foreground">
-                {user.city && user.state ? 
-                  `${user.city}, ${user.state} ${user.zipCode}` : 
-                  'No location provided'}
-              </p>
+              <div className="bg-muted/50 rounded-lg p-4">
+                <p className="text-muted-foreground">
+                  {user.city && user.state ? 
+                    `${user.city}, ${user.state} ${user.zipCode}` : 
+                    'No location provided'}
+                </p>
+              </div>
               {renderEditButton('Area')}
             </div>
 
             {/* Social Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <Share2 className="h-4 w-4" /> Social Links
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Share2 className="h-5 w-5 text-primary" /> Social Links
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.entries(user.socials as Record<string, string>).map(([platform, link]) => (
                   link && (
                     <a 
@@ -177,9 +185,9 @@ export function UserProfile({
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
+                      className="flex items-center gap-2 text-primary hover:underline bg-primary/5 rounded-lg p-3"
                     >
-                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                      <span className="capitalize">{platform}</span>
                     </a>
                   )
                 ))}
@@ -188,15 +196,15 @@ export function UserProfile({
             </div>
 
             {/* Favorites */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <Heart className="h-4 w-4" /> Favorites
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Heart className="h-5 w-5 text-primary" /> Favorites
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.entries(user.favorites as Record<string, string>).map(([category, item]) => (
                   item && (
-                    <div key={category}>
-                      <span className="font-medium">{category}: </span>
+                    <div key={category} className="bg-primary/5 rounded-lg p-3">
+                      <span className="font-medium capitalize">{category}: </span>
                       <span className="text-muted-foreground">{item}</span>
                     </div>
                   )
@@ -206,26 +214,38 @@ export function UserProfile({
             </div>
 
             {/* Hobbies */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <Gamepad2 className="h-4 w-4" /> Hobbies
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Gamepad2 className="h-5 w-5 text-primary" /> Hobbies
               </h3>
               <div className="flex flex-wrap gap-2">
                 {user.hobbies?.map((hobby, index) => (
-                  <Badge key={index} variant="secondary">{hobby}</Badge>
+                  <Badge 
+                    key={index} 
+                    variant="secondary"
+                    className="px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20"
+                  >
+                    {hobby}
+                  </Badge>
                 ))}
               </div>
               {renderEditButton('Hobbies')}
             </div>
 
             {/* Talents */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <Trophy className="h-4 w-4" /> Talents
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-primary" /> Talents
               </h3>
               <div className="flex flex-wrap gap-2">
                 {user.talents?.map((talent, index) => (
-                  <Badge key={index} variant="secondary">{talent}</Badge>
+                  <Badge 
+                    key={index} 
+                    variant="secondary"
+                    className="px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20"
+                  >
+                    {talent}
+                  </Badge>
                 ))}
               </div>
               {renderEditButton('Talents')}
@@ -237,57 +257,74 @@ export function UserProfile({
       {/* Professional Information */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <Briefcase className="h-6 w-6 text-primary" />
             Professional Information
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Career */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Career</h3>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Career</h3>
               {professional && (
-                <div className="space-y-2">
-                  <p><span className="font-medium">Field:</span> {professional.field || 'Not specified'}</p>
-                  <p><span className="font-medium">Company:</span> {professional.company || 'Not specified'}</p>
-                  <p><span className="font-medium">Position:</span> {professional.position || 'Not specified'}</p>
-                  <p><span className="font-medium">Experience:</span> {professional.experience || 'Not specified'}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-primary/5 rounded-lg p-4">
+                    <p className="font-medium">Field</p>
+                    <p className="text-muted-foreground">{professional.field || 'Not specified'}</p>
+                  </div>
+                  <div className="bg-primary/5 rounded-lg p-4">
+                    <p className="font-medium">Company</p>
+                    <p className="text-muted-foreground">{professional.company || 'Not specified'}</p>
+                  </div>
+                  <div className="bg-primary/5 rounded-lg p-4">
+                    <p className="font-medium">Position</p>
+                    <p className="text-muted-foreground">{professional.position || 'Not specified'}</p>
+                  </div>
+                  <div className="bg-primary/5 rounded-lg p-4">
+                    <p className="font-medium">Experience</p>
+                    <p className="text-muted-foreground">{professional.experience || 'Not specified'}</p>
+                  </div>
                 </div>
               )}
               {renderEditButton('Career')}
             </div>
 
             {/* Certifications */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Certifications</h3>
-              <div className="space-y-2">
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Certifications</h3>
+              <div className="space-y-4">
                 {(user.certifications as Array<{ company: string; title: string; year: string }>)?.map((cert, index) => (
-                  <div key={index} className="p-2 border rounded">
-                    <p><span className="font-medium">Company:</span> {cert.company}</p>
-                    <p><span className="font-medium">Title:</span> {cert.title}</p>
-                    <p><span className="font-medium">Year:</span> {cert.year}</p>
-                  </div>
+                  <Card key={index} className="bg-primary/5 border-none">
+                    <CardContent className="p-4 space-y-2">
+                      <p><span className="font-medium">Company:</span> {cert.company}</p>
+                      <p><span className="font-medium">Title:</span> {cert.title}</p>
+                      <p><span className="font-medium">Year:</span> {cert.year}</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
               {renderEditButton('Certifications')}
             </div>
 
             {/* Resume */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Resume</h3>
-              {user.resumeUrl ? (
-                <a 
-                  href={user.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  View Resume
-                </a>
-              ) : (
-                <p className="text-muted-foreground">No resume uploaded</p>
-              )}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Resume</h3>
+              <div className="bg-primary/5 rounded-lg p-4">
+                {user.resumeUrl ? (
+                  <a 
+                    href={user.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    View Resume
+                  </a>
+                ) : (
+                  <p className="text-muted-foreground">No resume uploaded</p>
+                )}
+              </div>
               {renderEditButton('Resume')}
             </div>
           </div>
@@ -298,14 +335,17 @@ export function UserProfile({
       {topCharts && topCharts.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Featured Charts</CardTitle>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <ChartPieIcon className="h-6 w-6 text-primary" />
+              Featured Charts
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[400px]">
               <div className="space-y-4">
                 {topCharts.map((chart) => (
-                  <Link key={chart.id} href={`/?chart=${chart.id}`}>
-                    <Card className="cursor-pointer transition-colors hover:bg-accent">
+                  <Link key={chart.id} href={`/charts/${chart.id}`}>
+                    <Card className="cursor-pointer transition-all hover:bg-accent">
                       <CardContent className="p-4">
                         <h4 className="font-medium">{chart.title}</h4>
                         <p className="text-sm text-muted-foreground">

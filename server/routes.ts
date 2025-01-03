@@ -4,10 +4,10 @@ import { setupAuth } from "./auth";
 import { db } from "../db";
 import { 
   charts, 
-  messages,
+  messages as messagesTable,
   savedCharts,
   chartLikes,
-  notifications,
+  notifications as notificationsTable,
   forumPosts, 
   friends, 
   users,
@@ -36,10 +36,12 @@ export function registerRoutes(app: Express) {
     try {
       const messages = await db
         .select({
-          id: messages.id,
-          content: messages.content,
-          isRead: messages.isRead,
-          createdAt: messages.createdAt,
+          id: messagesTable.id,
+          content: messagesTable.content,
+          isRead: messagesTable.isRead,
+          createdAt: messagesTable.createdAt,
+          senderId: messagesTable.senderId,
+          receiverId: messagesTable.receiverId,
           sender: {
             id: users.id,
             username: users.username,
@@ -49,14 +51,14 @@ export function registerRoutes(app: Express) {
             username: users.username,
           },
         })
-        .from(messages)
+        .from(messagesTable)
         .where(or(
-          eq(messages.senderId, req.user.id),
-          eq(messages.receiverId, req.user.id)
+          eq(messagesTable.senderId, req.user.id),
+          eq(messagesTable.receiverId, req.user.id)
         ))
-        .leftJoin(users, eq(messages.senderId, users.id))
-        .leftJoin(users, eq(messages.receiverId, users.id))
-        .orderBy(desc(messages.createdAt));
+        .leftJoin(users, eq(messagesTable.senderId, users.id))
+        .leftJoin(users, eq(messagesTable.receiverId, users.id))
+        .orderBy(desc(messagesTable.createdAt));
 
       res.json(messages);
     } catch (error) {
@@ -69,20 +71,43 @@ export function registerRoutes(app: Express) {
     if (!req.user) return res.status(401).send("Not authenticated");
 
     try {
-      const [message] = await db.insert(messages).values({
+      const [message] = await db.insert(messagesTable).values({
         senderId: req.user.id,
-        receiverId: req.body.receiverId,
+        receiverId: parseInt(req.body.receiverId),
         content: req.body.content,
       }).returning();
 
       // Create notification for the receiver
-      await db.insert(notifications).values({
-        userId: req.body.receiverId,
+      await db.insert(notificationsTable).values({
+        userId: parseInt(req.body.receiverId),
         type: 'message',
         sourceId: message.id,
       });
 
-      res.json(message);
+      // Fetch the complete message with sender and receiver info
+      const [completeMessage] = await db
+        .select({
+          id: messagesTable.id,
+          content: messagesTable.content,
+          isRead: messagesTable.isRead,
+          createdAt: messagesTable.createdAt,
+          senderId: messagesTable.senderId,
+          receiverId: messagesTable.receiverId,
+          sender: {
+            id: users.id,
+            username: users.username,
+          },
+          receiver: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(messagesTable)
+        .where(eq(messagesTable.id, message.id))
+        .leftJoin(users, eq(messagesTable.senderId, users.id))
+        .limit(1);
+
+      res.json(completeMessage);
     } catch (error) {
       console.error('Error sending message:', error);
       res.status(500).json({ error: 'Failed to send message' });
@@ -156,7 +181,7 @@ export function registerRoutes(app: Express) {
         .limit(1);
 
       if (chart && chart.userId !== req.user.id) {
-        await db.insert(notifications).values({
+        await db.insert(notificationsTable).values({
           userId: chart.userId,
           type: 'chart_like',
           sourceId: like.id,
@@ -195,9 +220,9 @@ export function registerRoutes(app: Express) {
     try {
       const notifications = await db
         .select()
-        .from(notifications)
-        .where(eq(notifications.userId, req.user.id))
-        .orderBy(desc(notifications.createdAt));
+        .from(notificationsTable)
+        .where(eq(notificationsTable.userId, req.user.id))
+        .orderBy(desc(notificationsTable.createdAt));
 
       res.json(notifications);
     } catch (error) {
@@ -211,11 +236,11 @@ export function registerRoutes(app: Express) {
 
     try {
       const [notification] = await db
-        .update(notifications)
+        .update(notificationsTable)
         .set({ isRead: true })
         .where(and(
-          eq(notifications.id, parseInt(req.params.id)),
-          eq(notifications.userId, req.user.id)
+          eq(notificationsTable.id, parseInt(req.params.id)),
+          eq(notificationsTable.userId, req.user.id)
         ))
         .returning();
 
@@ -297,17 +322,16 @@ export function registerRoutes(app: Express) {
           createdAt: forumPosts.createdAt,
           author: {
             id: users.id,
-            username: users.username
-          }
+            username: users.username,
+          },
         })
         .from(forumPosts)
         .leftJoin(users, eq(forumPosts.userId, users.id))
         .orderBy(desc(forumPosts.createdAt));
 
-      // Transform the results to handle null authors
       const transformedPosts = posts.map(post => ({
         ...post,
-        author: post.author.id ? post.author : null
+        author: post.author?.id ? post.author : null
       }));
 
       res.json(transformedPosts);
@@ -335,18 +359,17 @@ export function registerRoutes(app: Express) {
           createdAt: forumPosts.createdAt,
           author: {
             id: users.id,
-            username: users.username
-          }
+            username: users.username,
+          },
         })
         .from(forumPosts)
         .leftJoin(users, eq(forumPosts.userId, users.id))
         .where(eq(forumPosts.id, post.id))
         .limit(1);
 
-      // Transform the result to handle null author
       const transformedPost = {
         ...createdPost,
-        author: createdPost.author.id ? createdPost.author : null
+        author: createdPost.author?.id ? createdPost.author : null
       };
 
       res.json(transformedPost);

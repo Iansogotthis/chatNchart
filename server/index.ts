@@ -51,27 +51,49 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = registerRoutes(app);
+  try {
+    const server = registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    console.error('Server error:', err);
-  });
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
+      res.status(status).json({ message });
+      console.error('Server error:', err);
+    });
 
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
+    if (app.get("env") === "development") {
+      await setupVite(app, server);
+    } else {
+      serveStatic(app);
+    }
+
+    const PORT = process.env.PORT || 3000;
+
+    server.listen(PORT, "0.0.0.0", () => {
+      log(`Server running on http://0.0.0.0:${PORT}`);
+    });
+
+    // Handle server errors
+    server.on('error', (error: any) => {
+      if (error.syscall !== 'listen') {
+        throw error;
+      }
+
+      switch (error.code) {
+        case 'EACCES':
+          console.error(`Port ${PORT} requires elevated privileges`);
+          process.exit(1);
+          break;
+        case 'EADDRINUSE':
+          console.error(`Port ${PORT} is already in use`);
+          process.exit(1);
+          break;
+        default:
+          throw error;
+      }
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-
-  const PORT = process.env.PORT || 3001;
-
-  server.listen(PORT as number, "0.0.0.0", () => {
-    log(`Server running on http://0.0.0.0:${PORT}`);
-  });
-})().catch((error) => {
-  console.error('Server startup error:', error);
-  process.exit(1);
-});
+})();

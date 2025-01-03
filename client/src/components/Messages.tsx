@@ -10,26 +10,39 @@ import {
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ScrollArea } from "./ui/scroll-area";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, CheckCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import type { Message } from "@db/schema";
+import { format } from "date-fns";
 
 interface MessagesProps {
   friendId: number;
   friendUsername: string;
+  friendAvatarUrl?: string;
 }
 
-export function Messages({ friendId, friendUsername }: MessagesProps) {
+interface MessageResponse extends Message {
+  sender: {
+    id: number;
+    username: string;
+  };
+  receiver: {
+    id: number;
+    username: string;
+  };
+}
+
+export function Messages({ friendId, friendUsername, friendAvatarUrl }: MessagesProps) {
   const [newMessage, setNewMessage] = useState("");
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: messages, isLoading } = useQuery<Message[]>({
+  const { data: messages, isLoading } = useQuery<MessageResponse[]>({
     queryKey: ["/api/messages", friendId],
     queryFn: async () => {
-      const response = await fetch("/api/messages");
+      const response = await fetch(`/api/messages?friendId=${friendId}`);
       if (!response.ok) throw new Error("Failed to fetch messages");
       return response.json();
     },
@@ -68,8 +81,19 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
     sendMessageMutation.mutate(newMessage);
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleString();
+  const formatMessageDate = (date: string | Date) => {
+    const messageDate = new Date(date);
+    const today = new Date();
+
+    if (messageDate.toDateString() === today.toDateString()) {
+      return format(messageDate, "HH:mm");
+    }
+
+    if (messageDate.getFullYear() === today.getFullYear()) {
+      return format(messageDate, "d MMM, HH:mm");
+    }
+
+    return format(messageDate, "d MMM yyyy, HH:mm");
   };
 
   if (isLoading) {
@@ -82,54 +106,72 @@ export function Messages({ friendId, friendUsername }: MessagesProps) {
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          Messages with {friendUsername}
+      <CardHeader className="pb-4 border-b">
+        <CardTitle className="text-xl font-semibold tracking-tight">
+          Chat with {friendUsername}
         </CardTitle>
         <CardDescription>
           Send and receive messages with your friend
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-4">
-            {messages?.map((message) => (
-              <Card
-                key={message.id}
-                className={`${
-                  message.senderId === user?.id
-                    ? "ml-auto bg-primary/10"
-                    : "mr-auto bg-muted"
-                } max-w-[80%]`}
-              >
-                <CardContent className="p-3">
-                  <p className="mb-1">{message.content}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(message.createdAt)}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+      <CardContent className="p-0">
+        <ScrollArea className="h-[400px]">
+          <div className="flex flex-col space-y-4 p-4">
+            {messages?.map((message) => {
+              const isSentByMe = message.senderId === user?.id;
+              return (
+                <div
+                  key={message.id}
+                  className={`flex ${isSentByMe ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[70%] ${
+                      isSentByMe
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    } rounded-lg px-4 py-2 shadow-sm`}
+                  >
+                    <p className="text-sm">{message.content}</p>
+                    <div className={`flex items-center gap-1 mt-1 text-xs ${
+                      isSentByMe ? "text-primary-foreground/80" : "text-muted-foreground"
+                    }`}>
+                      <span>{formatMessageDate(message.createdAt)}</span>
+                      {isSentByMe && message.isRead && (
+                        <CheckCheck className="h-3 w-3" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </ScrollArea>
-        <form onSubmit={handleSend} className="mt-4 flex gap-2">
+        <form onSubmit={handleSend} className="border-t p-4 space-y-4">
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            className="min-h-[80px]"
+            className="min-h-[80px] resize-none"
           />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={sendMessageMutation.isPending}
-          >
-            {sendMessageMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              className="gap-2"
+              disabled={sendMessageMutation.isPending}
+            >
+              {sendMessageMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Send
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

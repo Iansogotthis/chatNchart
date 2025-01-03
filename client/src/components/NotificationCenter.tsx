@@ -10,6 +10,12 @@ import { Bell, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import type { Notification } from "@db/schema";
+import { format } from "date-fns";
+
+interface NotificationInfo {
+  text: string;
+  link: string;
+}
 
 export function NotificationCenter() {
   const { toast } = useToast();
@@ -44,7 +50,7 @@ export function NotificationCenter() {
     },
   });
 
-  const formatNotification = (notification: Notification) => {
+  const formatNotification = (notification: Notification): NotificationInfo => {
     switch (notification.type) {
       case "message":
         return {
@@ -72,6 +78,12 @@ export function NotificationCenter() {
           link: "/",
         };
     }
+  };
+
+  const formatDate = (date: string | Date | null) => {
+    if (!date) return "";
+    const notificationDate = new Date(date);
+    return format(notificationDate, "PPp");
   };
 
   const unreadCount = notifications?.filter((n) => !n.isRead).length || 0;
@@ -126,7 +138,7 @@ export function NotificationCenter() {
                     >
                       <p className="text-sm">{text}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(notification.createdAt).toLocaleString()}
+                        {formatDate(notification.createdAt)}
                       </p>
                     </div>
                   </Link>

@@ -95,7 +95,7 @@ export default function SquareModal({
       depth: depth.toString()
     });
     setLocation(`/form?${params.toString()}`);
-    onClose();
+    onClose(); 
   };
 
   return (

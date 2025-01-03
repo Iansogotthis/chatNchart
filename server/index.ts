@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 // Add security headers and CORS
 app.use((req, res, next) => {
   // Allow requests from Replit preview window and browsers
-  const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co'];
+  const allowedOrigins = ['https://*.replit.dev', 'https://*.repl.co', 'https://*.repl.run'];
   const origin = req.headers.origin;
   if (origin && allowedOrigins.some(allowed => origin.match(new RegExp(allowed.replace('*', '.*'))))) {
     res.setHeader('Access-Control-Allow-Origin', origin);

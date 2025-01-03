@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    font-size: 103%; /* Increased scale by 3% */
+    font-size: 103%; /* Base scale increase of 3% */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -24,11 +24,7 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
-    --root-color: rgb(176, 196, 222);
-    --branch-color: rgb(211, 211, 211);
-    --leaf-color: rgb(144, 238, 144);
-    --fruit-color: rgb(240, 128, 128);
+    --radius: calc(0.5rem * 1.03); /* Scale up radius by 3% */
   }
 
   .dark {
@@ -51,10 +47,6 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
-    --root-color: rgb(100, 120, 140);
-    --branch-color: rgb(80, 80, 80);
-    --leaf-color: rgb(60, 100, 60);
-    --fruit-color: rgb(140, 60, 60);
   }
 }
 
@@ -62,9 +54,44 @@
   * {
     @apply border-border;
   }
+
+  html {
+    font-size: 103%; /* Reinforce root scaling */
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Scale all measurements by 3% */
+    --spacing-scale: 1.03;
+    --base-spacing: calc(1rem * var(--spacing-scale));
+  }
+
+  /* Scale spacing utilities */
+  .p-4 {
+    padding: calc(1rem * var(--spacing-scale));
+  }
+
+  .m-4 {
+    margin: calc(1rem * var(--spacing-scale));
+  }
+}
+
+/* Navigation Styles */
+.side-nav {
+  @apply fixed lg:static h-full w-64 bg-background border-r border-border;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 50;
+}
+
+.side-nav.open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .side-nav {
+    transform: none;
   }
 }
 
@@ -129,25 +156,4 @@
 .fullscreen-chart .chart-container {
   height: 100vh;
   padding: 2rem;
-}
-
-/* Navigation Styles */
-.side-nav {
-  @apply h-full w-64 bg-background border-r border-border;
-  transition: transform 0.3s ease-in-out;
-}
-
-@media (max-width: 768px) {
-  .side-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 40;
-    transform: translateX(-100%);
-  }
-
-  .side-nav.open {
-    transform: translateX(0);
-  }
 }

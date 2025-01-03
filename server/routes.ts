@@ -14,7 +14,7 @@ import {
   users,
   squareCustomizations,
 } from "../db/schema";
-import { eq, and, desc, or, sql, not } from "drizzle-orm";
+import { eq, and, desc, or, sql } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
 
 export function registerRoutes(app: Express) {

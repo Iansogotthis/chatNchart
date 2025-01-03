@@ -113,16 +113,7 @@ function App() {
                 )}>
                   <Switch>
                     <Route path="/">
-                      {selectedChart ? (
-                        <ChartVisualization 
-                          chart={selectedChart} 
-                          isFullscreen={isFullscreen}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                          Select or create a chart to get started
-                        </div>
-                      )}
+                      {user && <ProfilePage username={user.username} />}
                     </Route>
                     <Route path="/form" component={FormView} />
                     <Route path="/profile/:username" component={ProfilePage} />

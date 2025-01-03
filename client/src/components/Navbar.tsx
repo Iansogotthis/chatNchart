@@ -69,6 +69,19 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 <SearchFriends />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('grey')}>Grey</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme('almond')}>Almond</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback>

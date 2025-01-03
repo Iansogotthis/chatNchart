@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Card,
@@ -13,7 +13,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Loader2, Send, CheckCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
-import type { Message } from "@db/schema";
 import { format } from "date-fns";
 
 interface MessagesProps {
@@ -22,15 +21,13 @@ interface MessagesProps {
   friendAvatarUrl?: string;
 }
 
-interface MessageResponse extends Message {
-  sender: {
-    id: number;
-    username: string;
-  };
-  receiver: {
-    id: number;
-    username: string;
-  };
+interface Message {
+  id: number;
+  content: string;
+  createdAt: string;
+  senderId: number;
+  receiverId: number;
+  isRead: boolean;
 }
 
 export function Messages({ friendId, friendUsername, friendAvatarUrl }: MessagesProps) {
@@ -39,27 +36,49 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: messages, isLoading } = useQuery<MessageResponse[]>({
-    queryKey: ["/api/messages", friendId],
+  // Fetch messages for this conversation
+  const { data: messages = [], isLoading } = useQuery({
+    queryKey: ['direct-messages', friendId],
     queryFn: async () => {
-      const response = await fetch(`/api/messages?friendId=${friendId}`);
+      const response = await fetch(`/api/messages/direct/${friendId}`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error("Failed to fetch messages");
       return response.json();
     },
+    refetchInterval: 5000, // Poll for new messages every 5 seconds
   });
 
+  // Mark messages as read
+  const markAsReadMutation = useMutation({
+    mutationFn: async (messageIds: number[]) => {
+      const response = await fetch('/api/messages/read', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageIds }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error("Failed to mark messages as read");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] });
+    }
+  });
+
+  // Send new message
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await fetch("/api/messages", {
+      const response = await fetch("/api/messages/direct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ receiverId: friendId, content }),
+        credentials: 'include'
       });
       if (!response.ok) throw new Error("Failed to send message");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/messages", friendId] });
+      queryClient.invalidateQueries({ queryKey: ['direct-messages', friendId] });
       setNewMessage("");
       toast({
         title: "Message sent",
@@ -75,10 +94,21 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
     },
   });
 
+  // Mark unread messages as read when they're viewed
+  useEffect(() => {
+    const unreadMessages = messages
+      .filter(m => m.receiverId === user?.id && !m.isRead)
+      .map(m => m.id);
+
+    if (unreadMessages.length > 0) {
+      markAsReadMutation.mutate(unreadMessages);
+    }
+  }, [messages, user?.id, markAsReadMutation]);
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    sendMessageMutation.mutate(newMessage);
+    sendMessageMutation.mutate(newMessage.trim());
   };
 
   const formatMessageDate = (date: string | Date) => {
@@ -117,7 +147,7 @@ export function Messages({ friendId, friendUsername, friendAvatarUrl }: Messages
       <CardContent className="p-0">
         <ScrollArea className="h-[400px]">
           <div className="flex flex-col space-y-4 p-4">
-            {messages?.map((message) => {
+            {messages.map((message) => {
               const isSentByMe = message.senderId === user?.id;
               return (
                 <div

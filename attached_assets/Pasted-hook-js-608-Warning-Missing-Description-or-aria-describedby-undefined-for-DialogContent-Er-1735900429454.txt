@@ -1,0 +1,62 @@
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. Error Component Stack
+    at DescriptionWarning (chunk-IDQIITZX.js?v=97469dbd:328:29)
+    at chunk-IDQIITZX.js?v=97469dbd:232:13
+    at chunk-IDQIITZX.js?v=97469dbd:155:58
+    at Presence (chunk-2WIEE5M6.js?v=97469dbd:34:11)
+    at chunk-IDQIITZX.js?v=97469dbd:146:64
+    at chunk-WGDIS4HC.js?v=97469dbd:73:11
+    at chunk-WGDIS4HC.js?v=97469dbd:54:11
+    at chunk-PJMLXWI2.js?v=97469dbd:41:13
+    at chunk-QHG2RSUB.js?v=97469dbd:260:22
+    at Presence (chunk-2WIEE5M6.js?v=97469dbd:34:11)
+    at Provider (chunk-LSQNWB54.js?v=97469dbd:38:15)
+    at DialogPortal (chunk-IDQIITZX.js?v=97469dbd:109:11)
+    at _c3 (dialog.tsx:33:6)
+    at Provider (chunk-LSQNWB54.js?v=97469dbd:38:15)
+    at Dialog (chunk-IDQIITZX.js?v=97469dbd:50:5)
+    at div (<anonymous>)
+    at _c9 (card.tsx:62:6)
+    at div (<anonymous>)
+    at _c (card.tsx:8:6)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at MessagesPage (MessagesPage.tsx:54:20)
+    at Route (wouter.js?v=f3c45e1d:191:16)
+    at Switch (wouter.js?v=f3c45e1d:247:17)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at Provider (chunk-LSQNWB54.js?v=97469dbd:38:15)
+    at TooltipProvider (@radix-ui_react-tool….js?v=9de0a04d:60:5)
+    at App (App.tsx:24:31)
+    at QueryClientProvider (@tanstack_react-quer…s?v=41d71ed0:2801:3)
+overrideMethod	@	hook.js:608
+(anonymous)	@	chunk-IDQIITZX.js?v=97469dbd:336
+commitHookEffectListMount	@	chunk-RPCDYKBN.js?v=97469dbd:16915
+commitPassiveMountOnFiber	@	chunk-RPCDYKBN.js?v=97469dbd:18156
+commitPassiveMountEffects_complete	@	chunk-RPCDYKBN.js?v=97469dbd:18129
+commitPassiveMountEffects_begin	@	chunk-RPCDYKBN.js?v=97469dbd:18119
+commitPassiveMountEffects	@	chunk-RPCDYKBN.js?v=97469dbd:18109
+flushPassiveEffectsImpl	@	chunk-RPCDYKBN.js?v=97469dbd:19490
+flushPassiveEffects	@	chunk-RPCDYKBN.js?v=97469dbd:19447
+commitRootImpl	@	chunk-RPCDYKBN.js?v=97469dbd:19416
+commitRoot	@	chunk-RPCDYKBN.js?v=97469dbd:19277
+performSyncWorkOnRoot	@	chunk-RPCDYKBN.js?v=97469dbd:18895
+flushSyncCallbacks	@	chunk-RPCDYKBN.js?v=97469dbd:9119
+(anonymous)	@	chunk-RPCDYKBN.js?v=97469dbd:18627
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod	@	hook.js:608
+(anonymous)	@	chunk-IDQIITZX.js?v=97469dbd:336
+commitHookEffectListMount	@	chunk-RPCDYKBN.js?v=97469dbd:16915
+invokePassiveEffectMountInDEV	@	chunk-RPCDYKBN.js?v=97469dbd:18324
+invokeEffectsInDev	@	chunk-RPCDYKBN.js?v=97469dbd:19701
+commitDoubleInvokeEffectsInDEV	@	chunk-RPCDYKBN.js?v=97469dbd:19686
+flushPassiveEffectsImpl	@	chunk-RPCDYKBN.js?v=97469dbd:19503
+flushPassiveEffects	@	chunk-RPCDYKBN.js?v=97469dbd:19447
+commitRootImpl	@	chunk-RPCDYKBN.js?v=97469dbd:19416
+commitRoot	@	chunk-RPCDYKBN.js?v=97469dbd:19277
+performSyncWorkOnRoot	@	chunk-RPCDYKBN.js?v=97469dbd:18895
+flushSyncCallbacks	@	chunk-RPCDYKBN.js?v=97469dbd:9119
+(anonymous)	@	chunk-RPCDYKBN.js?v=97469dbd:18627
+

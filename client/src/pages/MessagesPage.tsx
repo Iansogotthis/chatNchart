@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Mail,
   Users,
@@ -16,7 +17,8 @@ import {
   Trash2,
   MailPlus,
   RefreshCw,
-  Filter
+  Filter,
+  Loader2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,6 +29,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -53,7 +56,7 @@ interface Message {
 export default function MessagesPage() {
   const { user } = useUser();
   const { toast } = useToast();
-  const [messages] = useState<Message[]>([]); // TODO: Replace with actual messages query
+  const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [composeOpen, setComposeOpen] = useState(false);
   const [messageType, setMessageType] = useState<'direct' | 'group' | 'project'>('direct');
@@ -62,6 +65,50 @@ export default function MessagesPage() {
     subject: "",
     content: "",
     messageType: "direct" as const
+  });
+
+  // Fetch messages
+  const { data: messages = [], isLoading } = useQuery({
+    queryKey: ['messages'],
+    queryFn: async () => {
+      const response = await fetch('/api/messages', {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch messages');
+      return response.json();
+    }
+  });
+
+  // Send message mutation
+  const sendMessageMutation = useMutation({
+    mutationFn: async (message: typeof newMessage) => {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(message),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to send message');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      setNewMessage({ recipientId: "", subject: "", content: "", messageType: "direct" });
+      setComposeOpen(false);
+      toast({
+        title: "Success",
+        description: "Message sent successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send message",
+        variant: "destructive"
+      });
+    }
   });
 
   // Parse URL parameters
@@ -83,33 +130,82 @@ export default function MessagesPage() {
   }, [setLocation]);
 
   const handleSendMessage = () => {
-    toast({
-      title: "Coming Soon",
-      description: "Message functionality will be implemented soon!",
-    });
-    setNewMessage({ recipientId: "", subject: "", content: "", messageType: "direct" });
-    setComposeOpen(false);
+    if (!newMessage.recipientId || !newMessage.subject || !newMessage.content) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    sendMessageMutation.mutate(newMessage);
   };
 
-  const handleMarkAsImportant = (messageId: number) => {
-    toast({
-      title: "Coming Soon",
-      description: "Mark as important functionality will be implemented soon!",
-    });
+  const handleMarkAsImportant = async (messageId: number) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}/important`, {
+        method: 'PUT',
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to update message');
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      toast({
+        title: "Success",
+        description: "Message updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update message",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDelete = (messageId: number) => {
-    toast({
-      title: "Coming Soon",
-      description: "Delete functionality will be implemented soon!",
-    });
+  const handleDelete = async (messageId: number) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to delete message');
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      toast({
+        title: "Success",
+        description: "Message deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete message",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleMarkAsUnread = (messageId: number) => {
-    toast({
-      title: "Coming Soon",
-      description: "Mark as unread functionality will be implemented soon!",
-    });
+  const handleMarkAsUnread = async (messageId: number) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}/read`, {
+        method: 'PUT',
+        body: JSON.stringify({ isRead: false }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to update message');
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      toast({
+        title: "Success",
+        description: "Message marked as unread",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update message",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -128,6 +224,9 @@ export default function MessagesPage() {
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>New Message</DialogTitle>
+                  <DialogDescription>
+                    Compose and send a new message to a user, group, or project.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
                   <div>
@@ -141,7 +240,7 @@ export default function MessagesPage() {
                     </Tabs>
                   </div>
                   <Input
-                    placeholder="Recipient"
+                    placeholder="Recipient ID"
                     value={newMessage.recipientId}
                     onChange={(e) => setNewMessage({ ...newMessage, recipientId: e.target.value })}
                   />
@@ -156,9 +255,22 @@ export default function MessagesPage() {
                     onChange={(e) => setNewMessage({ ...newMessage, content: e.target.value })}
                     rows={5}
                   />
-                  <Button onClick={handleSendMessage} className="w-full">
-                    <Send className="mr-2 h-4 w-4" />
-                    Send Message
+                  <Button 
+                    onClick={handleSendMessage} 
+                    className="w-full"
+                    disabled={sendMessageMutation.isPending}
+                  >
+                    {sendMessageMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Message
+                      </>
+                    )}
                   </Button>
                 </div>
               </DialogContent>
@@ -197,7 +309,11 @@ export default function MessagesPage() {
               <CardDescription>Manage your conversations</CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => queryClient.invalidateQueries({ queryKey: ['messages'] })}
+              >
                 <RefreshCw className="h-4 w-4" />
               </Button>
               <DropdownMenu>
@@ -216,13 +332,17 @@ export default function MessagesPage() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[calc(100vh-16rem)]">
-              <div className="space-y-4">
-                {messages.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
-                    No messages yet. Start a conversation!
-                  </p>
-                ) : (
-                  messages.map((message) => (
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : messages.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No messages yet. Start a conversation!
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((message: Message) => (
                     <Card
                       key={message.id}
                       className={`cursor-pointer transition-all hover:bg-accent/50 ${
@@ -288,9 +408,9 @@ export default function MessagesPage() {
                         </div>
                       </CardContent>
                     </Card>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </ScrollArea>
           </CardContent>
         </Card>

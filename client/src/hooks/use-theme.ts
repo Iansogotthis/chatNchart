@@ -25,20 +25,20 @@ export function useTheme() {
     // Apply theme-specific colors
     const styles = {
       light: {
-        '--background': '#FFFFE0',
-        '--foreground': '#000000',
+        '--background': '#FFFFFF',
+        '--foreground': '#1A1A1A',
       },
       dark: {
-        '--background': '#000000',
-        '--foreground': '#FFFFFF',
+        '--background': '#1A1A1A',
+        '--foreground': '#E6E6E6',
       },
       grey: {
-        '--background': '#808080',
-        '--foreground': '#FFFFFF',
+        '--background': '#F5F5F5',
+        '--foreground': '#2D2D2D',
       },
       almond: {
-        '--background': '#EFDECD',
-        '--foreground': '#000000',
+        '--background': '#FAF6F1',
+        '--foreground': '#2D2D2D',
       }
     };
 

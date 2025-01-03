@@ -14,20 +14,51 @@ import {
   squareCustomizations,
   type User
 } from "../db/schema";
-import { eq, and, desc, or, sql, type SQL } from "drizzle-orm";
+import { eq, and, desc, or, sql } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
+
+// Type for user search results
+interface UserSearchResult {
+  id: number;
+  username: string;
+}
 
 export function registerRoutes(app: Express) {
   // Register auth routes and middleware first
   setupAuth(app);
   const httpServer = createServer(app);
 
-  // Debug route to check auth status
-  app.get("/api/auth-status", (req, res) => {
-    res.json({
-      isAuthenticated: req.isAuthenticated?.(),
-      user: req.user
-    });
+  // User search route with improved case-insensitive search
+  app.get("/api/users/search", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      const searchQuery = req.query.q as string;
+      if (!searchQuery || searchQuery.length < 2) {
+        return res.json([]);
+      }
+
+      // Case-insensitive search with more flexible matching
+      const searchResults = await db
+        .select({
+          id: users.id,
+          username: users.username,
+        })
+        .from(users)
+        .where(sql`LOWER(${users.username}) LIKE LOWER(${`%${searchQuery}%`})`)
+        .limit(10);
+
+      // Transform and type-check the results
+      const typedResults: UserSearchResult[] = searchResults.map(user => ({
+        id: Number(user.id),
+        username: user.username
+      }));
+
+      res.json(typedResults);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      res.status(500).json({ error: 'Failed to search users' });
+    }
   });
 
   // Message routes
@@ -312,6 +343,75 @@ export function registerRoutes(app: Express) {
   app.post("/api/square-customization", saveSquareCustomization);
   app.get("/api/square-customization/:chartId", getSquareCustomizations);
 
+  // Friend request route with improved error handling
+  app.post("/api/friends/request/:username", async (req, res) => {
+    if (!req.user) return res.status(401).send("Not authenticated");
+
+    try {
+      // Get target user
+      const [targetUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, req.params.username))
+        .limit(1);
+
+      if (!targetUser) {
+        return res.status(404).send("User not found");
+      }
+
+      if (targetUser.id === req.user.id) {
+        return res.status(400).send("Cannot send friend request to yourself");
+      }
+
+      // Check if friend request already exists in either direction
+      const [existingRequest] = await db
+        .select()
+        .from(friends)
+        .where(
+          or(
+            and(
+              eq(friends.userId, req.user.id),
+              eq(friends.friendId, targetUser.id)
+            ),
+            and(
+              eq(friends.userId, targetUser.id),
+              eq(friends.friendId, req.user.id)
+            )
+          )
+        )
+        .limit(1);
+
+      if (existingRequest) {
+        if (existingRequest.status === 'accepted') {
+          return res.status(400).send("Already friends with this user");
+        }
+        return res.status(400).send("Friend request already exists");
+      }
+
+      // Create friend request
+      const [friendRequest] = await db
+        .insert(friends)
+        .values({
+          userId: req.user.id,
+          friendId: targetUser.id,
+          status: "pending"
+        })
+        .returning();
+
+      // Create notification for the target user
+      await db.insert(notificationsTable).values({
+        userId: targetUser.id,
+        type: "friend_request",
+        sourceId: friendRequest.id,
+      });
+
+      res.json(friendRequest);
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      res.status(500).json({ error: 'Failed to send friend request' });
+    }
+  });
+
   // Forum routes
   app.get("/api/forum/posts", async (_req, res) => {
     try {
@@ -444,19 +544,28 @@ export function registerRoutes(app: Express) {
         return res.status(400).send("Cannot send friend request to yourself");
       }
 
-      // Check if friend request already exists
+      // Check if friend request already exists in either direction
       const [existingRequest] = await db
         .select()
         .from(friends)
         .where(
-          and(
-            eq(friends.userId, req.user.id),
-            eq(friends.friendId, targetUser.id)
+          or(
+            and(
+              eq(friends.userId, req.user.id),
+              eq(friends.friendId, targetUser.id)
+            ),
+            and(
+              eq(friends.userId, targetUser.id),
+              eq(friends.friendId, req.user.id)
+            )
           )
         )
         .limit(1);
 
       if (existingRequest) {
+        if (existingRequest.status === 'accepted') {
+          return res.status(400).send("Already friends with this user");
+        }
         return res.status(400).send("Friend request already exists");
       }
 
@@ -647,36 +756,6 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.get("/api/users/search", async (req, res) => {
-    if (!req.user) return res.status(401).send("Not authenticated");
-
-    try {
-      const searchQuery = req.query.q as string;
-      if (!searchQuery || searchQuery.length < 2) {
-        return res.json([]);
-      }
-
-      const searchResults = await db
-        .select({
-          id: users.id,
-          username: users.username,
-        })
-        .from(users)
-        .where(sql`${users.username} ILIKE ${`%${searchQuery}%`}`)
-        .limit(10);
-
-      // Transform results to only return necessary fields
-      const transformedResults = searchResults.map(user => ({
-        id: user.id,
-        username: user.username,
-      }));
-
-      res.json(transformedResults);
-    } catch (error) {
-      console.error('Error searching users:', error);
-      res.status(500).json({ error: 'Failed to search users' });
-    }
-  });
 
   return httpServer;
 }

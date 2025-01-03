@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -76,9 +77,11 @@ export function FriendList({
                             </AvatarFallback>
                           </Avatar>
                           <div className="space-y-1">
-                            <h4 className="text-base font-semibold leading-none tracking-tight">
-                              {request.sender.username}
-                            </h4>
+                            <Link href={`/profile/${request.sender.username}`} className="hover:underline">
+                              <h4 className="text-base font-semibold leading-none tracking-tight">
+                                {request.sender.username}
+                              </h4>
+                            </Link>
                             <p className="text-sm text-muted-foreground">
                               Sent {formatDistanceToNow(new Date(request.createdAt))} ago
                             </p>
@@ -145,9 +148,11 @@ export function FriendList({
                             </AvatarFallback>
                           </Avatar>
                           <div className="space-y-1">
-                            <h4 className="text-base font-semibold leading-none tracking-tight">
-                              {friendship.friend.username}
-                            </h4>
+                            <Link href={`/profile/${friendship.friend.username}`} className="hover:underline">
+                              <h4 className="text-base font-semibold leading-none tracking-tight">
+                                {friendship.friend.username}
+                              </h4>
+                            </Link>
                             {friendship.friend.bio && (
                               <p className="text-sm text-muted-foreground line-clamp-1">
                                 {friendship.friend.bio}

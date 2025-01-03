@@ -45,7 +45,8 @@ async function sendFriendRequest(username: string): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to send friend request');
   }
 }
 
@@ -60,7 +61,8 @@ async function handleFriendRequest(requestId: number, action: 'accept' | 'reject
   });
 
   if (!response.ok) {
-    throw new Error('Failed to handle friend request');
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to handle friend request');
   }
 }
 
@@ -71,7 +73,8 @@ async function removeFriend(friendId: number): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to remove friend');
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to remove friend');
   }
 }
 

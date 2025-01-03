@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useFriends } from "@/hooks/use-friends";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "./ui/command";
@@ -35,13 +36,13 @@ export function SearchFriends() {
       const response = await fetch(`/api/users/search?q=${encodeURIComponent(value)}`, {
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to search users');
       }
 
       const users = await response.json();
-      
+
       // Filter out current user and map with friend status
       const searchResults = users
         .filter((u: { id: number }) => u.id !== user?.id)
@@ -54,6 +55,7 @@ export function SearchFriends() {
 
       setResults(searchResults);
     } catch (error) {
+      console.error('Search error:', error);
       toast({
         title: "Error",
         description: "Failed to search users. Please try again.",
@@ -80,9 +82,10 @@ export function SearchFriends() {
         )
       );
     } catch (error) {
+      console.error('Friend request error:', error);
       toast({
         title: "Error",
-        description: "Failed to send friend request. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send friend request. Please try again.",
         variant: "destructive"
       });
     }
@@ -117,7 +120,9 @@ export function SearchFriends() {
                     key={result.id}
                     className="flex items-center justify-between"
                   >
-                    <span>{result.username}</span>
+                    <Link href={`/profile/${result.username}`} className="hover:underline">
+                      {result.username}
+                    </Link>
                     {result.isFriend ? (
                       <UserCheck2 className="h-4 w-4 text-primary" />
                     ) : result.hasRequestPending ? (

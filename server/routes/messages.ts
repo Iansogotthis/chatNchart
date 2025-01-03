@@ -11,6 +11,8 @@ const router = Router();
 const messageSchema = z.object({
   content: z.string().min(1, "Message cannot be empty"),
   receiverId: z.number().int().positive("Invalid receiver ID"),
+  messageType: z.enum(['direct', 'group', 'system', 'notification', 'project']).default('direct'),
+  metadata: z.record(z.any()).optional(),
 });
 
 // Authentication middleware with proper error handling

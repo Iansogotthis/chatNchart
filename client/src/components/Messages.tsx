@@ -21,11 +21,13 @@ interface Message {
   senderId: number;
   receiverId: number;
   status: 'unread' | 'read' | 'sent' | 'draft';
+  messageType: 'direct' | 'group' | 'system' | 'notification' | 'project';
   isImportant: boolean;
   isRead: boolean;
   isDraft: boolean;
   projectId?: number;
   folder?: string;
+  metadata?: Record<string, any>;
   createdAt: string;
 }
 

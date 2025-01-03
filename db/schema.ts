@@ -76,11 +76,13 @@ export const messages = pgTable("messages", {
   receiverId: integer("receiver_id").references(() => users.id),
   content: text("content").notNull(),
   status: text("status").notNull().default('unread'),
+  messageType: text("message_type").notNull().default('direct'),
   isImportant: boolean("is_important").default(false),
   isRead: boolean("is_read").default(false),
   isDraft: boolean("is_draft").default(false),
   projectId: integer("project_id"),
   folder: text("folder"),
+  metadata: jsonb("metadata").default({}),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

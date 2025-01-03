@@ -120,7 +120,8 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
             My Charts
           </div>
           <Separator className="my-2" />
-          <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
+          <div className="fixed z-50 border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full left-0 p-4">
+            <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border">
             {isLoading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -139,6 +140,7 @@ export const ChartsNavigation: FC<ChartListProps> = ({ onSelect, selectedChart }
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">No charts yet</p>
             )}
+            </div>
           </div>
         </div>
         <ScrollBar />

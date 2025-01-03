@@ -53,7 +53,6 @@ nav.fixed.z-50 {
   nav.fixed.z-50:hover .container {
     opacity: 1;
   }
-}
 
 .fruit {
     fill: #A78BFA;

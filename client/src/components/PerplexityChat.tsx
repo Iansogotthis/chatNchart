@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useGemini } from '@/hooks/use-perplexity';
 import { Button } from './ui/button';
@@ -9,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 export function PerplexityChat() {
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
-  const { getResponse, loading, error } = usePerplexity();
+  const { getResponse, loading, error } = useGemini();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

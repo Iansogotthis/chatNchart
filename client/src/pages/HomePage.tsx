@@ -72,7 +72,7 @@ export default function HomePage() {
                 Loading demo...
               </div>
             ) : (
-              <ChartVisualization data={chartData} />
+              <ChartVisualization chart={chartData} />
             )}
           </div>
         </div>

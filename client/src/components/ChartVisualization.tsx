@@ -162,12 +162,14 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       if (pendingView === 'scoped') {
         const previousClass = getPreviousHierarchyLevel(className);
         if (previousClass) {
-          const newParent = parentText.split('_').slice(0, -1).join('_');
+          // Extract parent information from the current square's path
+          const pathParts = parentText.split('_');
+          const newParent = pathParts.length > 1 ? pathParts.slice(0, -1).join('_') : 'Center';
           const newDepth = depth - 1;
 
           setSelectedSquare({
             class: previousClass,
-            parent: newParent || 'Center',
+            parent: newParent,
             depth: newDepth
           });
           setCurrentView('scoped');
@@ -221,6 +223,7 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
 
     if (!selectedSquare && (currentView === 'scaled' || currentView === 'scoped')) {
       setCurrentView('standard');
+      return;
     }
 
     const svgElement = svgRef.current;
@@ -231,7 +234,10 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
     const height = boundingRect.height;
     const centerX = width / 2;
     const centerY = height / 2;
-    const centerSquareSize = Math.min(width, height) * 0.4;
+
+    // Adjust sizes based on view type
+    const baseSize = Math.min(width, height) * (currentView === 'scaled' ? 0.3 : 0.4);
+    const centerSquareSize = currentView === 'scaled' ? baseSize * 1.5 : baseSize;
     const smallSquareSize = centerSquareSize / 2;
     const smallestSquareSize = smallSquareSize / 2;
     const tinySquareSize = smallestSquareSize / 2;
@@ -301,6 +307,43 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       }
 
       text.text(customStyle?.title || className);
+    }
+
+    function drawSquaresForScaled(parentSquare: SelectedSquare, centerX: number, centerY: number, size: number) {
+      // Draw children squares based on parent type
+      const childClass = getNextHierarchyLevel(parentSquare.class);
+      if (!childClass) return;
+
+      const positions = [
+        [centerX - size, centerY - size],
+        [centerX + size, centerY - size],
+        [centerX - size, centerY + size],
+        [centerX + size, centerY + size]
+      ];
+
+      positions.forEach(([x, y], index) => {
+        const childParent = `${parentSquare.parent}_${index + 1}`;
+        drawSquare(
+          x,
+          y,
+          size * 0.8,
+          colors[childClass as keyof typeof colors] || "",
+          childClass,
+          parentSquare.depth + 1,
+          childParent
+        );
+
+        // Recursively draw grandchildren if needed
+        const grandchildClass = getNextHierarchyLevel(childClass);
+        if (grandchildClass) {
+          drawSquaresForScaled(
+            { class: childClass, parent: childParent, depth: parentSquare.depth + 1 },
+            x,
+            y,
+            size * 0.4
+          );
+        }
+      });
     }
 
     function shouldDrawLeaf(branchIndex: number, leafPosition: number): boolean {
@@ -417,18 +460,8 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
       ];
     };
 
-    if (currentView === 'standard' || currentView === 'delineated') {
-      drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
-
-      const baseCorners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ].map(([x, y]) => getAdjustedPosition(x, y)) as [number, number][];
-
-      drawSquares(baseCorners, smallSquareSize, 0, "root", "Center");
-    } else if (currentView === 'scoped' && selectedSquare) {
+    if (currentView === 'scaled' && selectedSquare) {
+      // Draw the centered square
       drawSquare(
         centerX,
         centerY,
@@ -439,67 +472,53 @@ export function ChartVisualization({ chart }: ChartVisualizationProps) {
         selectedSquare.parent
       );
 
-      const childCorners = [
-        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
-        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
-        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
-      ] as [number, number][];
-
-      childCorners.forEach(([x, y], index) => {
-        let childClass = "";
-        if (selectedSquare.class === "root") childClass = "branch";
-        else if (selectedSquare.class === "branch") childClass = "leaf";
-        else if (selectedSquare.class === "leaf") childClass = "fruit";
-
-        if (childClass) {
-          drawSquare(
-            x,
-            y,
-            smallSquareSize,
-            colors[childClass as keyof typeof colors] || "",
-            `${childClass}${index + 1}`,
-            selectedSquare.depth + 1,
-            `${selectedSquare.parent}_${index + 1}`
-          );
-        }
-      });
-    } else if (currentView === 'scaled' && selectedSquare) {
+      // Draw all descendants
+      drawSquaresForScaled(selectedSquare, centerX, centerY, centerSquareSize / 2);
+    } else if (currentView === 'scoped' && selectedSquare) {
+      // Draw the parent square
       drawSquare(
         centerX,
         centerY,
-        centerSquareSize * 1.5,
+        centerSquareSize,
         colors[selectedSquare.class as keyof typeof colors] || "",
         selectedSquare.class,
         selectedSquare.depth,
         selectedSquare.parent
       );
 
-      const expandedCorners = [
-        [centerX - centerSquareSize, centerY - centerSquareSize],
-        [centerX + centerSquareSize, centerY - centerSquareSize],
-        [centerX - centerSquareSize, centerY + centerSquareSize],
-        [centerX + centerSquareSize, centerY + centerSquareSize],
-      ] as [number, number][];
+      // Draw immediate children only
+      const childClass = getNextHierarchyLevel(selectedSquare.class);
+      if (childClass) {
+        const positions = [
+          [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+          [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+          [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+          [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2]
+        ];
 
-      expandedCorners.forEach(([x, y], index) => {
-        let childClass = "";
-        if (selectedSquare.class === "root") childClass = "branch";
-        else if (selectedSquare.class === "branch") childClass = "leaf";
-        else if (selectedSquare.class === "leaf") childClass = "fruit";
-
-        if (childClass && (!childClass || shouldDrawLeaf(index + 1, index))) {
+        positions.forEach(([x, y], index) => {
           drawSquare(
             x,
             y,
-            smallSquareSize * 1.5,
+            smallSquareSize,
             colors[childClass as keyof typeof colors] || "",
-            `${childClass}${index + 1}`,
+            childClass,
             selectedSquare.depth + 1,
             `${selectedSquare.parent}_${index + 1}`
           );
-        }
-      });
+        });
+      }
+    } else if (currentView === 'standard' || currentView === 'delineated') {
+      drawSquare(centerX, centerY, centerSquareSize, colors.root, "root", 0, "Center");
+
+      const baseCorners = [
+        [centerX - centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY - centerSquareSize / 2],
+        [centerX - centerSquareSize / 2, centerY + centerSquareSize / 2],
+        [centerX + centerSquareSize / 2, centerY + centerSquareSize / 2],
+      ].map(([x, y]) => getAdjustedPosition(x, y)) as [number, number][];
+
+      drawSquares(baseCorners, smallSquareSize, 0, "root", "Center");
     }
   }
 

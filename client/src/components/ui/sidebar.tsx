@@ -193,12 +193,14 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <div className="fixed bottom-4 left-4 z-50">
-          <button
-            onClick={() => setOpenMobile(true)}
-            className="w-12 h-12 rounded-full bg-background border shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+        <div className="fixed left-0 top-1/2 -translate-y-1/2 z-50 group">
+          <div className="relative">
+            <button
+              onClick={() => setOpenMobile(true)}
+              className="w-8 h-20 bg-background border-r border-y rounded-r-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group-hover:w-64"
           >
-            <MenuIcon className="h-6 w-6" />
+            <MenuIcon className="h-6 w-6 absolute left-1 group-hover:opacity-0 transition-opacity" />
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity delay-150">Menu</span>
           </button>
           <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
             <SheetContent

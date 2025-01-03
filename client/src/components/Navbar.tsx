@@ -52,17 +52,17 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             <MenuIcon className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center flex-1 justify-center gap-6">
-            <Link href="/home" className="flex items-center space-x-2">
-              <span className="font-bold sm:inline-block">
-                Chart Visualizer
-              </span>
+          <div className="flex items-center flex-1 justify-center">
+            <Link href="/home" className="flex items-center mr-4">
+              <span className="font-bold">Chart Visualizer</span>
             </Link>
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              <Link href="/charts">Charts</Link>
-              <Link href="/forum">Forum</Link>
-              <Link href="/friends">Friends</Link>
-              <Link href="/messages">Messages</Link>
+            <nav className="hidden md:flex items-center space-x-4 text-sm font-medium overflow-hidden transition-all duration-300 hover:w-full">
+              <div className="flex items-center space-x-4 whitespace-nowrap">
+                <Link href="/charts" className="hover:text-primary">Charts</Link>
+                <Link href="/forum" className="hover:text-primary">Forum</Link>
+                <Link href="/friends" className="hover:text-primary">Friends</Link>
+                <Link href="/messages" className="hover:text-primary">Messages</Link>
+              </div>
             </nav>
           </div>
 

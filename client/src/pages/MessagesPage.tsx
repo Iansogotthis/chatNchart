@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import Link from "next/link"; // Assuming Next.js is used for routing; adjust if necessary.
+import { Link } from "react-router-dom"; // Assuming Next.js is used for routing; adjust if necessary.
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 

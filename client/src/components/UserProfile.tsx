@@ -70,7 +70,7 @@ export function UserProfile({
     );
   };
 
-  const professional = user.professional as Professional;
+  const professional = user?.professional as Professional || null;
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },

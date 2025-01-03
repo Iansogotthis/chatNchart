@@ -60,9 +60,21 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             <MenuIcon className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center flex-1 justify-center group">
-            <div className="relative group">
-              <Button variant="ghost" asChild className="mr-4">
+          <div className="flex items-center flex-1 justify-center">
+            <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
+              <Button variant="ghost" asChild>
+                <Link href="/home" className="font-bold">
+                  Chart Visualizer
+                </Link>
+              </Button>
+              <Link href="/charts" className="hover:text-primary">Charts</Link>
+              <Link href="/forum" className="hover:text-primary">Forum</Link>
+              <Link href="/friends" className="hover:text-primary">Friends</Link>
+              <Link href="/messages" className="hover:text-primary">Messages</Link>
+            </div>
+            
+            <div className="md:hidden relative group">
+              <Button variant="ghost" asChild>
                 <Link href="/home" className="font-bold">
                   Chart Visualizer
                 </Link>
@@ -70,27 +82,12 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
               <nav className="absolute top-full left-0 bg-background/95 backdrop-blur opacity-0 group-hover:opacity-100 transition-all duration-300 py-2 px-4 rounded-md border shadow-md min-w-[150px] z-50">
                 <div className="flex flex-col space-y-2">
                   <Link href="/charts" className="hover:text-primary">Charts</Link>
+                  <Link href="/forum" className="hover:text-primary">Forum</Link>
                   <Link href="/friends" className="hover:text-primary">Friends</Link>
                   <Link href="/messages" className="hover:text-primary">Messages</Link>
                 </div>
               </nav>
             </div>
-            <nav className="hidden md:flex items-center space-x-4 text-sm font-medium overflow-hidden transition-all duration-300 hover:w-full">
-              <div className="flex items-center space-x-4 whitespace-nowrap">
-                <Link href="/charts" className="hover:text-primary">Charts</Link>
-                <Link href="/forum" className="hover:text-primary">Forum</Link>
-                <Link href="/friends" className="hover:text-primary">Friends</Link>
-                <Link href="/messages" className="hover:text-primary">Messages</Link>
-              </div>
-            </nav>
-            <nav className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur md:hidden opacity-0 group-hover:opacity-100 transition-all duration-300 py-2 px-4">
-              <div className="flex flex-col space-y-2">
-                <Link href="/charts" className="hover:text-primary">Charts</Link>
-                <Link href="/forum" className="hover:text-primary">Forum</Link>
-                <Link href="/friends" className="hover:text-primary">Friends</Link>
-                <Link href="/messages" className="hover:text-primary">Messages</Link>
-              </div>
-            </nav>
           </div>
 
           <div className="flex items-center justify-end space-x-2">

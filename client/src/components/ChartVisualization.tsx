@@ -41,10 +41,11 @@ interface ChartVisualizationProps {
   isFullscreen?: boolean;
 }
 
-export function ChartVisualization({ chart, isFullscreen = false }: ChartVisualizationProps) {
+export function ChartVisualization({ chart }: ChartVisualizationProps) {
   const [currentView, setCurrentView] = useState<ViewType>('standard');
   const [selectedSquare, setSelectedSquare] = useState<SelectedSquare | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSquareForm, setShowSquareForm] = useState(false);
   const [pendingView, setPendingView] = useState<PendingViewType>(null);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -585,6 +586,11 @@ export function ChartVisualization({ chart, isFullscreen = false }: ChartVisuali
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   };
 
 

@@ -127,6 +127,9 @@ function App() {
                       <Route path="/" exact>
                         {user && <ProfilePage username={user.username} />}
                       </Route>
+                      <Route path="/home">
+                        <HomePage />
+                      </Route>
                       <Route path="/charts">
                         <div className="flex h-screen pt-14">
                           <ChartsNavigation 

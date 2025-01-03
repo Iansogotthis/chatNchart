@@ -52,7 +52,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           </Button>
 
           <div className="flex items-center flex-1 justify-center gap-6">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/home" className="flex items-center space-x-2">
               <span className="font-bold sm:inline-block">
                 Chart Visualizer
               </span>

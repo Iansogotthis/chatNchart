@@ -14,6 +14,9 @@
     "android:build": "npm run build && npm run android:sync && npm run android:open"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
     "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^3.9.1",
     "@jridgewell/trace-mapping": "^0.3.25",
@@ -64,6 +67,7 @@
     "lucide-react": "^0.453.0",
     "memorystore": "^1.6.7",
     "npm": "^11.0.0",
+    "npx": "^10.2.2",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "react": "^18.3.1",

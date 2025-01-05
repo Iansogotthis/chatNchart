@@ -54,16 +54,12 @@ async function startServer() {
     // Kill any existing processes on the port
     try {
       await new Promise((resolve) => {
-        const net = require('net');
-        const tester = net.createServer()
-          .once('error', () => {
-            // Port is in use, kill the process
-            require('child_process').exec(`lsof -t -i:${port} | xargs kill -9`, resolve);
-          })
-          .once('listening', () => {
-            tester.close(resolve);
-          })
-          .listen(port);
+        const tester = server.listen(port, '0.0.0.0', () => {
+          tester.close(resolve);
+        });
+        tester.on('error', () => {
+          resolve();
+        });
       });
     } catch (err) {
       console.error('Port cleanup error:', err);

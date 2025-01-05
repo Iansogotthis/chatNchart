@@ -48,9 +48,12 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
     },
   });
 
-  useEffect(() => {
+useEffect(() => {
     // Connect to WebSocket for real-time chat
-    const ws = new WebSocket(`ws://${window.location.hostname}:3002/ws/projects/${id}/chat`);
+    // Use secure WebSocket if in production or loaded over HTTPS
+    const isProduction = process.env.NODE_ENV === 'production';
+    const protocol = isProduction || window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/projects/${id}/chat`);
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
@@ -105,7 +108,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
       setIsPaused(!isPaused);
       toast({
         title: isPaused ? "Project Resumed" : "Project Paused",
-        description: isPaused 
+        description: isPaused
           ? "Collaborators can now access and edit the project"
           : "Project access has been temporarily restricted",
       });
@@ -267,13 +270,13 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
         <div className="h-[calc(200px-41px)] grid grid-rows-[1fr_auto]">
           <ScrollArea className="p-2">
             {messages.map((message, index) => (
-              <div 
+              <div
                 key={message.id || index}
                 className={`mb-2 ${message.sender.id === user?.id ? 'text-right' : ''}`}
               >
                 <div className={`inline-block max-w-[70%] px-3 py-2 rounded-lg ${
-                  message.sender.id === user?.id 
-                    ? 'bg-primary text-primary-foreground ml-auto' 
+                  message.sender.id === user?.id
+                    ? 'bg-primary text-primary-foreground ml-auto'
                     : 'bg-muted'
                 }`}>
                   <p className="text-sm font-medium">{message.sender.username}</p>

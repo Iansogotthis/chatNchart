@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { db } from "../db";
 import { sql } from "drizzle-orm";
+import { setupWebSocket } from "./websocket";
 
 const app = express();
 app.use(express.json());
@@ -43,7 +44,11 @@ async function startServer() {
       throw new Error("Failed to connect to database");
     }
 
+    // Create HTTP server first
     const server = registerRoutes(app);
+
+    // Setup WebSocket server with existing HTTP server
+    setupWebSocket(server);
 
     // Enhanced error handling middleware
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -75,17 +80,32 @@ async function startServer() {
     // Start server with port handling
     const port = parseInt(process.env.PORT || '3002', 10);
 
-    server.listen(port, '0.0.0.0', () => {
-      log(`Server running on port ${port}`);
-    }).on('error', (error: any) => {
-      if (error.code === 'EADDRINUSE') {
-        log(`Port ${port} is already in use. Please use a different port.`);
-        process.exit(1);
-      } else {
-        console.error('Server error:', error);
-        process.exit(1);
+    // Function to try starting the server on a different port if the current one is in use
+    const startServerOnPort = async (currentPort: number, retries = 3): Promise<void> => {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          server.listen(currentPort, '0.0.0.0', () => {
+            log(`Server running on port ${currentPort}`);
+            resolve();
+          }).on('error', (error: any) => {
+            if (error.code === 'EADDRINUSE' && retries > 0) {
+              log(`Port ${currentPort} is in use, trying port ${currentPort + 1}`);
+              server.close();
+              startServerOnPort(currentPort + 1, retries - 1).then(resolve).catch(reject);
+            } else {
+              reject(error);
+            }
+          });
+        });
+      } catch (error) {
+        if (retries === 0) {
+          throw new Error(`Failed to find an available port after ${3} attempts`);
+        }
+        throw error;
       }
-    });
+    };
+
+    await startServerOnPort(port);
 
   } catch (error) {
     log("Failed to start server:", error instanceof Error ? error.message : String(error));

@@ -26,34 +26,22 @@ interface Collaborator {
   accessLevel: string;
 }
 
-interface ProjectWithDetails {
-  id: number;
-  name: string;
-  status: string;
-  createdAt: Date;
-  chart: {
-    id: number;
-    title: string;
-    data: any;
-  } | null;
-  creator: {
-    id: number;
-    username: string;
-  } | null;
-}
-
 export function registerRoutes(app: Express) {
   setupAuth(app);
-  const httpServer = createServer(app);
 
   app.use("/api/messages", messageRoutes);
   app.use("/api/users", userRoutes);
 
   // Project routes
   app.get("/api/projects", async (req, res) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+    if (!req.user) {
+      console.log('Unauthorized access attempt to /api/projects');
+      return res.status(401).json({ error: "Not authenticated" });
+    }
 
     try {
+      console.log(`Fetching projects for user ${req.user.id}`);
+
       // First get user's own projects
       const ownProjects = await db
         .select({
@@ -114,10 +102,55 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  app.post("/api/projects", async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+
+    try {
+      console.log('Creating new project:', req.body);
+      const { name, chartId, collaborators } = req.body;
+
+      // Create the project
+      const [project] = await db.insert(projects).values({
+        name,
+        chartId,
+        userId: req.user.id,
+        status: 'active'
+      }).returning();
+
+      // Add collaborators if any
+      if (collaborators && Array.isArray(collaborators) && collaborators.length > 0) {
+        await db.insert(projectCollaborators).values(
+          collaborators.map(collab => ({
+            projectId: project.id,
+            userId: collab.id,
+            accessLevel: collab.accessLevel
+          }))
+        );
+
+        // Add notifications for collaborators
+        await db.insert(notifications).values(
+          collaborators.map(collab => ({
+            userId: collab.id,
+            type: 'project_invitation',
+            sourceId: project.id,
+          }))
+        );
+      }
+
+      console.log('Project created successfully:', project);
+      res.json(project);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      res.status(500).json({ error: 'Failed to create project' });
+    }
+  });
+
   app.get("/api/projects/:id", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
+      console.log(`Fetching project ${req.params.id} for user ${req.user.id}`);
+
       // First try to find project where user is owner
       let project = await db
         .select({
@@ -183,55 +216,11 @@ export function registerRoutes(app: Express) {
         creator: project[0].creator?.id ? project[0].creator : null
       };
 
+      console.log('Project found:', formattedProject);
       res.json(formattedProject);
     } catch (error) {
       console.error('Error fetching project:', error);
       res.status(500).json({ error: 'Failed to fetch project' });
-    }
-  });
-
-  app.post("/api/projects", async (req, res) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-
-    try {
-      const { name, chartId, collaborators } = req.body as {
-        name: string;
-        chartId: number;
-        collaborators: Collaborator[];
-      };
-
-      // Create the project
-      const [project] = await db.insert(projects).values({
-        name,
-        chartId,
-        userId: req.user.id,
-        status: 'active'
-      }).returning();
-
-      // Add collaborators if any
-      if (collaborators && Array.isArray(collaborators) && collaborators.length > 0) {
-        await db.insert(projectCollaborators).values(
-          collaborators.map((collab: Collaborator) => ({
-            projectId: project.id,
-            userId: collab.id,
-            accessLevel: collab.accessLevel
-          }))
-        );
-
-        // Add notifications for collaborators
-        await db.insert(notifications).values(
-          collaborators.map((collab: Collaborator) => ({
-            userId: collab.id,
-            type: 'project_invitation',
-            sourceId: project.id,
-          }))
-        );
-      }
-
-      res.json(project);
-    } catch (error) {
-      console.error('Error creating project:', error);
-      res.status(500).json({ error: 'Failed to create project' });
     }
   });
 
@@ -769,5 +758,7 @@ export function registerRoutes(app: Express) {
     res.json(userFriends);
   });
 
+  // Create the HTTP server after registering all routes
+  const httpServer = createServer(app);
   return httpServer;
 }

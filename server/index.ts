@@ -54,8 +54,13 @@ async function startServer() {
     }
 
     // Create HTTP server first
-    const port = parseInt(process.env.PORT || '3002', 10);
+    const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3002;
+    app.set('port', port);
     const server = registerRoutes(app);
+    
+    server.listen(port, '0.0.0.0', () => {
+      log(`Server running on port ${port}`);
+    });
 
     // Setup WebSocket server with existing HTTP server and session
     try {

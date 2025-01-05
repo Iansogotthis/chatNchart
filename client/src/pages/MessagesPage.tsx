@@ -30,7 +30,6 @@ import { format } from "date-fns";
 import { Link } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-
 interface User {
   id: number;
   username: string;
@@ -43,6 +42,10 @@ interface Message {
   receiverId: number;
   isRead: boolean;
   createdAt: string;
+  messageType: 'direct' | 'group' | 'system' | 'notification' | 'project';
+  status: 'unread' | 'read' | 'archived';
+  isImportant: boolean;
+  isDraft: boolean;
 }
 
 interface Conversation {
@@ -53,17 +56,16 @@ interface Conversation {
   lastMessage: string | null;
 }
 
-
 export default function MessagesPage() {
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [composeOpen, setComposeOpen] = useState(false);
-const [messageType, setMessageType] = useState<Message['messageType']>('DM');
-const [filter, setFilter] = useState<'all' | 'unread' | 'important' | 'sent' | 'drafts'>('all');
-const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
-const [folders, setFolders] = useState<string[]>(['storage', 'notations', 'private']);
+  const [messageType, setMessageType] = useState<Message['messageType']>('direct');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'important' | 'sent' | 'drafts'>('all');
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [folders, setFolders] = useState<string[]>(['storage', 'notations', 'private']);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [messageContent, setMessageContent] = useState("");

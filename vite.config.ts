@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
@@ -10,6 +11,11 @@ const __dirname = dirname(__filename);
 export default defineConfig({
   server: {
     host: '0.0.0.0',
+    hmr: {
+      protocol: 'wss',
+      host: '0.0.0.0',
+      port: 3000,
+    },
   },
   plugins: [react(), runtimeErrorOverlay(), themePlugin()],
   build: {
@@ -30,13 +36,6 @@ export default defineConfig({
     },
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
-  },
-  server: {
-    hmr: {
-      protocol: 'wss',
-      host: '0.0.0.0',
-      port: 3000,
-    },
   },
   resolve: {
     alias: {

@@ -4,6 +4,19 @@ import { db } from '../db';
 import { chatMessages, users, projectCollaborators, projects } from '../db/schema';
 import { eq, and, or } from 'drizzle-orm';
 import { sessionStore } from './session';
+import type { SessionData } from 'express-session';
+
+interface ExtendedWebSocket extends WebSocket {
+  isAlive: boolean;
+  userId?: number;
+  projectId?: number;
+}
+
+interface ExtendedSessionData extends SessionData {
+  passport?: {
+    user: number;
+  };
+}
 
 interface ChatMessage {
   projectId: number;
@@ -17,7 +30,6 @@ export function setupWebSocket(server: Server) {
     path: '/ws/projects',
     verifyClient: async (info, callback) => {
       try {
-        // Get session ID from cookie
         const cookieString = info.req.headers.cookie;
         if (!cookieString) {
           console.error('No cookie found in WebSocket request');
@@ -25,37 +37,53 @@ export function setupWebSocket(server: Server) {
           return;
         }
 
-        // Parse session ID from connect.sid cookie
-        const sessionCookie = cookieString
-          .split(';')
-          .find(c => c.trim().startsWith('connect.sid='));
+        // Parse cookies into an object
+        const cookies = Object.fromEntries(
+          cookieString.split(';')
+            .map(cookie => cookie.trim().split('='))
+            .map(([key, value]) => [key, decodeURIComponent(value)])
+        );
 
-        if (!sessionCookie) {
-          console.error('No session cookie found');
+        // Get session ID from connect.sid cookie
+        const connectSid = cookies['connect.sid'];
+        if (!connectSid) {
+          console.error('No connect.sid cookie found');
           callback(false, 401, 'Unauthorized');
           return;
         }
 
-        const sessionId = decodeURIComponent(sessionCookie.split('=')[1]);
+        const sessionId = connectSid.split('.')[0].replace('s:', '');
 
-        // Verify session exists in store
-        sessionStore.get(sessionId, (err, session) => {
-          if (err || !session) {
-            console.error('Invalid session:', err || 'Session not found');
-            callback(false, 401, 'Unauthorized');
-            return;
-          }
+        // Verify session and user
+        return new Promise((resolve) => {
+          sessionStore.get(sessionId, (err: any, session: ExtendedSessionData | null) => {
+            if (err) {
+              console.error('Session store error:', err);
+              callback(false, 500, 'Internal server error');
+              resolve();
+              return;
+            }
 
-          const userId = session.passport?.user;
-          if (!userId) {
-            console.error('No user ID in session');
-            callback(false, 401, 'Unauthorized');
-            return;
-          }
+            if (!session) {
+              console.error('No session found for ID:', sessionId);
+              callback(false, 401, 'Unauthorized');
+              resolve();
+              return;
+            }
 
-          // Add user ID to request for later use
-          (info.req as any).userId = userId;
-          callback(true);
+            const userId = session.passport?.user;
+            if (!userId) {
+              console.error('No user ID in session');
+              callback(false, 401, 'Unauthorized');
+              resolve();
+              return;
+            }
+
+            // Store userId in request object for later use
+            (info.req as any).userId = userId;
+            callback(true);
+            resolve();
+          });
         });
 
       } catch (error) {
@@ -66,21 +94,44 @@ export function setupWebSocket(server: Server) {
   });
 
   // Store project rooms as a map of projectId to set of WebSocket connections
-  const projectRooms = new Map<number, Set<WebSocket>>();
+  const projectRooms = new Map<number, Set<ExtendedWebSocket>>();
 
-  wss.on('connection', async (ws, req) => {
-    // Extract project ID from URL path (/ws/projects/:id/chat)
-    const match = req.url?.match(/\/(\d+)\/chat/);
-    if (!match) {
-      console.error('Invalid WebSocket URL:', req.url);
-      ws.close(1002, 'Invalid project ID');
-      return;
-    }
+  // Ping/Pong to keep connections alive
+  const interval = setInterval(() => {
+    wss.clients.forEach((ws: ExtendedWebSocket) => {
+      if (!ws.isAlive) {
+        ws.terminate();
+        return;
+      }
+      ws.isAlive = false;
+      ws.ping();
+    });
+  }, 30000);
 
-    const projectId = parseInt(match[1]);
-    const userId = (req as any).userId;
+  wss.on('close', () => {
+    clearInterval(interval);
+  });
+
+  wss.on('connection', async (ws: ExtendedWebSocket, req) => {
+    ws.isAlive = true;
+    ws.on('pong', () => { ws.isAlive = true; });
 
     try {
+      // Extract project ID from URL path (/ws/projects/:id/chat)
+      const match = req.url?.match(/\/(\d+)\/chat/);
+      if (!match) {
+        console.error('Invalid WebSocket URL:', req.url);
+        ws.close(1002, 'Invalid project ID');
+        return;
+      }
+
+      const projectId = parseInt(match[1]);
+      const userId = (req as any).userId;
+
+      // Store IDs in WebSocket instance
+      ws.userId = userId;
+      ws.projectId = projectId;
+
       // Check if user is either the project owner or a collaborator
       const [hasAccess] = await db
         .select({ id: projects.id })
@@ -116,6 +167,28 @@ export function setupWebSocket(server: Server) {
         type: 'connection',
         message: 'Connected successfully'
       }));
+
+      // Load recent messages
+      const recentMessages = await db
+        .select({
+          id: chatMessages.id,
+          content: chatMessages.content,
+          timestamp: chatMessages.createdAt,
+          sender: {
+            id: users.id,
+            username: users.username,
+          }
+        })
+        .from(chatMessages)
+        .where(eq(chatMessages.projectId, projectId))
+        .leftJoin(users, eq(chatMessages.senderId, users.id))
+        .orderBy(chatMessages.createdAt)
+        .limit(50);
+
+      // Send recent messages to the newly connected client
+      recentMessages.forEach(message => {
+        ws.send(JSON.stringify(message));
+      });
 
       ws.on('message', async (data) => {
         try {
@@ -169,11 +242,13 @@ export function setupWebSocket(server: Server) {
 
       // Handle client disconnect
       ws.on('close', () => {
-        projectRooms.get(projectId)?.delete(ws);
-        if (projectRooms.get(projectId)?.size === 0) {
-          projectRooms.delete(projectId);
+        if (ws.projectId) {
+          projectRooms.get(ws.projectId)?.delete(ws);
+          if (projectRooms.get(ws.projectId)?.size === 0) {
+            projectRooms.delete(ws.projectId);
+          }
         }
-        console.log(`User ${userId} disconnected from project ${projectId} chat`);
+        console.log(`User ${ws.userId} disconnected from project ${ws.projectId} chat`);
       });
 
     } catch (error) {

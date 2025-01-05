@@ -28,10 +28,8 @@ interface CollaborationProjectViewProps {
 }
 
 export function CollaborationProjectView({ id }: CollaborationProjectViewProps) {
-  const { toast } = useToast();
-  const { user } = useUser();
-  const [leftNavOpen, setLeftNavOpen] = useState(false); // Start hidden
-  const [rightNavOpen, setRightNavOpen] = useState(false); // Start hidden
+  const [leftNavOpen, setLeftNavOpen] = useState(false);
+  const [rightNavOpen, setRightNavOpen] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -41,30 +39,52 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const maxReconnectAttempts = 5;
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+
+  const { toast } = useToast();
+  const { user } = useUser();
 
   const { data: project } = useQuery<Project>({
-    queryKey: [`/api/projects/${id}`],
+    queryKey: [`projects/${id}`],
     queryFn: async () => {
-      const response = await fetch(`/api/projects/${id}`);
+      const response = await fetch(`/api/projects/${id}`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Failed to fetch project');
       return response.json();
     },
   });
 
   const connectWebSocket = () => {
-    if (isConnecting) return;
+    if (isConnecting || !user || reconnectAttempts >= maxReconnectAttempts) {
+      if (reconnectAttempts >= maxReconnectAttempts) {
+        toast({
+          title: "Connection Failed",
+          description: "Maximum reconnection attempts reached. Please refresh the page.",
+          variant: "destructive",
+        });
+      }
+      return;
+    }
+
     setIsConnecting(true);
+    setWsError(null);
 
     try {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = window.location.host;
-      const ws = new WebSocket(`${protocol}//${host}/ws/projects/${id}/chat`);
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsHost = window.location.host;
+      const wsUrl = `${wsProtocol}//${wsHost}/ws/projects/${id}/chat`;
+      console.log('Connecting to WebSocket:', wsUrl);
+
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
         console.log('WebSocket connected');
         setWsError(null);
         setIsConnecting(false);
+        setReconnectAttempts(0);
         toast({
           title: "Connected",
           description: "Chat connection established",
@@ -81,6 +101,10 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
               description: message.error,
               variant: "destructive",
             });
+            return;
+          }
+          if (message.type === 'connection') {
+            console.log('Connection confirmed:', message.message);
             return;
           }
           setMessages(prev => [...prev, message]);
@@ -107,13 +131,16 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
         setWsError('Connection closed');
         setIsConnecting(false);
 
-        // Attempt to reconnect after 5 seconds if page is visible and not already connecting
-        if (!isConnecting) {
-          reconnectTimeoutRef.current = setTimeout(() => {
-            if (document.visibilityState === 'visible') {
-              connectWebSocket();
-            }
-          }, 5000);
+        // Only attempt to reconnect if conditions are met
+        if (
+          user && 
+          document.visibilityState === 'visible' && 
+          !isConnecting && 
+          reconnectAttempts < maxReconnectAttempts
+        ) {
+          setReconnectAttempts(prev => prev + 1);
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000); // Exponential backoff
+          reconnectTimeoutRef.current = setTimeout(connectWebSocket, delay);
         }
       };
     } catch (error) {
@@ -129,18 +156,19 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   };
 
   useEffect(() => {
-    connectWebSocket();
+    if (user) {
+      connectWebSocket();
+    }
 
-    // Cleanup function
     return () => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.close();
       }
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [id]);
+  }, [id, user]);
 
   const sendMessage = () => {
     if (!messageInput.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -154,14 +182,12 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
       return;
     }
 
-    const messageData = {
-      content: messageInput.trim(),
-      projectId: id,
-      userId: user?.id,
-    };
-
     try {
-      wsRef.current.send(JSON.stringify(messageData));
+      wsRef.current.send(JSON.stringify({
+        content: messageInput.trim(),
+        projectId: id,
+        userId: user?.id,
+      }));
       setMessageInput("");
     } catch (error) {
       console.error('Error sending message:', error);
@@ -188,7 +214,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   return (
     <div className="h-screen flex flex-col">
       <div className="flex-1 grid grid-cols-[1fr] relative">
-        {/* Left Panel */}
+        {/* Left Panel - Hidden by default */}
         <div
           className={cn(
             "fixed left-0 top-0 h-full w-[250px] bg-background border-r",
@@ -254,7 +280,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
           )}
         </main>
 
-        {/* Right Panel */}
+        {/* Right Panel - Hidden by default */}
         <div
           className={cn(
             "fixed right-0 top-0 h-full w-[250px] bg-background border-l",

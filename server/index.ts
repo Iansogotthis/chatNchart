@@ -54,6 +54,7 @@ async function startServer() {
     }
 
     // Create HTTP server first
+    const port = parseInt(process.env.PORT || '3002', 10);
     const server = registerRoutes(app);
 
     // Setup WebSocket server with existing HTTP server and session
@@ -94,7 +95,6 @@ async function startServer() {
       app.use(vite.middlewares);
     }
 
-    const port = parseInt(process.env.PORT || '3002', 10);
     server.listen(port, '0.0.0.0', () => {
       log(`Server running on port ${port}`);
     });

@@ -11,14 +11,29 @@ interface ChatMessage {
 }
 
 export function setupWebSocket(server: Server) {
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ 
+    server,
+    path: '/ws/projects',
+    verifyClient: (info, callback) => {
+      // Extract session from request
+      const session = (info.req as any).session;
+      const isAuthenticated = session?.passport?.user;
+
+      if (!isAuthenticated) {
+        callback(false, 401, 'Unauthorized');
+        return;
+      }
+
+      callback(true);
+    }
+  });
 
   // Store project rooms as a map of projectId to set of WebSocket connections
   const projectRooms = new Map<number, Set<WebSocket>>();
 
   wss.on('connection', async (ws, req) => {
     // Extract project ID from URL path (/ws/projects/:id/chat)
-    const match = req.url?.match(/\/ws\/projects\/(\d+)\/chat/);
+    const match = req.url?.match(/\/(\d+)\/chat/);
     if (!match) {
       console.error('Invalid WebSocket URL:', req.url);
       ws.close();
@@ -27,13 +42,6 @@ export function setupWebSocket(server: Server) {
 
     const projectId = parseInt(match[1]);
     const userId = (req as any).session?.passport?.user;
-
-    // Security check: Verify user is authenticated and has access to the project
-    if (!userId) {
-      console.error('Unauthenticated WebSocket connection attempt');
-      ws.close();
-      return;
-    }
 
     try {
       // Check if user is either the project owner or a collaborator
@@ -63,6 +71,8 @@ export function setupWebSocket(server: Server) {
         projectRooms.set(projectId, new Set());
       }
       projectRooms.get(projectId)?.add(ws);
+
+      console.log(`User ${userId} connected to project ${projectId} chat`);
 
       ws.on('message', async (data) => {
         try {
@@ -118,6 +128,7 @@ export function setupWebSocket(server: Server) {
         if (projectRooms.get(projectId)?.size === 0) {
           projectRooms.delete(projectId);
         }
+        console.log(`User ${userId} disconnected from project ${projectId} chat`);
       });
 
     } catch (error) {

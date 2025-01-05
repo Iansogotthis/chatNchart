@@ -1,9 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { log } from "./vite";
 import { db } from "../db";
 import { sql } from "drizzle-orm";
 import { setupWebSocket } from "./websocket";
+import { createServer } from "vite";
 
 const app = express();
 app.use(express.json());
@@ -69,16 +70,21 @@ async function startServer() {
       }
     });
 
-    if (app.get("env") === "development") {
+    // Setup Vite in development mode
+    if (process.env.NODE_ENV !== 'production') {
       log("Setting up Vite development server...");
-      await setupVite(app, server);
-    } else {
-      log("Setting up static file serving...");
-      serveStatic(app);
-    }
+      const vite = await createServer({
+        server: { 
+          middlewareMode: true,
+          hmr: {
+            server: server
+          }
+        },
+        appType: 'spa',
+      });
 
-    // Start server with port handling
-    const port = parseInt(process.env.PORT || '3002', 10);
+      app.use(vite.middlewares);
+    }
 
     // Function to try starting the server on a different port if the current one is in use
     const startServerOnPort = async (currentPort: number, retries = 3): Promise<void> => {
@@ -105,6 +111,7 @@ async function startServer() {
       }
     };
 
+    const port = parseInt(process.env.PORT || '3002', 10);
     await startServerOnPort(port);
 
   } catch (error) {

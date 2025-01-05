@@ -36,8 +36,10 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   const [isPaused, setIsPaused] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
+  const [wsError, setWsError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   const { data: project } = useQuery<Project>({
     queryKey: [`/api/projects/${id}`],
@@ -48,38 +50,104 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
     },
   });
 
-useEffect(() => {
-    // Connect to WebSocket for real-time chat
-    // Use secure WebSocket if in production or loaded over HTTPS
-    const isProduction = process.env.NODE_ENV === 'production';
-    const protocol = isProduction || window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/projects/${id}/chat`);
-    wsRef.current = ws;
+  const connectWebSocket = () => {
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      const ws = new WebSocket(`${protocol}//${host}/ws/projects/${id}/chat`);
+      wsRef.current = ws;
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setMessages(prev => [...prev, message]);
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        setWsError(null);
+      };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      toast({
-        title: "Connection Error",
-        description: "Failed to connect to chat. Please try refreshing the page.",
-        variant: "destructive",
-      });
-    };
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          setMessages(prev => [...prev, message]);
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        } catch (error) {
+          console.error('Error parsing message:', error);
+          setWsError('Failed to parse message');
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setWsError('Connection error');
+        toast({
+          title: "Connection Error",
+          description: "Failed to connect to chat. Attempting to reconnect...",
+          variant: "destructive",
+        });
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket connection closed');
+        setWsError('Connection closed');
+
+        // Attempt to reconnect after 5 seconds
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (document.visibilityState === 'visible') {
+            connectWebSocket();
+          }
+        }, 5000);
+      };
+    } catch (error) {
+      console.error('Error creating WebSocket:', error);
+      setWsError('Failed to create connection');
+    }
+  };
+
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
-      ws.close();
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
-  }, [id, toast]);
+  }, [id]);
+
+  const sendMessage = () => {
+    if (!messageInput.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      if (wsError) {
+        toast({
+          title: "Connection Error",
+          description: "Unable to send message. Please wait for reconnection.",
+          variant: "destructive",
+        });
+      }
+      return;
+    }
+
+    const messageData = {
+      content: messageInput,
+      projectId: id,
+      userId: user?.id,
+    };
+
+    try {
+      wsRef.current.send(JSON.stringify(messageData));
+      setMessageInput("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleTimelineView = async () => {
     const save = window.confirm(
       "Would you like to save this project at its current timestamp before continuing to view this project's timeline?\n\n" +
-      "Please note: This will erase all changes to this project since the last timestamp was saved before proceeding to view the project's timeline."
+        "Please note: This will erase all changes to this project since the last timestamp was saved before proceeding to view the project's timeline."
     );
 
     if (save) {
@@ -121,24 +189,12 @@ useEffect(() => {
     }
   };
 
-  const sendMessage = () => {
-    if (!messageInput.trim() || !wsRef.current) return;
-
-    wsRef.current.send(JSON.stringify({
-      content: messageInput,
-      projectId: id,
-      userId: user?.id,
-    }));
-
-    setMessageInput("");
-  };
 
   if (!project) return null;
 
   return (
     <div className="h-screen flex flex-col">
       <div className="flex-1 grid grid-cols-[auto_1fr_auto]">
-        {/* Left Navbar */}
         <Sheet open={leftNavOpen} onOpenChange={setLeftNavOpen}>
           <SheetContent side="left" className="w-[250px] p-0">
             <div className="p-4 space-y-4">
@@ -172,7 +228,6 @@ useEffect(() => {
           </SheetContent>
         </Sheet>
 
-        {/* Main Content */}
         <main className="relative">
           <Button
             variant="ghost"
@@ -195,7 +250,6 @@ useEffect(() => {
           {project.chart && <ChartVisualization chart={project.chart} />}
         </main>
 
-        {/* Right Navbar */}
         <Sheet open={rightNavOpen} onOpenChange={setRightNavOpen}>
           <SheetContent side="right" className="w-[250px] p-0">
             <div className="p-4 space-y-4">
@@ -261,11 +315,17 @@ useEffect(() => {
         </Sheet>
       </div>
 
-      {/* Chat Interface */}
       <div className="h-[200px] border-t">
         <div className="flex items-center justify-between p-2 border-b bg-background">
           <h3 className="font-medium">Project Chat</h3>
-          <MessageSquare className="h-4 w-4" />
+          <div className="flex items-center gap-2">
+            {wsError && (
+              <span className="text-sm text-red-500">
+                {wsError}
+              </span>
+            )}
+            <MessageSquare className="h-4 w-4" />
+          </div>
         </div>
         <div className="h-[calc(200px-41px)] grid grid-rows-[1fr_auto]">
           <ScrollArea className="p-2">
@@ -296,8 +356,13 @@ useEffect(() => {
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="Type a message..."
               className="flex-1"
+              disabled={!!wsError}
             />
-            <Button size="icon" onClick={sendMessage}>
+            <Button
+              size="icon"
+              onClick={sendMessage}
+              disabled={!!wsError}
+            >
               <Send className="h-4 w-4" />
             </Button>
           </div>

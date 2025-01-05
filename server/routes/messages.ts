@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { db } from "../../db";
 import { messages, notifications, users } from "../../db/schema";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, desc } from "drizzle-orm";
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 
 const router = Router();
 
-// Message validation schema
+// Message validation schema with improved validation
 const messageSchema = z.object({
-  content: z.string().min(1, "Message cannot be empty"),
+  content: z.string().min(1, "Message cannot be empty").max(2000, "Message too long"),
   receiverId: z.number().int().positive("Invalid receiver ID"),
   messageType: z.enum(['direct', 'group', 'system', 'notification', 'project']).default('direct'),
   metadata: z.record(z.any()).optional(),
@@ -19,7 +19,10 @@ const messageSchema = z.object({
 const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.isAuthenticated() || !req.user) {
-      return res.status(401).json({ message: "Unauthorized", details: "Session invalid or expired" });
+      return res.status(401).json({ 
+        message: "Unauthorized", 
+        details: "Please log in to continue" 
+      });
     }
     next();
   } catch (error) {
@@ -28,7 +31,7 @@ const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// Get all messages for current user
+// Get all messages for current user with better error handling
 router.get("/", requireAuth, async (req, res, next) => {
   try {
     const userId = req.user!.id;
@@ -36,12 +39,64 @@ router.get("/", requireAuth, async (req, res, next) => {
       .select()
       .from(messages)
       .where(or(eq(messages.senderId, userId), eq(messages.receiverId, userId)))
-      .orderBy(messages.createdAt);
+      .orderBy(desc(messages.createdAt));
 
     res.json(userMessages);
   } catch (error) {
     console.error("Error fetching messages:", error);
-    next(error);
+    res.status(500).json({
+      message: "Failed to fetch messages",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
+});
+
+// Get conversations list with latest messages
+router.get("/conversations", requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user!.id;
+
+    // Get all messages involving the current user
+    const userMessages = await db
+      .select({
+        messages: messages,
+        sender: users,
+        receiver: users
+      })
+      .from(messages)
+      .where(or(
+        eq(messages.senderId, userId),
+        eq(messages.receiverId, userId)
+      ))
+      .leftJoin(users, eq(messages.senderId, users.id))
+      .leftJoin(users, eq(messages.receiverId, users.id))
+      .orderBy(desc(messages.createdAt));
+
+    // Transform into conversations
+    const conversations = userMessages.reduce((acc: any[], msg) => {
+      const otherUser = msg.senderId === userId ? msg.receiver : msg.sender;
+      const existingConvo = acc.find(c => c.participantId === otherUser.id);
+
+      if (!existingConvo && otherUser) {
+        acc.push({
+          id: msg.id,
+          participantId: otherUser.id,
+          participantName: otherUser.username,
+          lastMessageAt: msg.createdAt,
+          lastMessage: msg.content
+        });
+      }
+
+      return acc;
+    }, []);
+
+    res.json(conversations);
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    res.status(500).json({
+      message: "Failed to fetch conversations",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
   }
 });
 
@@ -55,7 +110,6 @@ router.get("/direct/:friendId", requireAuth, async (req, res, next) => {
       return res.status(400).json({ message: "Invalid friend ID" });
     }
 
-    // First verify if the friend exists
     const [friend] = await db
       .select()
       .from(users)
@@ -66,26 +120,31 @@ router.get("/direct/:friendId", requireAuth, async (req, res, next) => {
       return res.status(404).json({ message: "Friend not found" });
     }
 
-    // Get messages between the two users
     const directMessages = await db
       .select()
       .from(messages)
       .where(
-        or(
-          and(eq(messages.senderId, userId), eq(messages.receiverId, friendId)),
-          and(eq(messages.senderId, friendId), eq(messages.receiverId, userId))
+        and(
+          or(
+            and(eq(messages.senderId, userId), eq(messages.receiverId, friendId)),
+            and(eq(messages.senderId, friendId), eq(messages.receiverId, userId))
+          ),
+          eq(messages.messageType, 'direct')
         )
       )
-      .orderBy(messages.createdAt);
+      .orderBy(desc(messages.createdAt));
 
     res.json(directMessages);
   } catch (error) {
     console.error("Error fetching direct messages:", error);
-    next(error);
+    res.status(500).json({
+      message: "Failed to fetch messages",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
   }
 });
 
-// Send a direct message
+// Send a direct message with improved validation and error handling
 router.post("/direct", requireAuth, async (req, res, next) => {
   try {
     const validation = messageSchema.safeParse(req.body);
@@ -97,9 +156,8 @@ router.post("/direct", requireAuth, async (req, res, next) => {
       });
     }
 
-    const { receiverId, content } = validation.data;
+    const { receiverId, content, messageType = 'direct', metadata = {} } = validation.data;
 
-    // Check if receiver exists
     const [receiver] = await db
       .select()
       .from(users)
@@ -110,13 +168,15 @@ router.post("/direct", requireAuth, async (req, res, next) => {
       return res.status(404).json({ message: "Receiver not found" });
     }
 
-    // Create the message
+    // Create the message with proper type
     const [newMessage] = await db
       .insert(messages)
       .values({
         senderId: req.user!.id,
-        receiverId: receiverId,
+        receiverId,
         content: content.trim(),
+        messageType,
+        metadata,
         isRead: false,
         status: 'unread',
         isImportant: false,
@@ -135,37 +195,10 @@ router.post("/direct", requireAuth, async (req, res, next) => {
     res.status(201).json(newMessage);
   } catch (error) {
     console.error("Error sending message:", error);
-    next(error);
-  }
-});
-
-// Mark messages as read
-router.put("/read", requireAuth, async (req, res, next) => {
-  try {
-    const { messageIds } = req.body;
-    if (!messageIds || !Array.isArray(messageIds)) {
-      return res.status(400).json({ message: "Invalid message IDs" });
-    }
-
-    // Only update messages where the current user is the recipient
-    const [updatedMessages] = await db
-      .update(messages)
-      .set({ 
-        isRead: true,
-        status: 'read'
-      })
-      .where(
-        and(
-          eq(messages.receiverId, req.user!.id),
-          or(...messageIds.map(id => eq(messages.id, id)))
-        )
-      )
-      .returning();
-
-    res.json({ message: "Messages marked as read", updatedMessages });
-  } catch (error) {
-    console.error("Error marking messages as read:", error);
-    next(error);
+    res.status(500).json({
+      message: "Failed to send message",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
   }
 });
 

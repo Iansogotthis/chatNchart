@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { setupAuth } from "./auth";
 import { db } from "../db";
 import messageRoutes from "./routes/messages";
+import userRoutes from "./routes/users";
 import {
   charts,
   savedCharts,
@@ -21,8 +22,9 @@ export function registerRoutes(app: Express) {
   setupAuth(app);
   const httpServer = createServer(app);
 
-  // Register message routes as middleware with proper error handling
+  // Register routes as middleware with proper error handling
   app.use("/api/messages", messageRoutes);
+  app.use("/api/users", userRoutes);
 
   app.get("/api/users/search", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });

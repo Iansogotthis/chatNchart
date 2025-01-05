@@ -1,0 +1,2233 @@
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. Error Component Stack
+    at DescriptionWarning (Dialog.tsx:531:66)
+    at Dialog.tsx:383:13
+    at Dialog.tsx:258:58
+    at Presence (Presence.tsx:12:11)
+    at Dialog.tsx:233:64
+    at Slot.tsx:61:11
+    at Slot.tsx:13:11
+    at Primitive.tsx:38:13
+    at Portal.tsx:22:22
+    at Presence (Presence.tsx:12:11)
+    at Provider (createContext.tsx:59:15)
+    at DialogPortal (Dialog.tsx:145:11)
+    at _c3 (dialog.tsx:33:6)
+    at Provider (createContext.tsx:59:15)
+    at Dialog (Dialog.tsx:52:5)
+    at SearchFriends (SearchFriends.tsx:26:33)
+    at div (<anonymous>)
+    at header (<anonymous>)
+    at div (<anonymous>)
+    at FriendsPage (FriendsPage.tsx:15:20)
+    at Route (index.js:227:18)
+    at Switch (index.js:314:19)
+    at Suspense (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at Provider (createContext.tsx:59:15)
+    at TooltipProvider (Tooltip.tsx:68:5)
+    at App (App.tsx:38:39)
+    at QueryClientProvider (QueryClientProvider.tsx:30:3)
+overrideMethod @ hook.js:608Understand this warningAI
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:608Understand this warningAI
+api/users/4:1 
+        
+        
+       Failed to load resource: the server responded with a status of 404 (Not Found)Understand this errorAI
+hook.js:608 Error fetching user details: Error: Failed to fetch user details
+    at MessagesPage.tsx:136:30
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error sending message: Error: {"message":"column \"message_type\" of relation \"messages\" does not exist","stack":"error: column \"message_type\" of relation \"messages\" does not exist\n    at file:///home/runner/ProjectNavigator/node_modules/@neondatabase/serverless/index.mjs:1345:74\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async NeonPreparedQuery.execute (/home/runner/ProjectNavigator/node_modules/src/neon-serverless/session.ts:102:18)\n    at async <anonymous> (/home/runner/ProjectNavigator/server/routes/messages.ts:114:26)","details":{}}
+    at Object.mutationFn (MessagesPage.tsx:103:15)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+api/messages/direct/1:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this errorAI
+hook.js:608 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:50 
+        
+        
+       GET https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3001/api/messages/direct/1 500 (Internal Server Error)
+queryFn @ Messages.tsx:50
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI
+Messages.tsx:62 Error fetching messages: Error: column "message_type" does not exist
+    at queryFn (Messages.tsx:58:17)
+overrideMethod @ hook.js:608
+queryFn @ Messages.tsx:62
+await in queryFn
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409
+setInterval
+updateRefetchInterval_fn @ queryObserver.ts:404
+updateTimers_fn @ queryObserver.ts:416
+onQueryUpdate @ queryObserver.ts:739
+(anonymous) @ query.ts:619
+(anonymous) @ query.ts:618
+batch @ notifyManager.ts:52
+dispatch_fn @ query.ts:617
+onError @ query.ts:465
+reject @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+(anonymous) @ retryer.ts:199
+Promise.then
+(anonymous) @ retryer.ts:195
+Promise.catch
+run @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+(anonymous) @ queryObserver.ts:409Understand this errorAI

@@ -4,17 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Messages } from "@/components/Messages";
 import {
   Mail,
-  Users,
   Send,
   Loader2,
-  Search,
   MailPlus,
 } from "lucide-react";
 import {
@@ -62,10 +59,6 @@ export default function MessagesPage() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [composeOpen, setComposeOpen] = useState(false);
-  const [messageType, setMessageType] = useState<Message['messageType']>('direct');
-  const [filter, setFilter] = useState<'all' | 'unread' | 'important' | 'sent' | 'drafts'>('all');
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
-  const [folders, setFolders] = useState<string[]>(['storage', 'notations', 'private']);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [messageContent, setMessageContent] = useState("");
@@ -95,7 +88,11 @@ export default function MessagesPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ receiverId, content }),
+        body: JSON.stringify({ 
+          receiverId, 
+          content,
+          messageType: 'direct'
+        }),
         credentials: 'include'
       });
       if (!response.ok) {
@@ -173,22 +170,27 @@ export default function MessagesPage() {
     }
   };
 
-  // Fetch conversations  (Replace with your actual fetch logic)
+  // Fetch conversations
   const { data: conversations = [], isLoading: isConversationsLoading } = useQuery({
     queryKey: ['conversations'],
-    queryFn: () => fetch('/api/conversations', { credentials: 'include' }).then(res => res.json())
+    queryFn: async () => {
+      const response = await fetch('/api/conversations', { credentials: 'include' });
+      if (!response.ok) {
+        throw new Error('Failed to fetch conversations');
+      }
+      return response.json();
+    }
   });
-
 
   return (
     <div className="container mx-auto max-w-6xl p-4 md:py-6">
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6 h-[calc(100vh-2rem)]">
-        {/* Sidebar - Enhanced for mobile */}
+        {/* Sidebar */}
         <Card className="lg:w-80 w-full flex-shrink-0">
           <CardContent className="p-4">
             <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
               <DialogTrigger asChild>
-                <Button className="w-full mb-4">
+                <Button className="w-full mb-4" aria-label="Compose new message">
                   <MailPlus className="mr-2 h-4 w-4" />
                   Compose
                 </Button>
@@ -250,6 +252,7 @@ export default function MessagesPage() {
                         onClick={handleSendMessage}
                         className="w-full"
                         disabled={sendMessageMutation.isPending}
+                        aria-label={sendMessageMutation.isPending ? "Sending message..." : "Send message"}
                       >
                         {sendMessageMutation.isPending ? (
                           <>
@@ -283,7 +286,10 @@ export default function MessagesPage() {
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${convo.participantName}`} />
+                        <AvatarImage 
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${convo.participantName}`}
+                          alt={convo.participantName} 
+                        />
                         <AvatarFallback>{convo.participantName[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -307,7 +313,7 @@ export default function MessagesPage() {
           </CardContent>
         </Card>
 
-        {/* Main Content - Enhanced for mobile */}
+        {/* Main Content */}
         <Card className="flex-1 flex flex-col h-full">
           <CardHeader className="border-b">
             <CardTitle className="text-xl font-semibold tracking-tight">

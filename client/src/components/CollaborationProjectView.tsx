@@ -18,7 +18,6 @@ import {
   Send,
   UserPlus,
   Crown,
-  ShieldCheck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -44,16 +43,6 @@ interface CollaboratorPresence {
   username: string;
   status: 'online' | 'offline';
   accessLevel: string;
-}
-
-interface ProjectStateChange {
-  type: 'project_state';
-  projectId: number;
-  state: 'active' | 'paused';
-  updatedBy: {
-    id: number;
-    username: string;
-  };
 }
 
 export function CollaborationProjectView({ id }: { id: number }) {
@@ -126,10 +115,11 @@ export function CollaborationProjectView({ id }: { id: number }) {
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          console.log('Received message:', message);
 
           switch (message.type) {
             case 'connection':
-              console.log('Connection confirmed:', message.message);
+              console.log('Connection confirmed:', message);
               setUserAccessLevel(message.accessLevel);
               break;
 
@@ -236,7 +226,7 @@ export function CollaborationProjectView({ id }: { id: number }) {
     }
   };
 
-  const handleProjectStateChange = (change: ProjectStateChange) => {
+  const handleProjectStateChange = (change: any) => {
     setIsPaused(change.state === 'paused');
     if (change.updatedBy.id !== user?.id) {
       toast({

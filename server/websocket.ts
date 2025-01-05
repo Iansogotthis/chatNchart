@@ -1,4 +1,3 @@
-
 import { WebSocket, WebSocketServer } from 'ws';
 import { Server } from 'http';
 import { db } from '../db';
@@ -39,10 +38,15 @@ interface CollaboratorPresence {
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
     noServer: true,
-    path: '/ws/projects'
   });
 
-  server.on('upgrade', (request, socket, head) => {
+  server.on('upgrade', async (request, socket, head) => {
+    // Only handle project-related WebSocket connections
+    if (!request.url?.startsWith('/ws/projects/')) {
+      socket.destroy();
+      return;
+    }
+
     try {
       const cookieString = request.headers.cookie;
       if (!cookieString) {
@@ -63,8 +67,8 @@ export function setupWebSocket(server: Server) {
       }
 
       const sessionId = connectSid.replace('s:', '').split('.')[0];
-      
-      sessionStore.get(sessionId, (err, session) => {
+
+      sessionStore.get(sessionId, async (err, session) => {
         if (err || !session) {
           socket.destroy();
           return;
@@ -72,16 +76,72 @@ export function setupWebSocket(server: Server) {
 
         const extendedSession = session as ExtendedSessionData;
         const userId = extendedSession.passport?.user;
-        
+
         if (!userId) {
           socket.destroy();
           return;
         }
 
-        const ws = new WebSocket(request, socket, head);
-        (ws as ExtendedWebSocket).userId = userId;
-        wss.emit('connection', ws);
-        console.log(`WebSocket connected for user ${userId}`);
+        try {
+          const [user] = await db
+            .select({
+              id: users.id,
+              username: users.username,
+            })
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1);
+
+          if (!user) {
+            socket.destroy();
+            return;
+          }
+
+          const match = request.url?.match(/\/ws\/projects\/(\d+)\/chat/);
+          if (!match) {
+            socket.destroy();
+            return;
+          }
+
+          const projectId = parseInt(match[1]);
+
+          // Verify project access
+          const [collaborator] = await db
+            .select({
+              accessLevel: projectCollaborators.accessLevel,
+            })
+            .from(projectCollaborators)
+            .where(and(
+              eq(projectCollaborators.projectId, projectId),
+              eq(projectCollaborators.userId, userId)
+            ))
+            .limit(1);
+
+          const [project] = await db
+            .select()
+            .from(projects)
+            .where(eq(projects.id, projectId))
+            .limit(1);
+
+          const accessLevel = project?.userId === userId ? 'owner' : collaborator?.accessLevel;
+
+          if (!accessLevel && project?.userId !== userId) {
+            socket.destroy();
+            return;
+          }
+
+          wss.handleUpgrade(request, socket, head, (ws) => {
+            const extWs = ws as ExtendedWebSocket;
+            extWs.userId = userId;
+            extWs.username = user.username;
+            extWs.projectId = projectId;
+            extWs.accessLevel = accessLevel || 'viewer';
+            wss.emit('connection', extWs);
+          });
+        } catch (error) {
+          console.error('Error in WebSocket authentication:', error);
+          socket.destroy();
+        }
       });
     } catch (error) {
       console.error('WebSocket upgrade error:', error);
@@ -91,46 +151,95 @@ export function setupWebSocket(server: Server) {
 
   const projectRooms = new Map<number, Set<ExtendedWebSocket>>();
 
-  wss.on('connection', async (ws: ExtendedWebSocket, req) => {
+  function broadcastToProject(projectId: number, message: any) {
+    const clients = projectRooms.get(projectId);
+    if (clients) {
+      const messageStr = JSON.stringify(message);
+      clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(messageStr);
+        }
+      });
+    }
+  }
+
+  wss.on('connection', async (ws: ExtendedWebSocket) => {
+    const { projectId, userId, username } = ws;
+
+    if (!projectId || !userId || !username) {
+      ws.close(1011, 'Missing connection information');
+      return;
+    }
+
     ws.isAlive = true;
     ws.on('pong', () => { ws.isAlive = true; });
 
-    try {
-      const match = req.url?.match(/\/(\d+)\/chat/);
-      if (!match) {
-        ws.close(1002, 'Invalid project ID');
-        return;
-      }
+    if (!projectRooms.has(projectId)) {
+      projectRooms.set(projectId, new Set());
+    }
+    projectRooms.get(projectId)?.add(ws);
 
-      const projectId = parseInt(match[1]);
-      const userId = (req as any).userId;
-      const username = (req as any).username;
+    // Send connection confirmation
+    ws.send(JSON.stringify({
+      type: 'connection',
+      message: 'Connected successfully',
+      accessLevel: ws.accessLevel
+    }));
 
-      if (!userId || !username) {
-        ws.close(1011, 'Missing user information');
-        return;
-      }
+    // Broadcast presence
+    broadcastToProject(projectId, {
+      type: 'presence',
+      userId,
+      username,
+      status: 'online',
+      accessLevel: ws.accessLevel
+    });
 
-      ws.userId = userId;
-      ws.projectId = projectId;
-      ws.username = username;
+    // Send current collaborators
+    const collaborators = Array.from(projectRooms.get(projectId) || []).map(client => ({
+      userId: client.userId,
+      username: client.username,
+      status: 'online',
+      accessLevel: client.accessLevel
+    }));
 
-      if (!projectRooms.has(projectId)) {
-        projectRooms.set(projectId, new Set());
-      }
-      projectRooms.get(projectId)?.add(ws);
+    ws.send(JSON.stringify({
+      type: 'collaborators',
+      collaborators
+    }));
 
-      ws.send(JSON.stringify({
-        type: 'connection',
-        message: 'Connected successfully'
-      }));
+    // Load recent messages
+    const recentMessages = await db
+      .select({
+        id: chatMessages.id,
+        content: chatMessages.content,
+        createdAt: chatMessages.createdAt,
+        sender: {
+          id: users.id,
+          username: users.username,
+        },
+      })
+      .from(chatMessages)
+      .where(eq(chatMessages.projectId, projectId))
+      .leftJoin(users, eq(chatMessages.senderId, users.id))
+      .limit(50);
 
-      ws.on('message', async (data) => {
-        try {
-          const message = JSON.parse(data.toString()) as ChatMessage;
-          const clients = projectRooms.get(projectId);
+    ws.send(JSON.stringify({
+      type: 'history',
+      messages: recentMessages
+    }));
 
-          if (clients && message.type === 'chat') {
+    ws.on('message', async (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+
+        switch (message.type) {
+          case 'chat': {
+            if (!message.content?.trim()) {
+              ws.send(JSON.stringify({ type: 'error', error: 'Message content is required' }));
+              return;
+            }
+
             const [savedMessage] = await db
               .insert(chatMessages)
               .values({
@@ -140,7 +249,7 @@ export function setupWebSocket(server: Server) {
               })
               .returning();
 
-            const outgoingMessage = {
+            broadcastToProject(projectId, {
               type: 'message',
               id: savedMessage.id,
               content: savedMessage.content,
@@ -149,47 +258,71 @@ export function setupWebSocket(server: Server) {
                 username
               },
               timestamp: savedMessage.createdAt,
-            };
+            });
+            break;
+          }
 
-            clients.forEach((client) => {
-              if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(outgoingMessage));
+          case 'project_state': {
+            if (ws.accessLevel !== 'owner' && ws.accessLevel !== 'admin') {
+              ws.send(JSON.stringify({ type: 'error', error: 'Unauthorized to change project state' }));
+              return;
+            }
+
+            await db
+              .update(projects)
+              .set({ status: message.state })
+              .where(eq(projects.id, projectId));
+
+            broadcastToProject(projectId, {
+              type: 'project_state',
+              projectId,
+              state: message.state,
+              updatedBy: {
+                id: userId,
+                username
               }
             });
+            break;
           }
-        } catch (error) {
-          console.error('Error processing message:', error);
-          ws.send(JSON.stringify({ type: 'error', error: 'Failed to process message' }));
-        }
-      });
 
-      ws.on('close', () => {
-        if (ws.projectId) {
-          projectRooms.get(ws.projectId)?.delete(ws);
-          if (projectRooms.get(ws.projectId)?.size === 0) {
-            projectRooms.delete(ws.projectId);
-          }
+          default:
+            ws.send(JSON.stringify({ type: 'error', error: 'Unknown message type' }));
         }
-      });
+      } catch (error) {
+        console.error('Error processing message:', error);
+        ws.send(JSON.stringify({ type: 'error', error: 'Failed to process message' }));
+      }
+    });
 
-    } catch (error) {
-      console.error('Error in WebSocket connection:', error);
-      ws.close(1011, 'Internal server error');
-    }
+    ws.on('close', () => {
+      if (projectId) {
+        projectRooms.get(projectId)?.delete(ws);
+        if (projectRooms.get(projectId)?.size === 0) {
+          projectRooms.delete(projectId);
+        }
+
+        broadcastToProject(projectId, {
+          type: 'presence',
+          userId,
+          username,
+          status: 'offline',
+          accessLevel: ws.accessLevel
+        });
+      }
+    });
   });
 
-  const interval = setInterval(() => {
-    wss.clients.forEach((ws: ExtendedWebSocket) => {
-      if (!ws.isAlive) {
-        return ws.terminate();
-      }
+  // Modified interval cleanup to handle ExtendedWebSocket type
+  const cleanupInterval = setInterval(() => {
+    (wss.clients as Set<ExtendedWebSocket>).forEach((ws) => {
+      if (!ws.isAlive) return ws.terminate();
       ws.isAlive = false;
       ws.ping();
     });
   }, 30000);
 
   wss.on('close', () => {
-    clearInterval(interval);
+    clearInterval(cleanupInterval);
   });
 
   return wss;

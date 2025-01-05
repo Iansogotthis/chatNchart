@@ -29,11 +29,11 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 3002,
     hmr: {
       clientPort: 443,
-      protocol: 'wss',
+      protocol: "wss",
     },
   },
   resolve: {

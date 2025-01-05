@@ -58,10 +58,6 @@ async function startServer() {
     app.set('port', port);
     const server = registerRoutes(app);
     
-    server.listen(port, '0.0.0.0', () => {
-      log(`Server running on port ${port}`);
-    });
-
     // Setup WebSocket server with existing HTTP server and session
     try {
       const wss = setupWebSocket(server);

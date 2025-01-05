@@ -21,7 +21,7 @@ export default defineConfig({
             "framer-motion",
             "recharts",
           ],
-          ui: ["./src/components/ui"],
+          ui: ["./client/src/components/ui"],
         },
       },
     },
@@ -29,11 +29,10 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    host: "0.0.0.0",
-    port: 3002,
     hmr: {
-      clientPort: 443,
-      protocol: "wss",
+      protocol: 'wss',
+      host: '0.0.0.0',
+      port: 3000,
     },
   },
   resolve: {

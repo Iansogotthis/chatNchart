@@ -9,7 +9,7 @@ import {
   charts,
   savedCharts,
   chartLikes,
-  notifications as notificationsTable,
+  notifications,
   forumPosts,
   friends,
   users,
@@ -26,95 +26,21 @@ export function registerRoutes(app: Express) {
   app.use("/api/messages", messageRoutes);
   app.use("/api/users", userRoutes);
 
-  app.get("/api/users/search", async (req, res) => {
+
+  app.post("/api/saved-charts", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
-      const searchQuery = req.query.q as string;
-      if (!searchQuery || searchQuery.length < 2) {
-        return res.json([]);
-      }
+      const [saved] = await db.insert(savedCharts).values({
+        userId: req.user.id,
+        chartId: req.body.chartId,
+        notes: req.body.notes,
+      }).returning();
 
-      const searchResults = await db
-        .select({
-          id: users.id,
-          username: users.username,
-        })
-        .from(users)
-        .where(and(
-          sql`LOWER(${users.username}) LIKE ${`%${searchQuery.toLowerCase()}%`}`,
-          not(eq(users.id, req.user.id))
-        ))
-        .limit(10);
-
-      res.json(searchResults);
+      res.json(saved);
     } catch (error) {
-      console.error('Error searching users:', error);
-      res.status(500).json({ error: 'Failed to search users' });
-    }
-  });
-
-  app.post("/api/friends/request/:username", async (req, res) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-
-    try {
-      const [targetUser] = await db
-        .select()
-        .from(users)
-        .where(sql`LOWER(${users.username}) = LOWER(${req.params.username})`)
-        .limit(1);
-
-      if (!targetUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      if (targetUser.id === req.user.id) {
-        return res.status(400).send("Cannot send friend request to yourself");
-      }
-
-      const [existingRequest] = await db
-        .select()
-        .from(friends)
-        .where(
-          or(
-            and(
-              eq(friends.userId, req.user.id),
-              eq(friends.friendId, targetUser.id)
-            ),
-            and(
-              eq(friends.userId, targetUser.id),
-              eq(friends.friendId, req.user.id)
-            )
-          )
-        )
-        .limit(1);
-
-      if (existingRequest) {
-        if (existingRequest.status === 'accepted') {
-          return res.status(400).send("Already friends with this user");
-        }
-        return res.status(400).send("Friend request already exists");
-      }
-
-      const [friendRequest] = await db
-        .insert(friends)
-        .values({
-          userId: req.user.id,
-          friendId: targetUser.id,
-          status: "pending"
-        })
-        .returning();
-
-      await db.insert(notificationsTable).values({
-        userId: targetUser.id,
-        type: "friend_request",
-        sourceId: friendRequest.id,
-      });
-
-      res.json(friendRequest);
-    } catch (error) {
-      console.error('Error sending friend request:', error);
-      res.status(500).json({ error: 'Failed to send friend request' });
+      console.error('Error saving chart:', error);
+      res.status(500).json({ error: 'Failed to save chart' });
     }
   });
 
@@ -156,7 +82,7 @@ export function registerRoutes(app: Express) {
           status: "accepted"
         });
 
-        await db.insert(notificationsTable).values({
+        await db.insert(notifications).values({
           userId: friendRequest.userId,
           type: "friend_request_accepted",
           sourceId: friendRequest.id,
@@ -308,23 +234,6 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/saved-charts", async (req, res) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-
-    try {
-      const [saved] = await db.insert(savedCharts).values({
-        userId: req.user.id,
-        chartId: req.body.chartId,
-        notes: req.body.notes,
-      }).returning();
-
-      res.json(saved);
-    } catch (error) {
-      console.error('Error saving chart:', error);
-      res.status(500).json({ error: 'Failed to save chart' });
-    }
-  });
-
   app.put("/api/saved-charts/:id", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
@@ -408,7 +317,7 @@ export function registerRoutes(app: Express) {
         .limit(1);
 
       if (chart && chart.userId !== req.user.id) {
-        await db.insert(notificationsTable).values({
+        await db.insert(notifications).values({
           userId: chart.userId,
           type: 'chart_like',
           sourceId: like.id,
@@ -444,13 +353,13 @@ export function registerRoutes(app: Express) {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
     try {
-      const notifications = await db
+      const notificationsData = await db
         .select()
-        .from(notificationsTable)
-        .where(eq(notificationsTable.userId, req.user.id))
-        .orderBy(desc(notificationsTable.createdAt));
+        .from(notifications)
+        .where(eq(notifications.userId, req.user.id))
+        .orderBy(desc(notifications.createdAt));
 
-      res.json(notifications);
+      res.json(notificationsData);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       res.status(500).json({ error: 'Failed to fetch notifications' });
@@ -462,11 +371,11 @@ export function registerRoutes(app: Express) {
 
     try {
       const [notification] = await db
-        .update(notificationsTable)
+        .update(notifications)
         .set({ isRead: true })
         .where(and(
-          eq(notificationsTable.id, parseInt(req.params.id)),
-          eq(notificationsTable.userId, req.user.id)
+          eq(notifications.id, parseInt(req.params.id)),
+          eq(notifications.userId, req.user.id)
         ))
         .returning();
 

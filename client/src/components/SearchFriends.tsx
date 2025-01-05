@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 interface SearchResult {
   id: number;
   username: string;
+  bio?: string | null;
 }
 
 interface FriendStatus {
@@ -48,15 +49,18 @@ export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
 
     setIsLoading(true);
     try {
+      console.log('Searching for:', value);
       const response = await fetch(`/api/users/search?q=${encodeURIComponent(value)}`, {
         credentials: 'include'
       });
 
       if (!response.ok) {
-        throw new Error('Failed to search users');
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to search users');
       }
 
       const users: SearchResult[] = await response.json();
+      console.log('Search results:', users);
 
       // Transform results with friend status
       const searchResults = users.map(user => ({
@@ -94,9 +98,6 @@ export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
             : r
         )
       );
-
-      // Close the dialog after successful request
-      onOpenChange(false);
     } catch (error) {
       console.error('Friend request error:', error);
       toast({
@@ -115,12 +116,12 @@ export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
         </DialogHeader>
         <Command>
           <CommandInput
-            placeholder="Search users..."
+            placeholder="Search users by name or bio..."
             value={searchTerm}
             onValueChange={handleSearch}
           />
           <CommandList>
-            <CommandEmpty>No users found.</CommandEmpty>
+            <CommandEmpty>No users found. Try a different search term.</CommandEmpty>
             <CommandGroup>
               {isLoading ? (
                 <CommandItem disabled>
@@ -131,34 +132,44 @@ export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
                 results.map((result) => (
                   <CommandItem
                     key={result.id}
-                    className="flex items-center justify-between"
+                    className="flex items-center justify-between p-2"
+                    value={result.username}
                   >
-                    <Link href={`/profile/${result.username}`} className="hover:underline">
-                      {result.username}
-                    </Link>
-                    {result.isFriend ? (
-                      <UserCheck2 className="h-4 w-4 text-primary" />
-                    ) : result.hasRequestPending ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled
-                        className="text-muted-foreground"
-                      >
-                        <UserPlus2 className="h-4 w-4 mr-1" />
-                        Pending
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleSendRequest(result.username)}
-                        disabled={isMutating}
-                      >
-                        <UserPlus2 className="h-4 w-4 mr-1" />
-                        Add
-                      </Button>
-                    )}
+                    <div className="flex flex-col">
+                      <Link href={`/profile/${result.username}`} className="hover:underline font-medium">
+                        {result.username}
+                      </Link>
+                      {result.bio && (
+                        <span className="text-sm text-muted-foreground line-clamp-1">
+                          {result.bio}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {result.isFriend ? (
+                        <UserCheck2 className="h-4 w-4 text-primary" />
+                      ) : result.hasRequestPending ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled
+                          className="text-muted-foreground"
+                        >
+                          <UserPlus2 className="h-4 w-4 mr-1" />
+                          Pending
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSendRequest(result.username)}
+                          disabled={isMutating}
+                        >
+                          <UserPlus2 className="h-4 w-4 mr-1" />
+                          Add
+                        </Button>
+                      )}
+                    </div>
                   </CommandItem>
                 ))
               )}

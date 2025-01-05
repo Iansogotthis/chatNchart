@@ -43,9 +43,12 @@ export function setupWebSocket(server: Server) {
   });
 
   server.on('upgrade', async (request, socket, head) => {
-      try {
-        const cookieString = req.headers.cookie;
-        if (!cookieString) {
+    try {
+      const cookieString = request.headers.cookie;
+      if (!cookieString) {
+        socket.destroy();
+        return;
+      }
           console.error('No cookie found');
           callback(false, 401, 'Unauthorized');
           return;

@@ -47,7 +47,7 @@ async function startServer() {
     }
 
     // Create HTTP server first
-    const port = process.env.PORT || 3000;
+    const port = process.env.PORT || 5000;
     app.set('port', port);
     const server = registerRoutes(app);
     

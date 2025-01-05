@@ -5,13 +5,21 @@ import { useFriends } from "@/hooks/use-friends";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "./ui/command";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { UserPlus2, Search, UserCheck2, Loader2 } from "lucide-react";
+import { UserPlus2, Search, UserCheck2, Loader2, MapPin, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "./ui/badge";
 
 interface SearchResult {
   id: number;
   username: string;
   bio?: string | null;
+  city?: string | null;
+  state?: string | null;
+  hobbies?: string[] | null;
+  professional?: {
+    field?: string;
+    position?: string;
+  } | null;
 }
 
 interface FriendStatus {
@@ -114,9 +122,9 @@ export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
         <DialogHeader>
           <DialogTitle>Search Friends</DialogTitle>
         </DialogHeader>
-        <Command>
+        <Command className="rounded-lg border shadow-md">
           <CommandInput
-            placeholder="Search users by name or bio..."
+            placeholder="Search users by name, location, hobbies..."
             value={searchTerm}
             onValueChange={handleSearch}
           />
@@ -132,43 +140,80 @@ export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
                 results.map((result) => (
                   <CommandItem
                     key={result.id}
-                    className="flex items-center justify-between p-2"
-                    value={result.username}
+                    className="flex flex-col gap-2 p-4"
+                    value={`${result.username} ${result.bio || ''} ${result.city || ''} ${result.state || ''}`}
                   >
-                    <div className="flex flex-col">
-                      <Link href={`/profile/${result.username}`} className="hover:underline font-medium">
-                        {result.username}
-                      </Link>
-                      {result.bio && (
-                        <span className="text-sm text-muted-foreground line-clamp-1">
-                          {result.bio}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {result.isFriend ? (
-                        <UserCheck2 className="h-4 w-4 text-primary" />
-                      ) : result.hasRequestPending ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled
-                          className="text-muted-foreground"
-                        >
-                          <UserPlus2 className="h-4 w-4 mr-1" />
-                          Pending
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleSendRequest(result.username)}
-                          disabled={isMutating}
-                        >
-                          <UserPlus2 className="h-4 w-4 mr-1" />
-                          Add
-                        </Button>
-                      )}
+                    <div className="flex items-start justify-between w-full">
+                      <div className="flex flex-col flex-grow">
+                        <Link href={`/profile/${result.username}`} className="hover:underline font-medium">
+                          {result.username}
+                        </Link>
+                        {result.bio && (
+                          <span className="text-sm text-muted-foreground line-clamp-2">
+                            {result.bio}
+                          </span>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {(result.city || result.state) && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {[result.city, result.state].filter(Boolean).join(", ")}
+                            </span>
+                          )}
+                          {result.professional?.field && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Briefcase className="h-3 w-3" />
+                              {result.professional.field}
+                            </span>
+                          )}
+                        </div>
+                        {result.hobbies && result.hobbies.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {result.hobbies.slice(0, 3).map((hobby, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {hobby}
+                              </Badge>
+                            ))}
+                            {result.hobbies.length > 3 && (
+                              <Badge
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                +{result.hobbies.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {result.isFriend ? (
+                          <UserCheck2 className="h-4 w-4 text-primary" />
+                        ) : result.hasRequestPending ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled
+                            className="text-muted-foreground"
+                          >
+                            <UserPlus2 className="h-4 w-4 mr-1" />
+                            Pending
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSendRequest(result.username)}
+                            disabled={isMutating}
+                          >
+                            <UserPlus2 className="h-4 w-4 mr-1" />
+                            Add
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CommandItem>
                 ))

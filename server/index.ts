@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
   try {
     const allowedOrigins = process.env.NODE_ENV === 'development' 
-      ? ['http://localhost:3001', 'http://localhost:5173'] 
+      ? ['http://localhost:3002', 'http://localhost:5173'] 
       : ['https://*.replit.dev', 'https://*.repl.co'];
 
     const origin = req.headers.origin;
@@ -72,32 +72,20 @@ async function startServer() {
       serveStatic(app);
     }
 
-    // Start server with port handling and retries
-    const port = process.env.PORT || 3001;
-    const MAX_RETRIES = 3;
-    let currentTry = 0;
+    // Start server with port handling
+    const port = process.env.PORT || 3002;
 
-    const startServerWithRetry = () => {
-      server.listen(port, '0.0.0.0', () => {
-        log(`Server running on port ${port}`);
-      }).on('error', (error: any) => {
-        if (error.code === 'EADDRINUSE') {
-          currentTry++;
-          if (currentTry < MAX_RETRIES) {
-            log(`Port ${port} is in use, retrying in 1 second...`);
-            setTimeout(startServerWithRetry, 1000);
-          } else {
-            log(`Failed to start server after ${MAX_RETRIES} attempts`);
-            process.exit(1);
-          }
-        } else {
-          console.error('Server error:', error);
-          process.exit(1);
-        }
-      });
-    };
-
-    startServerWithRetry();
+    server.listen(port, '0.0.0.0', () => {
+      log(`Server running on port ${port}`);
+    }).on('error', (error: any) => {
+      if (error.code === 'EADDRINUSE') {
+        log(`Port ${port} is already in use. Please use a different port.`);
+        process.exit(1);
+      } else {
+        console.error('Server error:', error);
+        process.exit(1);
+      }
+    });
 
   } catch (error) {
     log("Failed to start server:", error instanceof Error ? error.message : String(error));

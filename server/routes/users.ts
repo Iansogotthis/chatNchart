@@ -23,7 +23,11 @@ router.get("/search", async (req, res) => {
       .select({
         id: users.id,
         username: users.username,
-        bio: users.bio
+        bio: users.bio,
+        city: users.city,
+        state: users.state,
+        professional: users.professional,
+        hobbies: users.hobbies
       })
       .from(users)
       .where(
@@ -31,14 +35,29 @@ router.get("/search", async (req, res) => {
           currentUserId ? not(eq(users.id, currentUserId)) : undefined,
           or(
             ilike(users.username, searchPattern),
-            ilike(users.bio || '', searchPattern)
+            ilike(users.bio || '', searchPattern),
+            ilike(users.city || '', searchPattern),
+            ilike(users.state || '', searchPattern),
+            sql`${users.hobbies}::text ILIKE ${searchPattern}`,
+            sql`${users.professional}::text ILIKE ${searchPattern}`
           )
         )
       )
       .limit(20); // Increased limit for better results
 
-    console.log(`Search query "${query}" found ${searchResults.length} results`);
-    res.json(searchResults);
+    // Filter out sensitive information
+    const sanitizedResults = searchResults.map(user => ({
+      id: user.id,
+      username: user.username,
+      bio: user.bio,
+      city: user.city,
+      state: user.state,
+      hobbies: user.hobbies,
+      professional: user.professional
+    }));
+
+    console.log(`Search query "${query}" found ${sanitizedResults.length} results`);
+    res.json(sanitizedResults);
   } catch (error) {
     console.error('Search error:', error);
     res.status(500).json({ 

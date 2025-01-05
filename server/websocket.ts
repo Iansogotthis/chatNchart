@@ -38,8 +38,9 @@ interface CollaboratorPresence {
 
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
-    noServer: true,
-    path: '/ws/projects'
+    server,
+    path: '/ws/projects',
+    perMessageDeflate: false
   });
 
   server.on('upgrade', (request, socket, head) => {

@@ -38,9 +38,11 @@ interface CollaboratorPresence {
 
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
-    server,
+    noServer: true,
     path: '/ws/projects',
-    verifyClient: async ({ req }, callback) => {
+  });
+
+  server.on('upgrade', async (request, socket, head) => {
       try {
         const cookieString = req.headers.cookie;
         if (!cookieString) {

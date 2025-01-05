@@ -106,7 +106,8 @@ async function startServer() {
           middlewareMode: true,
           hmr: {
             server: server
-          }
+          },
+          host: '0.0.0.0' // Added to bind Vite to all interfaces
         },
         appType: 'spa',
       });

@@ -8,6 +8,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+  },
   plugins: [react(), runtimeErrorOverlay(), themePlugin()],
   build: {
     rollupOptions: {

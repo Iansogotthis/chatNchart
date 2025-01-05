@@ -35,7 +35,7 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
     enabled: !!pageUsername
   });
 
-  const { data: friends, isLoading: isLoadingFriends } = useQuery<Friend[]>({
+  const { data: friends = [], isLoading: isLoadingFriends } = useQuery<Friend[]>({
     queryKey: [`/api/users/${pageUsername}/friends`],
     queryFn: async () => {
       const response = await fetch(`/api/users/${pageUsername}/friends`);
@@ -74,11 +74,11 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
 
   const addFriendMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/users/${pageUsername}/friends`, {
+      const response = await fetch(`/api/friends/request/${pageUsername}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
-      if (!response.ok) throw new Error('Failed to add friend');
+      if (!response.ok) throw new Error('Failed to send friend request');
       return response.json();
     },
     onSuccess: () => {
@@ -88,11 +88,18 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
         description: `Friend request sent to ${pageUsername}`,
       });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   });
 
   const removeFriendMutation = useMutation({
-    mutationFn: async (friendshipId?: number) => {
-      const response = await fetch(`/api/users/${pageUsername}/friends${friendshipId ? `/${friendshipId}` : ''}`, {
+    mutationFn: async (friendshipId: number) => {
+      const response = await fetch(`/api/friends/${friendshipId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to remove friend');
@@ -105,6 +112,13 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
         description: `${pageUsername} has been removed from your friends`,
       });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   });
 
   if (isLoadingProfile || isLoadingFriends) {
@@ -116,7 +130,7 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
   }
 
   const isOwnProfile = user?.username === pageUsername;
-  const isFriend = friends?.some((friend) => friend.username === user?.username);
+  const isFriend = friends?.some((friendship) => friendship.friend?.username === pageUsername);
 
   if (editSection) {
     return (
@@ -156,7 +170,16 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
                   <Button
                     className="w-full"
                     variant={isFriend ? "destructive" : "default"}
-                    onClick={() => isFriend ? removeFriendMutation.mutate() : addFriendMutation.mutate()}
+                    onClick={() => {
+                      if (isFriend) {
+                        const friendship = friends?.find(f => f.friend?.username === pageUsername);
+                        if (friendship) {
+                          removeFriendMutation.mutateAsync(friendship.id);
+                        }
+                      } else {
+                        addFriendMutation.mutateAsync();
+                      }
+                    }}
                     disabled={addFriendMutation.isPending || removeFriendMutation.isPending}
                   >
                     {addFriendMutation.isPending || removeFriendMutation.isPending ? (
@@ -184,20 +207,29 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
               <CardContent>
                 <ScrollArea className="h-[400px]">
                   <div className="space-y-4">
-                    {friends?.map((friend) => (
-                      <Card key={friend.id} className="p-4">
+                    {friends?.map((friendship) => (
+                      <Card key={friendship.id} className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <Avatar>
-                              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${friend.username}`} />
-                              <AvatarFallback>{friend.username[0].toUpperCase()}</AvatarFallback>
+                              <AvatarImage 
+                                src={friendship.friend?.username ? 
+                                  `https://api.dicebear.com/7.x/initials/svg?seed=${friendship.friend.username}` : 
+                                  undefined
+                                } 
+                              />
+                              <AvatarFallback>
+                                {friendship.friend?.username?.[0]?.toUpperCase() || '?'}
+                              </AvatarFallback>
                             </Avatar>
                             <div>
-                              <Link href={`/profile/${friend.username}`}>
-                                <h3 className="font-medium hover:underline">{friend.username}</h3>
-                              </Link>
-                              {friend.bio && (
-                                <p className="text-sm text-muted-foreground">{friend.bio}</p>
+                              {friendship.friend?.username && (
+                                <Link href={`/profile/${friendship.friend.username}`}>
+                                  <h3 className="font-medium hover:underline">{friendship.friend.username}</h3>
+                                </Link>
+                              )}
+                              {friendship.friend?.bio && (
+                                <p className="text-sm text-muted-foreground">{friendship.friend.bio}</p>
                               )}
                             </div>
                           </div>
@@ -205,7 +237,7 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => removeFriendMutation.mutate(friend.id)}
+                              onClick={() => removeFriendMutation.mutateAsync(friendship.id)}
                             >
                               <UserMinus className="h-4 w-4" />
                             </Button>

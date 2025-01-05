@@ -9,13 +9,8 @@ import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 import type { Chart } from "@db/schema";
 import type { Collaborator } from "@/types/collaboration";
+import type { Friend } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-
-interface Friend {
-  id: number;
-  username: string;
-  status: "accepted";
-}
 
 interface ProjectCreationWizardProps {
   isOpen: boolean;
@@ -40,7 +35,7 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
     },
   });
 
-  const { data: friends } = useQuery<Friend[]>({
+  const { data: friends = [] } = useQuery<Friend[]>({
     queryKey: ["friends"],
     queryFn: async () => {
       const response = await fetch("/api/friends");
@@ -99,7 +94,7 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
                   >
                     <CardContent className="p-4">
                       <div className="aspect-video bg-muted rounded-lg mb-2" />
-                      <h3 className="font-medium">{chart.title}</h3>
+                      <h3 className="font-medium">{chart.title || 'Untitled Chart'}</h3>
                     </CardContent>
                   </Card>
                 ))}
@@ -122,40 +117,48 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
             <h2 className="text-lg font-semibold">Select Collaborators</h2>
             <ScrollArea className="h-[400px]">
               <div className="space-y-2">
-                {friends?.map((friend) => (
-                  <Card
-                    key={friend.id}
-                    className={`cursor-pointer transition-all ${
-                      selectedCollaborators.some(c => c.id === friend.id)
-                        ? "ring-2 ring-primary"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      const isSelected = selectedCollaborators.some(
-                        (c) => c.id === friend.id
-                      );
-                      if (isSelected) {
-                        setSelectedCollaborators(
-                          selectedCollaborators.filter((c) => c.id !== friend.id)
+                {friends?.filter(f => f.status === "accepted").map((friendship) => {
+                  const friend = friendship.friend;
+                  if (!friend) return null;
+
+                  return (
+                    <Card
+                      key={friend.id}
+                      className={`cursor-pointer transition-all ${
+                        selectedCollaborators.some(c => c.id === friend.id)
+                          ? "ring-2 ring-primary"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        const isSelected = selectedCollaborators.some(
+                          (c) => c.id === friend.id
                         );
-                      } else {
-                        setSelectedCollaborators([
-                          ...selectedCollaborators,
-                          { id: friend.id, username: friend.username, accessLevel: "editable" },
-                        ]);
-                      }
-                    }}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/10" />
-                        <div>
-                          <p className="font-medium">{friend.username}</p>
+                        if (isSelected) {
+                          setSelectedCollaborators(
+                            selectedCollaborators.filter((c) => c.id !== friend.id)
+                          );
+                        } else {
+                          setSelectedCollaborators([
+                            ...selectedCollaborators,
+                            { id: friend.id, username: friend.username, accessLevel: "editable" },
+                          ]);
+                        }
+                      }}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 rounded-full bg-primary/10" />
+                          <div>
+                            <p className="font-medium">{friend.username || 'Unknown User'}</p>
+                            {friend.bio && (
+                              <p className="text-sm text-muted-foreground">{friend.bio}</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </ScrollArea>
             <div className="flex justify-between">

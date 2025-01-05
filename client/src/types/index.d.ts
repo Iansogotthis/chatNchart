@@ -3,10 +3,13 @@ declare module 'date-fns';
 
 export interface Friend {
   id: number;
-  username: string;
-  bio?: string | null;
   status: "accepted" | "pending";
   createdAt: string;
+  friend?: {
+    id: number;
+    username: string;
+    bio?: string | null;
+  };
 }
 
 export interface FriendRequest {

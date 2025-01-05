@@ -73,7 +73,7 @@ async function startServer() {
     }
 
     // Start server with port handling
-    const port = process.env.PORT || 3002;
+    const port = parseInt(process.env.PORT || '3002', 10);
 
     server.listen(port, '0.0.0.0', () => {
       log(`Server running on port ${port}`);

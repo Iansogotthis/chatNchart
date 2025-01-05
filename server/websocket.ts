@@ -10,6 +10,8 @@ interface ExtendedWebSocket extends WebSocket {
   isAlive: boolean;
   userId?: number;
   projectId?: number;
+  username?: string;
+  accessLevel?: string;
 }
 
 interface ExtendedSessionData extends SessionData {
@@ -19,9 +21,28 @@ interface ExtendedSessionData extends SessionData {
 }
 
 interface ChatMessage {
+  type: 'chat';
   projectId: number;
   userId: number;
   content: string;
+}
+
+interface CollaboratorPresence {
+  type: 'presence';
+  userId: number;
+  username: string;
+  status: 'online' | 'offline';
+  accessLevel: string;
+}
+
+interface ProjectStateChange {
+  type: 'project_state';
+  projectId: number;
+  state: 'active' | 'paused';
+  updatedBy: {
+    id: number;
+    username: string;
+  };
 }
 
 export function setupWebSocket(server: Server) {
@@ -37,14 +58,12 @@ export function setupWebSocket(server: Server) {
           return;
         }
 
-        // Parse cookies into an object
         const cookies = Object.fromEntries(
           cookieString.split(';')
             .map(cookie => cookie.trim().split('='))
             .map(([key, value]) => [key, decodeURIComponent(value)])
         );
 
-        // Get session ID from connect.sid cookie
         const connectSid = cookies['connect.sid'];
         if (!connectSid) {
           console.error('No connect.sid cookie found');
@@ -54,18 +73,11 @@ export function setupWebSocket(server: Server) {
 
         const sessionId = connectSid.split('.')[0].replace('s:', '');
 
-        // Verify session and user
-        return new Promise((resolve) => {
-          sessionStore.get(sessionId, (err: any, session: ExtendedSessionData | null) => {
-            if (err) {
-              console.error('Session store error:', err);
-              callback(false, 500, 'Internal server error');
-              resolve();
-              return;
-            }
-
-            if (!session) {
-              console.error('No session found for ID:', sessionId);
+        // Use Promise to handle session verification
+        return new Promise<void>((resolve) => {
+          sessionStore.get(sessionId, async (err: any, session: ExtendedSessionData | undefined | null) => {
+            if (err || !session) {
+              console.error('Session error:', err || 'No session found');
               callback(false, 401, 'Unauthorized');
               resolve();
               return;
@@ -79,10 +91,34 @@ export function setupWebSocket(server: Server) {
               return;
             }
 
-            // Store userId in request object for later use
-            (info.req as any).userId = userId;
-            callback(true);
-            resolve();
+            try {
+              // Get user details for presence information
+              const [user] = await db
+                .select({
+                  id: users.id,
+                  username: users.username,
+                })
+                .from(users)
+                .where(eq(users.id, userId))
+                .limit(1);
+
+              if (!user) {
+                callback(false, 401, 'User not found');
+                resolve();
+                return;
+              }
+
+              // Store user info in request object
+              (info.req as any).userId = userId;
+              (info.req as any).username = user.username;
+
+              callback(true);
+              resolve();
+            } catch (error) {
+              console.error('Error fetching user details:', error);
+              callback(false, 500, 'Internal server error');
+              resolve();
+            }
           });
         });
 
@@ -93,18 +129,18 @@ export function setupWebSocket(server: Server) {
     }
   });
 
-  // Store project rooms as a map of projectId to set of WebSocket connections
   const projectRooms = new Map<number, Set<ExtendedWebSocket>>();
 
   // Ping/Pong to keep connections alive
   const interval = setInterval(() => {
-    wss.clients.forEach((ws: ExtendedWebSocket) => {
-      if (!ws.isAlive) {
-        ws.terminate();
+    wss.clients.forEach((ws) => {
+      const extWs = ws as ExtendedWebSocket;
+      if (!extWs.isAlive) {
+        extWs.terminate();
         return;
       }
-      ws.isAlive = false;
-      ws.ping();
+      extWs.isAlive = false;
+      extWs.ping();
     });
   }, 30000);
 
@@ -112,12 +148,39 @@ export function setupWebSocket(server: Server) {
     clearInterval(interval);
   });
 
+  // Broadcast presence to all clients in a project room
+  function broadcastPresence(projectId: number, presence: CollaboratorPresence) {
+    const clients = projectRooms.get(projectId);
+    if (clients) {
+      clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(presence));
+        }
+      });
+    }
+  }
+
+  // Get all online collaborators in a project
+  function getOnlineCollaborators(projectId: number): CollaboratorPresence[] {
+    const clients = projectRooms.get(projectId);
+    if (!clients) return [];
+
+    return Array.from(clients)
+      .filter(ws => ws.userId && ws.username)
+      .map(ws => ({
+        type: 'presence',
+        userId: ws.userId!,
+        username: ws.username!,
+        status: 'online',
+        accessLevel: ws.accessLevel || 'viewer'
+      }));
+  }
+
   wss.on('connection', async (ws: ExtendedWebSocket, req) => {
     ws.isAlive = true;
     ws.on('pong', () => { ws.isAlive = true; });
 
     try {
-      // Extract project ID from URL path (/ws/projects/:id/chat)
       const match = req.url?.match(/\/(\d+)\/chat/);
       if (!match) {
         console.error('Invalid WebSocket URL:', req.url);
@@ -127,12 +190,29 @@ export function setupWebSocket(server: Server) {
 
       const projectId = parseInt(match[1]);
       const userId = (req as any).userId;
+      const username = (req as any).username;
 
-      // Store IDs in WebSocket instance
       ws.userId = userId;
       ws.projectId = projectId;
+      ws.username = username;
 
-      // Check if user is either the project owner or a collaborator
+      // Get user's access level for this project
+      const [projectAccess] = await db
+        .select({
+          accessLevel: projectCollaborators.accessLevel,
+        })
+        .from(projectCollaborators)
+        .where(
+          and(
+            eq(projectCollaborators.projectId, projectId),
+            eq(projectCollaborators.userId, userId)
+          )
+        )
+        .limit(1);
+
+      ws.accessLevel = projectAccess?.accessLevel || 'viewer';
+
+      // Check project access
       const [hasAccess] = await db
         .select({ id: projects.id })
         .from(projects)
@@ -154,18 +234,31 @@ export function setupWebSocket(server: Server) {
         return;
       }
 
-      // Add connection to project room
+      // Add to project room
       if (!projectRooms.has(projectId)) {
         projectRooms.set(projectId, new Set());
       }
       projectRooms.get(projectId)?.add(ws);
 
-      console.log(`User ${userId} connected to project ${projectId} chat`);
-
-      // Send connection success message
+      // Send connection confirmation
       ws.send(JSON.stringify({
         type: 'connection',
         message: 'Connected successfully'
+      }));
+
+      // Broadcast user's presence to other collaborators
+      broadcastPresence(projectId, {
+        type: 'presence',
+        userId,
+        username: username,
+        status: 'online',
+        accessLevel: ws.accessLevel
+      });
+
+      // Send current online collaborators to the new connection
+      ws.send(JSON.stringify({
+        type: 'collaborators',
+        collaborators: getOnlineCollaborators(projectId)
       }));
 
       // Load recent messages
@@ -177,7 +270,7 @@ export function setupWebSocket(server: Server) {
           sender: {
             id: users.id,
             username: users.username,
-          }
+          },
         })
         .from(chatMessages)
         .where(eq(chatMessages.projectId, projectId))
@@ -185,67 +278,99 @@ export function setupWebSocket(server: Server) {
         .orderBy(chatMessages.createdAt)
         .limit(50);
 
-      // Send recent messages to the newly connected client
       recentMessages.forEach(message => {
         ws.send(JSON.stringify(message));
       });
 
       ws.on('message', async (data) => {
         try {
-          const message: ChatMessage = JSON.parse(data.toString());
+          const message = JSON.parse(data.toString());
 
-          // Verify the message is for the correct project and from the authenticated user
-          if (message.projectId !== projectId || message.userId !== userId) {
-            console.error('Invalid message data:', message);
-            ws.send(JSON.stringify({ error: 'Invalid message data' }));
-            return;
+          switch (message.type) {
+            case 'chat':
+              if (message.projectId !== projectId || message.userId !== userId) {
+                ws.send(JSON.stringify({ error: 'Invalid message data' }));
+                return;
+              }
+
+              const [savedMessage] = await db
+                .insert(chatMessages)
+                .values({
+                  projectId: message.projectId,
+                  senderId: message.userId,
+                  content: message.content.trim(),
+                })
+                .returning();
+
+              const [sender] = await db
+                .select({
+                  id: users.id,
+                  username: users.username,
+                })
+                .from(users)
+                .where(eq(users.id, message.userId))
+                .limit(1);
+
+              const outgoingMessage = {
+                id: savedMessage.id,
+                content: savedMessage.content,
+                sender,
+                timestamp: savedMessage.createdAt,
+              };
+
+              projectRooms.get(projectId)?.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify(outgoingMessage));
+                }
+              });
+              break;
+
+            case 'project_state':
+              // Only project owner or admin can change project state
+              if (ws.accessLevel !== 'owner' && ws.accessLevel !== 'admin') {
+                ws.send(JSON.stringify({ error: 'Unauthorized to change project state' }));
+                return;
+              }
+
+              const stateChange: ProjectStateChange = {
+                type: 'project_state',
+                projectId,
+                state: message.state,
+                updatedBy: {
+                  id: userId,
+                  username: username
+                }
+              };
+
+              projectRooms.get(projectId)?.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify(stateChange));
+                }
+              });
+              break;
           }
-
-          // Insert message into database
-          const [savedMessage] = await db
-            .insert(chatMessages)
-            .values({
-              projectId: message.projectId,
-              senderId: message.userId,
-              content: message.content.trim(),
-            })
-            .returning();
-
-          // Get sender details
-          const [sender] = await db
-            .select({
-              id: users.id,
-              username: users.username,
-            })
-            .from(users)
-            .where(eq(users.id, message.userId))
-            .limit(1);
-
-          // Broadcast message to all clients in the same project room
-          const outgoingMessage = {
-            id: savedMessage.id,
-            content: savedMessage.content,
-            sender,
-            timestamp: savedMessage.createdAt,
-          };
-
-          projectRooms.get(projectId)?.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(JSON.stringify(outgoingMessage));
-            }
-          });
         } catch (error) {
           console.error('Error processing message:', error);
           ws.send(JSON.stringify({ error: 'Failed to process message' }));
         }
       });
 
-      // Handle client disconnect
       ws.on('close', () => {
         if (ws.projectId) {
           projectRooms.get(ws.projectId)?.delete(ws);
           if (projectRooms.get(ws.projectId)?.size === 0) {
             projectRooms.delete(ws.projectId);
+          }
+
+          // Broadcast offline status
+          if (ws.userId && ws.username) {
+            broadcastPresence(ws.projectId, {
+              type: 'presence',
+              userId: ws.userId,
+              username: ws.username,
+              status: 'offline',
+              accessLevel: ws.accessLevel || 'viewer'
+            });
           }
         }
         console.log(`User ${ws.userId} disconnected from project ${ws.projectId} chat`);

@@ -21,7 +21,7 @@ export interface FriendRequest {
   } | null;
 }
 
-export type CollaboratorAccessLevel = "unlimited" | "readable" | "editable" | "prompted";
+export type CollaboratorAccessLevel = "owner" | "admin" | "editor" | "viewer";
 
 export interface Collaborator {
   id: number;
@@ -32,7 +32,8 @@ export interface Collaborator {
 export interface Project {
   id: number;
   name: string;
-  chart: Chart;
+  ownerId: number;
+  chart: Chart | null;
   createdAt: string;
   creator: {
     id: number;

@@ -5,12 +5,27 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Settings, Settings2, History, Users, MessageSquare, PanelLeftClose, PanelRightClose, Play, Pause, Send } from "lucide-react";
+import {
+  Settings,
+  Settings2,
+  History,
+  Users,
+  MessageSquare,
+  PanelLeftClose,
+  PanelRightClose,
+  Play,
+  Pause,
+  Send,
+  UserPlus,
+  Crown,
+  ShieldCheck,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@/types/collaboration";
 import { Input } from "./ui/input";
 import { useUser } from "@/hooks/use-user";
+import { useFriends } from "@/hooks/use-friends";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -21,6 +36,24 @@ interface Message {
     username: string;
   };
   timestamp: string;
+}
+
+interface CollaboratorPresence {
+  type: 'presence';
+  userId: number;
+  username: string;
+  status: 'online' | 'offline';
+  accessLevel: string;
+}
+
+interface ProjectStateChange {
+  type: 'project_state';
+  projectId: number;
+  state: 'active' | 'paused';
+  updatedBy: {
+    id: number;
+    username: string;
+  };
 }
 
 interface CollaborationProjectViewProps {
@@ -36,6 +69,8 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   const [messageInput, setMessageInput] = useState("");
   const [wsError, setWsError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [onlineCollaborators, setOnlineCollaborators] = useState<CollaboratorPresence[]>([]);
+
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
@@ -44,8 +79,9 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
 
   const { toast } = useToast();
   const { user } = useUser();
+  const { friends } = useFriends();
 
-  const { data: project } = useQuery<Project>({
+  const { data: project, isLoading: isLoadingProject } = useQuery<Project>({
     queryKey: [`projects/${id}`],
     queryFn: async () => {
       const response = await fetch(`/api/projects/${id}`, {
@@ -94,21 +130,56 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
-          if (message.error) {
-            setWsError(message.error);
-            toast({
-              title: "Error",
-              description: message.error,
-              variant: "destructive",
-            });
-            return;
+
+          switch (message.type) {
+            case 'presence':
+              setOnlineCollaborators(prev => {
+                const filtered = prev.filter(c => c.userId !== message.userId);
+                return message.status === 'online'
+                  ? [...filtered, message]
+                  : filtered;
+              });
+              if (message.status === 'online') {
+                toast({
+                  title: "Collaborator Online",
+                  description: `${message.username} joined the project`,
+                });
+              }
+              break;
+
+            case 'collaborators':
+              setOnlineCollaborators(message.collaborators);
+              break;
+
+            case 'project_state':
+              setIsPaused(message.state === 'paused');
+              if (message.updatedBy.id !== user?.id) {
+                toast({
+                  title: "Project State Changed",
+                  description: `${message.updatedBy.username} ${message.state === 'paused' ? 'paused' : 'resumed'} the project`,
+                });
+              }
+              break;
+
+            case 'connection':
+              console.log('Connection confirmed:', message.message);
+              break;
+
+            case 'error':
+              setWsError(message.error);
+              toast({
+                title: "Error",
+                description: message.error,
+                variant: "destructive",
+              });
+              break;
+
+            default:
+              if (message.sender && message.content) {
+                setMessages(prev => [...prev, message]);
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+              }
           }
-          if (message.type === 'connection') {
-            console.log('Connection confirmed:', message.message);
-            return;
-          }
-          setMessages(prev => [...prev, message]);
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
           console.error('Error parsing message:', error);
           setWsError('Failed to parse message');
@@ -131,18 +202,18 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
         setWsError('Connection closed');
         setIsConnecting(false);
 
-        // Only attempt to reconnect if conditions are met
         if (
-          user && 
-          document.visibilityState === 'visible' && 
-          !isConnecting && 
+          user &&
+          document.visibilityState === 'visible' &&
+          !isConnecting &&
           reconnectAttempts < maxReconnectAttempts
         ) {
           setReconnectAttempts(prev => prev + 1);
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000); // Exponential backoff
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000);
           reconnectTimeoutRef.current = setTimeout(connectWebSocket, delay);
         }
       };
+
     } catch (error) {
       console.error('Error creating WebSocket:', error);
       setWsError('Failed to create connection');
@@ -184,9 +255,10 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
 
     try {
       wsRef.current.send(JSON.stringify({
-        content: messageInput.trim(),
+        type: 'chat',
         projectId: id,
         userId: user?.id,
+        content: messageInput.trim(),
       }));
       setMessageInput("");
     } catch (error) {
@@ -200,25 +272,42 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   };
 
   const toggleProjectState = () => {
-    setIsPaused(!isPaused);
-    toast({
-      title: isPaused ? "Project Resumed" : "Project Paused",
-      description: isPaused
-        ? "Collaborators can now access and edit the project"
-        : "Project access has been temporarily restricted",
-    });
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      toast({
+        title: "Connection Error",
+        description: "Unable to change project state. Please wait for reconnection.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      wsRef.current.send(JSON.stringify({
+        type: 'project_state',
+        projectId: id,
+        state: isPaused ? 'active' : 'paused',
+      }));
+    } catch (error) {
+      console.error('Error toggling project state:', error);
+      toast({
+        title: "Error",
+        description: "Failed to change project state. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!project) return null;
 
+  const isOwner = project.ownerId === user?.id;
+
   return (
     <div className="h-screen flex flex-col">
       <div className="flex-1 grid grid-cols-[1fr] relative">
-        {/* Left Panel - Hidden by default */}
         <div
           className={cn(
-            "fixed left-0 top-0 h-full w-[250px] bg-background border-r",
-            "transform transition-transform duration-300 ease-in-out z-20",
+            "fixed left-0 top-0 h-full w-[250px] bg-background border-r z-20",
+            "transform transition-transform duration-300 ease-in-out",
             leftNavOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
@@ -249,7 +338,6 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
           </div>
         </div>
 
-        {/* Main Content */}
         <main className="relative min-h-0">
           <div className="absolute left-4 top-4 z-30">
             <Button
@@ -280,11 +368,10 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
           )}
         </main>
 
-        {/* Right Panel - Hidden by default */}
         <div
           className={cn(
-            "fixed right-0 top-0 h-full w-[250px] bg-background border-l",
-            "transform transition-transform duration-300 ease-in-out z-20",
+            "fixed right-0 top-0 h-full w-[250px] bg-background border-l z-20",
+            "transform transition-transform duration-300 ease-in-out",
             rightNavOpen ? "translate-x-0" : "translate-x-full"
           )}
         >
@@ -296,14 +383,16 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
                 <DialogTrigger asChild>
                   <Button variant="ghost" className="w-full justify-start">
                     <Settings className="mr-2 h-4 w-4" />
-                    Edit Project Settings
+                    Project Settings
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Project Settings</DialogTitle>
+                    <DialogTitle>Project Settings</DialogTitle>
                   </DialogHeader>
-                  {/* Project settings form content */}
+                  <div className="space-y-4">
+                    {/* Project settings content */}
+                  </div>
                 </DialogContent>
               </Dialog>
 
@@ -311,40 +400,79 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
                 <DialogTrigger asChild>
                   <Button variant="ghost" className="w-full justify-start">
                     <Users className="mr-2 h-4 w-4" />
-                    Edit Collaborators
+                    Manage Collaborators
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Collaborators</DialogTitle>
+                    <DialogTitle>Manage Collaborators</DialogTitle>
                   </DialogHeader>
-                  {/* Collaborator management content */}
+                  <ScrollArea className="h-[400px] pr-4">
+                    <div className="space-y-4">
+                      {project.collaborators?.map((collab) => (
+                        <div key={collab.id} className="flex items-center justify-between p-2 rounded-lg border">
+                          <div className="flex items-center gap-2">
+                            {collab.id === project.ownerId && (
+                              <Crown className="h-4 w-4 text-yellow-500" />
+                            )}
+                            <span>{collab.username}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({collab.accessLevel})
+                            </span>
+                          </div>
+                          {isOwner && collab.id !== user?.id && (
+                            <Button variant="ghost" size="sm">
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+
+                      {isOwner && (
+                        <div className="space-y-2">
+                          <h3 className="font-medium">Add Collaborator</h3>
+                          <div className="space-y-2">
+                            {friends?.map((friend) => (
+                              <div key={friend.id} className="flex items-center justify-between p-2 rounded-lg border">
+                                <span>{friend.friend?.username}</span>
+                                <Button variant="ghost" size="sm">
+                                  <UserPlus className="h-4 w-4 mr-2" />
+                                  Add
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
                 </DialogContent>
               </Dialog>
 
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={toggleProjectState}
-              >
-                {isPaused ? (
-                  <>
-                    <Play className="mr-2 h-4 w-4" />
-                    Resume Project
-                  </>
-                ) : (
-                  <>
-                    <Pause className="mr-2 h-4 w-4" />
-                    Pause Project
-                  </>
-                )}
-              </Button>
+              {isOwner && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={toggleProjectState}
+                >
+                  {isPaused ? (
+                    <>
+                      <Play className="mr-2 h-4 w-4" />
+                      Resume Project
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="mr-2 h-4 w-4" />
+                      Pause Project
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Chat Panel */}
       <div className="h-[200px] border-t">
         <div className="flex items-center justify-between p-2 border-b bg-background">
           <h3 className="font-medium">Project Chat</h3>
@@ -379,7 +507,12 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
                       : "bg-muted"
                   )}
                 >
-                  <p className="text-sm font-medium">{message.sender.username}</p>
+                  <p className="text-sm font-medium">
+                    {message.sender.username}
+                    {project.ownerId === message.sender.id && (
+                      <Crown className="inline-block ml-1 h-3 w-3 text-yellow-500" />
+                    )}
+                  </p>
                   <p className="text-sm">{message.content}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(message.timestamp).toLocaleTimeString()}

@@ -12,9 +12,8 @@ const config: CapacitorConfig = {
   android: {
     buildOptions: {
       keystorePath: 'release.keystore',
-      keystoreAlias: 'key0',
       keystorePassword: 'android',
-      keystoreKeyPassword: 'android',
+      keystoreAlias: 'key0',
       releaseType: 'APK'
     }
   }

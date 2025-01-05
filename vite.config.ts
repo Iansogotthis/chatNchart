@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
@@ -10,10 +9,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export default defineConfig({
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     hmr: {
-      protocol: 'wss',
-      host: '0.0.0.0',
+      protocol: "wss",
+      host: "0.0.0.0",
       port: 3000,
     },
   },
@@ -23,14 +22,13 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: [
-            "react",
+            "react", 
             "react-dom",
             "react-query",
             "d3",
             "framer-motion",
             "recharts",
           ],
-          ui: ["./client/src/components/ui"],
         },
       },
     },

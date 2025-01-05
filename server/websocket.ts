@@ -38,6 +38,8 @@ interface CollaboratorPresence {
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
     noServer: true,
+    clientTracking: true,
+    perMessageDeflate: false
   });
 
   server.on('upgrade', async (request, socket, head) => {

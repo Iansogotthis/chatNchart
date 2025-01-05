@@ -15,16 +15,9 @@ app.use(express.urlencoded({ extended: false }));
 // CORS configuration with proper error handling and local development support
 app.use((req, res, next) => {
   try {
-    const allowedOrigins = process.env.NODE_ENV === 'development' 
-      ? ['http://localhost:3002', 'http://localhost:5173'] 
-      : ['https://*.replit.dev', 'https://*.repl.co'];
-
-    const origin = req.headers.origin;
-    if (origin && allowedOrigins.some(allowed => 
-      origin.match(new RegExp(allowed.replace('*', '.*')))
-    )) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-    }
+    const origin = req.headers.origin || '';
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', 'true');

@@ -95,7 +95,7 @@ export function CollaborationProjectView({ id }: { id: number }) {
 
     try {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${wsProtocol}//${window.location.hostname}:${window.location.port}/ws/projects/${id}/chat`;
+      const wsUrl = `${wsProtocol}//${window.location.host}/ws/projects/${id}/chat`;
       console.log('Connecting to WebSocket:', wsUrl);
 
       const ws = new WebSocket(wsUrl);

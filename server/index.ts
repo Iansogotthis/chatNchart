@@ -58,7 +58,18 @@ async function startServer() {
     const server = registerRoutes(app);
 
     // Setup WebSocket server with existing HTTP server and session
-    setupWebSocket(server);
+    try {
+      const wss = setupWebSocket(server);
+      log("WebSocket server initialized successfully");
+
+      // Set up WebSocket error handling
+      wss.on('error', (error) => {
+        console.error('WebSocket server error:', error);
+      });
+    } catch (error) {
+      console.error('Failed to initialize WebSocket server:', error);
+      // Continue running the HTTP server even if WebSocket fails
+    }
 
     // Enhanced error handling middleware
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -95,6 +106,7 @@ async function startServer() {
       app.use(vite.middlewares);
     }
 
+    // Start the server on all network interfaces
     server.listen(port, '0.0.0.0', () => {
       log(`Server running on port ${port}`);
     });

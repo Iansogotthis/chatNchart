@@ -41,5 +41,4 @@ export interface Project {
   };
   collaborators: Collaborator[];
   status: "active" | "paused";
-  lastSavedTimestamp?: string;
 }

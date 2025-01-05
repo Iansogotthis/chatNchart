@@ -56,11 +56,7 @@ interface ProjectStateChange {
   };
 }
 
-interface CollaborationProjectViewProps {
-  id: number;
-}
-
-export function CollaborationProjectView({ id }: CollaborationProjectViewProps) {
+export function CollaborationProjectView({ id }: { id: number }) {
   const [leftNavOpen, setLeftNavOpen] = useState(false);
   const [rightNavOpen, setRightNavOpen] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
@@ -70,6 +66,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   const [wsError, setWsError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [onlineCollaborators, setOnlineCollaborators] = useState<CollaboratorPresence[]>([]);
+  const [userAccessLevel, setUserAccessLevel] = useState<string>('viewer');
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -132,53 +129,38 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
           const message = JSON.parse(event.data);
 
           switch (message.type) {
+            case 'connection':
+              console.log('Connection confirmed:', message.message);
+              setUserAccessLevel(message.accessLevel);
+              break;
+
             case 'presence':
-              setOnlineCollaborators(prev => {
-                const filtered = prev.filter(c => c.userId !== message.userId);
-                return message.status === 'online'
-                  ? [...filtered, message]
-                  : filtered;
-              });
-              if (message.status === 'online') {
-                toast({
-                  title: "Collaborator Online",
-                  description: `${message.username} joined the project`,
-                });
-              }
+              handlePresenceUpdate(message);
               break;
 
             case 'collaborators':
               setOnlineCollaborators(message.collaborators);
               break;
 
-            case 'project_state':
-              setIsPaused(message.state === 'paused');
-              if (message.updatedBy.id !== user?.id) {
-                toast({
-                  title: "Project State Changed",
-                  description: `${message.updatedBy.username} ${message.state === 'paused' ? 'paused' : 'resumed'} the project`,
-                });
-              }
+            case 'history':
+              setMessages(message.messages);
+              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
               break;
 
-            case 'connection':
-              console.log('Connection confirmed:', message.message);
+            case 'message':
+              handleNewMessage(message);
+              break;
+
+            case 'project_state':
+              handleProjectStateChange(message);
               break;
 
             case 'error':
-              setWsError(message.error);
-              toast({
-                title: "Error",
-                description: message.error,
-                variant: "destructive",
-              });
+              handleError(message.error);
               break;
 
             default:
-              if (message.sender && message.content) {
-                setMessages(prev => [...prev, message]);
-                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-              }
+              console.warn('Unknown message type:', message);
           }
         } catch (error) {
           console.error('Error parsing message:', error);
@@ -224,6 +206,54 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
         variant: "destructive",
       });
     }
+  };
+
+  const handlePresenceUpdate = (presence: CollaboratorPresence) => {
+    setOnlineCollaborators(prev => {
+      const filtered = prev.filter(c => c.userId !== presence.userId);
+      return presence.status === 'online'
+        ? [...filtered, presence]
+        : filtered;
+    });
+    if (presence.status === 'online' && presence.userId !== user?.id) {
+      toast({
+        title: "Collaborator Online",
+        description: `${presence.username} joined the project`,
+      });
+    }
+  };
+
+  const handleNewMessage = (message: Message) => {
+    setMessages(prev => [...prev, message]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+    // Play notification sound for messages from others
+    if (message.sender.id !== user?.id) {
+      // You can add a sound notification here if needed
+      toast({
+        title: "New Message",
+        description: `${message.sender.username}: ${message.content}`,
+      });
+    }
+  };
+
+  const handleProjectStateChange = (change: ProjectStateChange) => {
+    setIsPaused(change.state === 'paused');
+    if (change.updatedBy.id !== user?.id) {
+      toast({
+        title: "Project State Changed",
+        description: `${change.updatedBy.username} ${change.state === 'paused' ? 'paused' : 'resumed'} the project`,
+      });
+    }
+  };
+
+  const handleError = (error: string) => {
+    setWsError(error);
+    toast({
+      title: "Error",
+      description: error,
+      variant: "destructive",
+    });
   };
 
   useEffect(() => {
@@ -272,12 +302,20 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   };
 
   const toggleProjectState = () => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      toast({
-        title: "Connection Error",
-        description: "Unable to change project state. Please wait for reconnection.",
-        variant: "destructive",
-      });
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN || !canEditState) {
+      if(!canEditState) {
+        toast({
+          title: "Permission Denied",
+          description: "You do not have permission to pause/resume this project.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection Error",
+          description: "Unable to change project state. Please wait for reconnection.",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
@@ -297,9 +335,16 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
     }
   };
 
-  if (!project) return null;
+  if (isLoadingProject || !project) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   const isOwner = project.ownerId === user?.id;
+  const canEditState = userAccessLevel === 'owner' || userAccessLevel === 'admin';
 
   return (
     <div className="h-screen flex flex-col">
@@ -449,7 +494,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
                 </DialogContent>
               </Dialog>
 
-              {isOwner && (
+              {canEditState && (
                 <Button
                   variant="ghost"
                   className="w-full justify-start"

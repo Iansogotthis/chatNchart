@@ -1,3 +1,4 @@
+
 modules = ["nodejs-20", "postgresql-16", "web"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
@@ -11,16 +12,11 @@ build = ["npm", "run", "build"]
 run = ["sh", "-c", "PORT=5000 npm run dev"]
 
 [[ports]]
-localPort = 3002
-externalPort = 3002
-
-[[ports]]
 localPort = 5000
 externalPort = 80
 
 [workflows]
-
-[[workflows.workflow]]
+[workflows.workflow]
 name = "Project"
 mode = "parallel"
 author = "agent"
@@ -41,5 +37,5 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=3002 npm run dev"
-waitForPort = 3002
+args = "PORT=5000 npm run dev"
+waitForPort = 5000

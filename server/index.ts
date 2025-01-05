@@ -49,6 +49,7 @@ async function startServer() {
     // Create HTTP server first
     const port = process.env.PORT || 5000;
     app.set('port', port);
+    app.set('host', '0.0.0.0');
     const server = registerRoutes(app);
     
     // Kill any existing processes on the port

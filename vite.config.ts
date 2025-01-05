@@ -8,29 +8,32 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export default defineConfig({
-  plugins: [
-    react(),
-    runtimeErrorOverlay(),
-    themePlugin(),
-  ],
+  plugins: [react(), runtimeErrorOverlay(), themePlugin()],
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor': [
-            'react',
-            'react-dom',
-            'react-query',
-            'd3',
-            'framer-motion',
-            'recharts'
+          vendor: [
+            "react",
+            "react-dom",
+            "react-query",
+            "d3",
+            "framer-motion",
+            "recharts",
           ],
-          'ui': [
-            './src/components/ui'
-          ]
-        }
-      }
-    }
+          ui: ["./src/components/ui"],
+        },
+      },
+    },
+    outDir: path.resolve(__dirname, "dist/public"),
+    emptyOutDir: true,
+  },
+  server: {
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 3000,
+    },
   },
   resolve: {
     alias: {
@@ -39,8 +42,4 @@ export default defineConfig({
     },
   },
   root: path.resolve(__dirname, "client"),
-  build: {
-    outDir: path.resolve(__dirname, "dist/public"),
-    emptyOutDir: true,
-  },
 });

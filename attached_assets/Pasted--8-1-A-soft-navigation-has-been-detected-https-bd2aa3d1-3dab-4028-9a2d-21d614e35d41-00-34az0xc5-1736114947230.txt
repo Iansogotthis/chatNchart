@@ -1,0 +1,202 @@
+﻿
+8:1 A soft navigation has been detected: https://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/collaborations/8
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+2
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+2
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+connectWebSocket	@	CollaborationProjectView.tsx:112
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+isTrusted
+: 
+true
+bubbles
+: 
+false
+cancelBubble
+: 
+false
+cancelable
+: 
+false
+composed
+: 
+false
+currentTarget
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+defaultPrevented
+: 
+false
+eventPhase
+: 
+0
+returnValue
+: 
+true
+srcElement
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+target
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+timeStamp
+: 
+17128.299999713898
+type
+: 
+"error"
+[[Prototype]]
+: 
+Event
+CollaborationProjectView.tsx:182 WebSocket connection closed
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+isTrusted
+: 
+true
+bubbles
+: 
+false
+cancelBubble
+: 
+false
+cancelable
+: 
+false
+composed
+: 
+false
+currentTarget
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+defaultPrevented
+: 
+false
+eventPhase
+: 
+0
+returnValue
+: 
+true
+srcElement
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+target
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+timeStamp
+: 
+17608.099999904633
+type
+: 
+"error"
+[[Prototype]]
+: 
+Event
+ws.onerror	@	CollaborationProjectView.tsx:171
+error (async)		
+connectWebSocket	@	CollaborationProjectView.tsx:170
+CollaborationProjectView.tsx:182 WebSocket connection closed
+2
+CollaborationProjectView.tsx:110 Connecting to WebSocket: wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat
+CollaborationProjectView.tsx:112 WebSocket connection to 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az0xc50c0z0.janeway.replit.dev:3002/ws/projects/8/chat' failed: Error during WebSocket handshake: Unexpected response code: 400
+connectWebSocket	@	CollaborationProjectView.tsx:112
+CollaborationProjectView.tsx:171 WebSocket error: 
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+isTrusted
+: 
+true
+bubbles
+: 
+false
+cancelBubble
+: 
+false
+cancelable
+: 
+false
+composed
+: 
+false
+currentTarget
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+defaultPrevented
+: 
+false
+eventPhase
+: 
+0
+returnValue
+: 
+true
+srcElement
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+target
+: 
+WebSocket {url: 'wss://bd2aa3d1-3dab-4028-9a2d-21d614e35d41-00-34az…50c0z0.janeway.replit.dev:3002/ws/projects/8/chat', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}
+timeStamp
+: 
+18742.599999904633
+type
+: 
+"error"
+[[Prototype]]
+: 
+Event
+ws.onerror	@	CollaborationProjectView.tsx:171
+error (async)		
+connectWebSocket	@	CollaborationProjectView.tsx:170
+setTimeout (async)		
+ws.onclose	@	CollaborationProjectView.tsx:194
+CollaborationProjectView.tsx:182 WebSocket connection closed

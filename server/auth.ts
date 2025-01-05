@@ -1,8 +1,6 @@
 import passport from "passport";
 import { IVerifyOptions, Strategy as LocalStrategy } from "passport-local";
 import { type Express } from "express";
-import session from "express-session";
-import createMemoryStore from "memorystore";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { users, insertUserSchema, type User as SelectUser } from "@db/schema";
@@ -35,31 +33,6 @@ declare global {
 }
 
 export function setupAuth(app: Express) {
-  const MemoryStore = createMemoryStore(session);
-  const sessionSettings: session.SessionOptions = {
-    secret: process.env.REPL_ID || "porygon-supremacy",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      secure: app.get("env") === "production",
-      sameSite: "lax",
-    },
-    store: new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
-      max: 1000, // maximum number of sessions to store
-      ttl: 86400000, // time to live in milliseconds (24h)
-    }),
-  };
-
-  if (app.get("env") === "production") {
-    app.set("trust proxy", 1);
-  }
-
-  app.use(session(sessionSettings));
-  app.use(passport.initialize());
-  app.use(passport.session());
-
   // Cache for user data
   const userCache = new Map<number, { user: SelectUser; timestamp: number }>();
   const USER_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -127,6 +100,9 @@ export function setupAuth(app: Express) {
       }
     });
   }, USER_CACHE_TTL);
+
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   app.post("/api/register", async (req, res, next) => {
     try {

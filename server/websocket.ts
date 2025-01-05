@@ -1,8 +1,9 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import { Server } from 'http';
-import { db } from '@db';
-import { chatMessages, users, projectCollaborators, projects } from '@db/schema';
+import { db } from '../db';
+import { chatMessages, users, projectCollaborators, projects } from '../db/schema';
 import { eq, and, or } from 'drizzle-orm';
+import { sessionStore } from './session';
 
 interface ChatMessage {
   projectId: number;
@@ -14,17 +15,53 @@ export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
     server,
     path: '/ws/projects',
-    verifyClient: (info, callback) => {
-      // Extract session from request
-      const session = (info.req as any).session;
-      const isAuthenticated = session?.passport?.user;
+    verifyClient: async (info, callback) => {
+      try {
+        // Get session ID from cookie
+        const cookieString = info.req.headers.cookie;
+        if (!cookieString) {
+          console.error('No cookie found in WebSocket request');
+          callback(false, 401, 'Unauthorized');
+          return;
+        }
 
-      if (!isAuthenticated) {
-        callback(false, 401, 'Unauthorized');
-        return;
+        // Parse session ID from connect.sid cookie
+        const sessionCookie = cookieString
+          .split(';')
+          .find(c => c.trim().startsWith('connect.sid='));
+
+        if (!sessionCookie) {
+          console.error('No session cookie found');
+          callback(false, 401, 'Unauthorized');
+          return;
+        }
+
+        const sessionId = decodeURIComponent(sessionCookie.split('=')[1]);
+
+        // Verify session exists in store
+        sessionStore.get(sessionId, (err, session) => {
+          if (err || !session) {
+            console.error('Invalid session:', err || 'Session not found');
+            callback(false, 401, 'Unauthorized');
+            return;
+          }
+
+          const userId = session.passport?.user;
+          if (!userId) {
+            console.error('No user ID in session');
+            callback(false, 401, 'Unauthorized');
+            return;
+          }
+
+          // Add user ID to request for later use
+          (info.req as any).userId = userId;
+          callback(true);
+        });
+
+      } catch (error) {
+        console.error('WebSocket verification error:', error);
+        callback(false, 500, 'Internal server error');
       }
-
-      callback(true);
     }
   });
 
@@ -36,12 +73,12 @@ export function setupWebSocket(server: Server) {
     const match = req.url?.match(/\/(\d+)\/chat/);
     if (!match) {
       console.error('Invalid WebSocket URL:', req.url);
-      ws.close();
+      ws.close(1002, 'Invalid project ID');
       return;
     }
 
     const projectId = parseInt(match[1]);
-    const userId = (req as any).session?.passport?.user;
+    const userId = (req as any).userId;
 
     try {
       // Check if user is either the project owner or a collaborator
@@ -62,7 +99,7 @@ export function setupWebSocket(server: Server) {
 
       if (!hasAccess) {
         console.error(`User ${userId} attempted to access unauthorized project ${projectId}`);
-        ws.close();
+        ws.close(1003, 'Unauthorized');
         return;
       }
 
@@ -74,6 +111,12 @@ export function setupWebSocket(server: Server) {
 
       console.log(`User ${userId} connected to project ${projectId} chat`);
 
+      // Send connection success message
+      ws.send(JSON.stringify({
+        type: 'connection',
+        message: 'Connected successfully'
+      }));
+
       ws.on('message', async (data) => {
         try {
           const message: ChatMessage = JSON.parse(data.toString());
@@ -81,6 +124,7 @@ export function setupWebSocket(server: Server) {
           // Verify the message is for the correct project and from the authenticated user
           if (message.projectId !== projectId || message.userId !== userId) {
             console.error('Invalid message data:', message);
+            ws.send(JSON.stringify({ error: 'Invalid message data' }));
             return;
           }
 
@@ -90,7 +134,7 @@ export function setupWebSocket(server: Server) {
             .values({
               projectId: message.projectId,
               senderId: message.userId,
-              content: message.content,
+              content: message.content.trim(),
             })
             .returning();
 
@@ -108,7 +152,7 @@ export function setupWebSocket(server: Server) {
           const outgoingMessage = {
             id: savedMessage.id,
             content: savedMessage.content,
-            sender: sender,
+            sender,
             timestamp: savedMessage.createdAt,
           };
 
@@ -119,11 +163,12 @@ export function setupWebSocket(server: Server) {
           });
         } catch (error) {
           console.error('Error processing message:', error);
+          ws.send(JSON.stringify({ error: 'Failed to process message' }));
         }
       });
 
+      // Handle client disconnect
       ws.on('close', () => {
-        // Remove connection from project room
         projectRooms.get(projectId)?.delete(ws);
         if (projectRooms.get(projectId)?.size === 0) {
           projectRooms.delete(projectId);
@@ -133,7 +178,7 @@ export function setupWebSocket(server: Server) {
 
     } catch (error) {
       console.error('Error setting up WebSocket connection:', error);
-      ws.close();
+      ws.close(1011, 'Internal server error');
     }
   });
 

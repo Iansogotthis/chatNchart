@@ -5,6 +5,8 @@ import { db } from "../db";
 import { sql } from "drizzle-orm";
 import { setupWebSocket } from "./websocket";
 import { createServer } from "vite";
+import { sessionMiddleware } from "./session";
+import { setupAuth } from "./auth";
 
 const app = express();
 app.use(express.json());
@@ -32,6 +34,12 @@ app.use((req, res, next) => {
   }
 });
 
+// Use session middleware before setting up auth
+app.use(sessionMiddleware);
+
+// Setup authentication after session middleware
+setupAuth(app);
+
 async function startServer() {
   try {
     log("Starting server initialization...");
@@ -48,7 +56,7 @@ async function startServer() {
     // Create HTTP server first
     const server = registerRoutes(app);
 
-    // Setup WebSocket server with existing HTTP server
+    // Setup WebSocket server with existing HTTP server and session
     setupWebSocket(server);
 
     // Enhanced error handling middleware
@@ -86,33 +94,10 @@ async function startServer() {
       app.use(vite.middlewares);
     }
 
-    // Function to try starting the server on a different port if the current one is in use
-    const startServerOnPort = async (currentPort: number, retries = 3): Promise<void> => {
-      try {
-        await new Promise<void>((resolve, reject) => {
-          server.listen(currentPort, '0.0.0.0', () => {
-            log(`Server running on port ${currentPort}`);
-            resolve();
-          }).on('error', (error: any) => {
-            if (error.code === 'EADDRINUSE' && retries > 0) {
-              log(`Port ${currentPort} is in use, trying port ${currentPort + 1}`);
-              server.close();
-              startServerOnPort(currentPort + 1, retries - 1).then(resolve).catch(reject);
-            } else {
-              reject(error);
-            }
-          });
-        });
-      } catch (error) {
-        if (retries === 0) {
-          throw new Error(`Failed to find an available port after ${3} attempts`);
-        }
-        throw error;
-      }
-    };
-
     const port = parseInt(process.env.PORT || '3002', 10);
-    await startServerOnPort(port);
+    server.listen(port, '0.0.0.0', () => {
+      log(`Server running on port ${port}`);
+    });
 
   } catch (error) {
     log("Failed to start server:", error instanceof Error ? error.message : String(error));

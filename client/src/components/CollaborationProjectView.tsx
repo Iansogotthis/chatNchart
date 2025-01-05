@@ -3,7 +3,6 @@ import { useParams } from "wouter";
 import { ChartVisualization } from "./ChartVisualization";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
-import { Sheet, SheetContent } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Settings, Settings2, History, Users, MessageSquare, PanelLeftClose, PanelRightClose, Play, Pause, Send } from "lucide-react";
@@ -12,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@/types/collaboration";
 import { Input } from "./ui/input";
 import { useUser } from "@/hooks/use-user";
+import { cn } from "@/lib/utils";
 
 interface Message {
   id: number;
@@ -30,13 +30,14 @@ interface CollaborationProjectViewProps {
 export function CollaborationProjectView({ id }: CollaborationProjectViewProps) {
   const { toast } = useToast();
   const { user } = useUser();
-  const [leftNavOpen, setLeftNavOpen] = useState(true);
-  const [rightNavOpen, setRightNavOpen] = useState(true);
+  const [leftNavOpen, setLeftNavOpen] = useState(false); // Start hidden
+  const [rightNavOpen, setRightNavOpen] = useState(false); // Start hidden
   const [showTimeline, setShowTimeline] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [wsError, setWsError] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
@@ -51,6 +52,9 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
   });
 
   const connectWebSocket = () => {
+    if (isConnecting) return;
+    setIsConnecting(true);
+
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.host;
@@ -60,11 +64,25 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
       ws.onopen = () => {
         console.log('WebSocket connected');
         setWsError(null);
+        setIsConnecting(false);
+        toast({
+          title: "Connected",
+          description: "Chat connection established",
+        });
       };
 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          if (message.error) {
+            setWsError(message.error);
+            toast({
+              title: "Error",
+              description: message.error,
+              variant: "destructive",
+            });
+            return;
+          }
           setMessages(prev => [...prev, message]);
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
@@ -76,6 +94,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
         setWsError('Connection error');
+        setIsConnecting(false);
         toast({
           title: "Connection Error",
           description: "Failed to connect to chat. Attempting to reconnect...",
@@ -86,23 +105,33 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
       ws.onclose = () => {
         console.log('WebSocket connection closed');
         setWsError('Connection closed');
+        setIsConnecting(false);
 
-        // Attempt to reconnect after 5 seconds
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (document.visibilityState === 'visible') {
-            connectWebSocket();
-          }
-        }, 5000);
+        // Attempt to reconnect after 5 seconds if page is visible and not already connecting
+        if (!isConnecting) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            if (document.visibilityState === 'visible') {
+              connectWebSocket();
+            }
+          }, 5000);
+        }
       };
     } catch (error) {
       console.error('Error creating WebSocket:', error);
       setWsError('Failed to create connection');
+      setIsConnecting(false);
+      toast({
+        title: "Connection Error",
+        description: "Failed to establish chat connection",
+        variant: "destructive",
+      });
     }
   };
 
   useEffect(() => {
     connectWebSocket();
 
+    // Cleanup function
     return () => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.close();
@@ -126,7 +155,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
     }
 
     const messageData = {
-      content: messageInput,
+      content: messageInput.trim(),
       projectId: id,
       userId: user?.id,
     };
@@ -144,187 +173,166 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
     }
   };
 
-  const handleTimelineView = async () => {
-    const save = window.confirm(
-      "Would you like to save this project at its current timestamp before continuing to view this project's timeline?\n\n" +
-        "Please note: This will erase all changes to this project since the last timestamp was saved before proceeding to view the project's timeline."
-    );
-
-    if (save) {
-      try {
-        await fetch(`/api/projects/${id}/timeline`, {
-          method: 'POST',
-        });
-        setShowTimeline(true);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to save timeline",
-          variant: "destructive",
-        });
-      }
-    }
+  const toggleProjectState = () => {
+    setIsPaused(!isPaused);
+    toast({
+      title: isPaused ? "Project Resumed" : "Project Paused",
+      description: isPaused
+        ? "Collaborators can now access and edit the project"
+        : "Project access has been temporarily restricted",
+    });
   };
-
-  const toggleProjectState = async () => {
-    try {
-      await fetch(`/api/projects/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state: isPaused ? 'active' : 'paused' }),
-      });
-      setIsPaused(!isPaused);
-      toast({
-        title: isPaused ? "Project Resumed" : "Project Paused",
-        description: isPaused
-          ? "Collaborators can now access and edit the project"
-          : "Project access has been temporarily restricted",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update project state",
-        variant: "destructive",
-      });
-    }
-  };
-
 
   if (!project) return null;
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="flex-1 grid grid-cols-[auto_1fr_auto]">
-        <Sheet open={leftNavOpen} onOpenChange={setLeftNavOpen}>
-          <SheetContent side="left" className="w-[250px] p-0">
-            <div className="p-4 space-y-4">
-              <h2 className="text-lg font-semibold">Project Tools</h2>
-              <Separator />
-              <div className="space-y-2">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={handleTimelineView}
-                >
-                  <History className="mr-2 h-4 w-4" />
-                  Timeline
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                >
-                  <Settings2 className="mr-2 h-4 w-4" />
-                  Tools
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Team
-                </Button>
-              </div>
+      <div className="flex-1 grid grid-cols-[1fr] relative">
+        {/* Left Panel */}
+        <div
+          className={cn(
+            "fixed left-0 top-0 h-full w-[250px] bg-background border-r",
+            "transform transition-transform duration-300 ease-in-out z-20",
+            leftNavOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          <div className="p-4 space-y-4">
+            <h2 className="text-lg font-semibold">Project Tools</h2>
+            <Separator />
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => {
+                  setShowTimeline(!showTimeline);
+                  setLeftNavOpen(false);
+                }}
+              >
+                <History className="mr-2 h-4 w-4" />
+                Timeline
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <Settings2 className="mr-2 h-4 w-4" />
+                Tools
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <Users className="mr-2 h-4 w-4" />
+                Team
+              </Button>
             </div>
-          </SheetContent>
-        </Sheet>
+          </div>
+        </div>
 
-        <main className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-2 top-2 z-10"
-            onClick={() => setLeftNavOpen(!leftNavOpen)}
-          >
-            <PanelLeftClose className="h-4 w-4" />
-          </Button>
+        {/* Main Content */}
+        <main className="relative min-h-0">
+          <div className="absolute left-4 top-4 z-30">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLeftNavOpen(!leftNavOpen)}
+              className="rounded-full shadow-md bg-background hover:bg-background/90"
+            >
+              <PanelLeftClose className={cn("h-4 w-4 transition-transform", !leftNavOpen && "rotate-180")} />
+            </Button>
+          </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2 z-10"
-            onClick={() => setRightNavOpen(!rightNavOpen)}
-          >
-            <PanelRightClose className="h-4 w-4" />
-          </Button>
+          <div className="absolute right-4 top-4 z-30">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setRightNavOpen(!rightNavOpen)}
+              className="rounded-full shadow-md bg-background hover:bg-background/90"
+            >
+              <PanelRightClose className={cn("h-4 w-4 transition-transform", !rightNavOpen && "rotate-180")} />
+            </Button>
+          </div>
 
-          {project.chart && <ChartVisualization chart={project.chart} />}
+          {project.chart && (
+            <div className="h-full">
+              <ChartVisualization chart={project.chart} />
+            </div>
+          )}
         </main>
 
-        <Sheet open={rightNavOpen} onOpenChange={setRightNavOpen}>
-          <SheetContent side="right" className="w-[250px] p-0">
-            <div className="p-4 space-y-4">
-              <h2 className="text-lg font-semibold">Project Settings</h2>
-              <Separator />
-              <div className="space-y-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      Edit Project Priorities
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Edit Project Priorities</DialogTitle>
-                    </DialogHeader>
-                    {/* Add project priorities form here */}
-                  </DialogContent>
-                </Dialog>
+        {/* Right Panel */}
+        <div
+          className={cn(
+            "fixed right-0 top-0 h-full w-[250px] bg-background border-l",
+            "transform transition-transform duration-300 ease-in-out z-20",
+            rightNavOpen ? "translate-x-0" : "translate-x-full"
+          )}
+        >
+          <div className="p-4 space-y-4">
+            <h2 className="text-lg font-semibold">Project Settings</h2>
+            <Separator />
+            <div className="space-y-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Edit Project Settings
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Project Settings</DialogTitle>
+                  </DialogHeader>
+                  {/* Project settings form content */}
+                </DialogContent>
+              </Dialog>
 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      Edit Collaborators
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Edit Collaborators</DialogTitle>
-                    </DialogHeader>
-                    {/* Add collaborator management here */}
-                  </DialogContent>
-                </Dialog>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Users className="mr-2 h-4 w-4" />
+                    Edit Collaborators
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Collaborators</DialogTitle>
+                  </DialogHeader>
+                  {/* Collaborator management content */}
+                </DialogContent>
+              </Dialog>
 
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={toggleProjectState}
-                >
-                  {isPaused ? (
-                    <>
-                      <Play className="mr-2 h-4 w-4" />
-                      Present Collaboration
-                    </>
-                  ) : (
-                    <>
-                      <Pause className="mr-2 h-4 w-4" />
-                      Pause Collaboration
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={toggleProjectState}
+              >
+                {isPaused ? (
+                  <>
+                    <Play className="mr-2 h-4 w-4" />
+                    Resume Project
+                  </>
+                ) : (
+                  <>
+                    <Pause className="mr-2 h-4 w-4" />
+                    Pause Project
+                  </>
+                )}
+              </Button>
             </div>
-          </SheetContent>
-        </Sheet>
+          </div>
+        </div>
       </div>
 
+      {/* Chat Panel */}
       <div className="h-[200px] border-t">
         <div className="flex items-center justify-between p-2 border-b bg-background">
           <h3 className="font-medium">Project Chat</h3>
           <div className="flex items-center gap-2">
             {wsError && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-destructive">
                 {wsError}
               </span>
             )}
-            <MessageSquare className="h-4 w-4" />
+            {isConnecting ? (
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+            ) : (
+              <MessageSquare className="h-4 w-4" />
+            )}
           </div>
         </div>
         <div className="h-[calc(200px-41px)] grid grid-rows-[1fr_auto]">
@@ -332,13 +340,19 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
             {messages.map((message, index) => (
               <div
                 key={message.id || index}
-                className={`mb-2 ${message.sender.id === user?.id ? 'text-right' : ''}`}
+                className={cn(
+                  "mb-2",
+                  message.sender.id === user?.id ? "text-right" : ""
+                )}
               >
-                <div className={`inline-block max-w-[70%] px-3 py-2 rounded-lg ${
-                  message.sender.id === user?.id
-                    ? 'bg-primary text-primary-foreground ml-auto'
-                    : 'bg-muted'
-                }`}>
+                <div
+                  className={cn(
+                    "inline-block max-w-[70%] px-3 py-2 rounded-lg",
+                    message.sender.id === user?.id
+                      ? "bg-primary text-primary-foreground ml-auto"
+                      : "bg-muted"
+                  )}
+                >
                   <p className="text-sm font-medium">{message.sender.username}</p>
                   <p className="text-sm">{message.content}</p>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -353,7 +367,7 @@ export function CollaborationProjectView({ id }: CollaborationProjectViewProps) 
             <Input
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
               placeholder="Type a message..."
               className="flex-1"
               disabled={!!wsError}

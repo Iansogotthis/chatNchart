@@ -10,13 +10,13 @@ export const sessionStore = new MemoryStore({
 });
 
 export const sessionMiddleware = session({
-  secret: process.env.REPL_ID || "porygon-supremacy",
+  secret: process.env.SESSION_SECRET || 'default_secret',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   store: sessionStore,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 });

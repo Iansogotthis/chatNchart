@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useUser } from "@/hooks/use-user";
 import { useFriends } from "@/hooks/use-friends";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "./ui/command";
 import { Button } from "./ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { UserPlus2, Search, UserCheck2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,8 +18,12 @@ interface FriendStatus {
   hasRequestPending?: boolean;
 }
 
-export function SearchFriends() {
-  const [open, setOpen] = useState(false);
+interface SearchFriendsProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function SearchFriends({ isOpen, onOpenChange }: SearchFriendsProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<(SearchResult & FriendStatus)[]>([]);
@@ -27,9 +31,17 @@ export function SearchFriends() {
   const { friends, pendingRequests, sendRequest, isMutating } = useFriends();
   const { toast } = useToast();
 
+  // Reset search when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchTerm("");
+      setResults([]);
+    }
+  }, [isOpen]);
+
   const handleSearch = async (value: string) => {
     setSearchTerm(value);
-    if (value.length < 2) {
+    if (value.length < 1) {
       setResults([]);
       return;
     }
@@ -83,8 +95,8 @@ export function SearchFriends() {
         )
       );
 
-      // Close the popover after successful request
-      setOpen(false);
+      // Close the dialog after successful request
+      onOpenChange(false);
     } catch (error) {
       console.error('Friend request error:', error);
       toast({
@@ -96,14 +108,11 @@ export function SearchFriends() {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Search className="h-5 w-5" />
-          <span className="sr-only">Search friends</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="end">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Search Friends</DialogTitle>
+        </DialogHeader>
         <Command>
           <CommandInput
             placeholder="Search users..."
@@ -156,7 +165,7 @@ export function SearchFriends() {
             </CommandGroup>
           </CommandList>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }

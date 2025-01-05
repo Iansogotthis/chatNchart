@@ -1,6 +1,7 @@
 import { useUser } from "@/hooks/use-user";
 import { useFriends } from "@/hooks/use-friends";
 import { FriendList } from "@/components/FriendList";
+import { SearchFriends } from "@/components/SearchFriends";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,7 +16,7 @@ export default function FriendsPage() {
   const { friends, pendingRequests, acceptRequest, rejectRequest, removeFriend, isMutating } = useFriends();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleAcceptRequest = async (requestId: number) => {
     try {
@@ -72,13 +73,6 @@ export default function FriendsPage() {
     setLocation(`/messages?compose=true&recipientId=${friendId}`);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setLocation(`/friends/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
   if (!user) return null;
 
   return (
@@ -88,34 +82,25 @@ export default function FriendsPage() {
           Friends & Requests
         </h1>
 
-        {/* Search Form - Enhanced Mobile Responsive */}
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
-          <div className="flex-1 min-w-0">
-            <Input
-              type="search"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
-              aria-label="Search for users"
-            />
-          </div>
+        <div className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
           <Button 
-            type="submit" 
+            onClick={() => setIsSearchOpen(true)}
             className="w-full sm:w-auto"
-            aria-label="Search"
+            aria-label="Open Search"
           >
             <Search className="h-4 w-4 mr-2" />
-            <span className="sm:hidden">Search</span>
-            <span className="sr-only">Search for users</span>
+            Find Friends
           </Button>
-        </form>
+          <SearchFriends 
+            isOpen={isSearchOpen} 
+            onOpenChange={setIsSearchOpen} 
+          />
+        </div>
       </header>
 
       <Card className="mb-6">
         <CardContent className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Stats with improved mobile layout */}
             <div className="space-y-2 text-sm">
               <p className="flex justify-between">
                 <span>Total Friends:</span>

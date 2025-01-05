@@ -1,25 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-interface Friend {
-  id: number;
-  status: "accepted";
-  createdAt: string;
-  friend: {
-    id: number;
-    username: string;
-    bio?: string;
-  };
-}
-
-interface FriendRequest {
-  id: number;
-  status: "pending";
-  createdAt: string;
-  sender: {
-    id: number;
-    username: string;
-  };
-}
+import type { Friend, FriendRequest } from '@/types/collaboration';
 
 interface FriendsResponse {
   friends: Friend[];

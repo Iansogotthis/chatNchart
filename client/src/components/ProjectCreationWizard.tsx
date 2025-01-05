@@ -4,12 +4,13 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
 import { useLocation } from "wouter";
 import { useUser } from "@/hooks/use-user";
+import { useFriends } from "@/hooks/use-friends";
 import { useToast } from "@/hooks/use-toast";
 import type { Chart } from "@db/schema";
-import type { Collaborator } from "@/types/collaboration";
-import type { Friend } from "@/types";
+import type { Friend, CollaboratorAccessLevel } from "@/types/collaboration";
 import { useQuery } from "@tanstack/react-query";
 
 interface ProjectCreationWizardProps {
@@ -17,14 +18,19 @@ interface ProjectCreationWizardProps {
   onClose: () => void;
 }
 
+interface CollaboratorWithAccess extends Friend {
+  selectedAccessLevel: CollaboratorAccessLevel;
+}
+
 export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizardProps) {
   const [step, setStep] = useState(1);
   const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
-  const [selectedCollaborators, setSelectedCollaborators] = useState<Collaborator[]>([]);
+  const [selectedCollaborators, setSelectedCollaborators] = useState<CollaboratorWithAccess[]>([]);
   const [projectName, setProjectName] = useState("");
   const [, setLocation] = useLocation();
   const { user } = useUser();
   const { toast } = useToast();
+  const { friends } = useFriends();
 
   const { data: charts } = useQuery<Chart[]>({
     queryKey: ["charts"],
@@ -35,24 +41,21 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
     },
   });
 
-  const { data: friends = [] } = useQuery<Friend[]>({
-    queryKey: ["friends"],
-    queryFn: async () => {
-      const response = await fetch("/api/friends");
-      if (!response.ok) throw new Error("Failed to fetch friends");
-      return response.json();
-    },
-  });
-
   const handleCreateProject = async () => {
     try {
+      const collaborators = selectedCollaborators.map(c => ({
+        id: c.friend?.id || 0,
+        username: c.friend?.username || '',
+        accessLevel: c.selectedAccessLevel
+      }));
+
       const response = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: projectName,
           chartId: selectedChart?.id,
-          collaboratorIds: selectedCollaborators.map(c => c.id)
+          collaborators
         }),
       });
 
@@ -68,12 +71,23 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
       onClose();
       setLocation(`/collaborations/${project.id}`);
     } catch (error) {
+      console.error('Error creating project:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create project",
         variant: "destructive",
       });
     }
+  };
+
+  const handleAccessLevelChange = (friendId: number, accessLevel: CollaboratorAccessLevel) => {
+    setSelectedCollaborators(prev => 
+      prev.map(collab => 
+        collab.id === friendId 
+          ? { ...collab, selectedAccessLevel: accessLevel }
+          : collab
+      )
+    );
   };
 
   const renderStep = () => {
@@ -114,46 +128,68 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
       case 2:
         return (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Select Collaborators</h2>
+            <h2 className="text-lg font-semibold">Select Collaborators and Access Levels</h2>
             <ScrollArea className="h-[400px]">
               <div className="space-y-2">
-                {friends?.filter(f => f.status === "accepted").map((friendship) => {
-                  const friend = friendship.friend;
-                  if (!friend) return null;
+                {friends?.map((friend) => {
+                  if (!friend.friend) return null;
+                  const isSelected = selectedCollaborators.some(c => c.id === friend.id);
 
                   return (
                     <Card
                       key={friend.id}
                       className={`cursor-pointer transition-all ${
-                        selectedCollaborators.some(c => c.id === friend.id)
-                          ? "ring-2 ring-primary"
-                          : ""
+                        isSelected ? "ring-2 ring-primary" : ""
                       }`}
                       onClick={() => {
-                        const isSelected = selectedCollaborators.some(
-                          (c) => c.id === friend.id
-                        );
+                        if (!friend.friend) return;
                         if (isSelected) {
-                          setSelectedCollaborators(
-                            selectedCollaborators.filter((c) => c.id !== friend.id)
+                          setSelectedCollaborators(prev => 
+                            prev.filter(c => c.id !== friend.id)
                           );
                         } else {
-                          setSelectedCollaborators([
-                            ...selectedCollaborators,
-                            { id: friend.id, username: friend.username, accessLevel: "editable" },
+                          setSelectedCollaborators(prev => [
+                            ...prev,
+                            { 
+                              ...friend,
+                              selectedAccessLevel: "editable" as CollaboratorAccessLevel
+                            }
                           ]);
                         }
                       }}
                     >
                       <CardContent className="p-4">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 rounded-full bg-primary/10" />
-                          <div>
-                            <p className="font-medium">{friend.username || 'Unknown User'}</p>
-                            {friend.bio && (
-                              <p className="text-sm text-muted-foreground">{friend.bio}</p>
-                            )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/10" />
+                            <div>
+                              <p className="font-medium">{friend.friend.username || 'Unknown User'}</p>
+                              {friend.friend.bio && (
+                                <p className="text-sm text-muted-foreground">{friend.friend.bio}</p>
+                              )}
+                            </div>
                           </div>
+                          {isSelected && (
+                            <Select
+                              value={selectedCollaborators.find(c => c.id === friend.id)?.selectedAccessLevel}
+                              onValueChange={(value: CollaboratorAccessLevel) => 
+                                handleAccessLevelChange(friend.id, value)
+                              }
+                            >
+                              <SelectTrigger className="w-[140px]" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                <SelectValue placeholder="Select access" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Access Level</SelectLabel>
+                                  <SelectItem value="unlimited">Unlimited</SelectItem>
+                                  <SelectItem value="editable">Editable</SelectItem>
+                                  <SelectItem value="readable">Readable</SelectItem>
+                                  <SelectItem value="prompted">Prompted</SelectItem>
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          )}
                         </div>
                       </CardContent>
                     </Card>

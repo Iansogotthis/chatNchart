@@ -2,14 +2,31 @@ import type { Chart } from "@db/schema";
 
 export interface Friend {
   id: number;
-  username: string;
   status: "accepted";
+  createdAt: string;
+  friend: {
+    id: number;
+    username: string;
+    bio?: string | null;
+  } | null;
 }
+
+export interface FriendRequest {
+  id: number;
+  status: "pending";
+  createdAt: string;
+  sender: {
+    id: number;
+    username: string;
+  } | null;
+}
+
+export type CollaboratorAccessLevel = "unlimited" | "readable" | "editable" | "prompted";
 
 export interface Collaborator {
   id: number;
   username: string;
-  accessLevel: "unlimited" | "readable" | "editable" | "prompted";
+  accessLevel: CollaboratorAccessLevel;
 }
 
 export interface Project {

@@ -13,10 +13,18 @@ import {
   forumPosts,
   friends,
   users,
+  projects,
+  projectCollaborators,
   squareCustomizations,
 } from "../db/schema";
 import { eq, and, desc, or, sql, not, inArray } from "drizzle-orm";
 import { saveSquareCustomization, getSquareCustomizations } from "./routes/chart";
+
+interface Collaborator {
+  id: number;
+  username: string;
+  accessLevel: string;
+}
 
 export function registerRoutes(app: Express) {
   setupAuth(app);
@@ -26,6 +34,91 @@ export function registerRoutes(app: Express) {
   app.use("/api/messages", messageRoutes);
   app.use("/api/users", userRoutes);
 
+
+  // Project routes
+  app.post("/api/projects", async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+
+    try {
+      const { name, chartId, collaborators } = req.body as {
+        name: string;
+        chartId: number;
+        collaborators: Collaborator[];
+      };
+
+      // Create the project
+      const [project] = await db.insert(projects).values({
+        name,
+        chartId,
+        userId: req.user.id,
+        status: 'active'
+      }).returning();
+
+      // Add collaborators if any
+      if (collaborators && Array.isArray(collaborators) && collaborators.length > 0) {
+        await db.insert(projectCollaborators).values(
+          collaborators.map((collab: Collaborator) => ({
+            projectId: project.id,
+            userId: collab.id,
+            accessLevel: collab.accessLevel
+          }))
+        );
+
+        // Add notifications for collaborators
+        await db.insert(notifications).values(
+          collaborators.map((collab: Collaborator) => ({
+            userId: collab.id,
+            type: 'project_invitation',
+            sourceId: project.id,
+          }))
+        );
+      }
+
+      res.json(project);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      res.status(500).json({ error: 'Failed to create project' });
+    }
+  });
+
+  // Get user's projects
+  app.get("/api/projects", async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+
+    try {
+      const projects = await db
+        .select({
+          id: projects.id,
+          name: projects.name,
+          status: projects.status,
+          createdAt: projects.createdAt,
+          chart: {
+            id: charts.id,
+            title: charts.title,
+            data: charts.data,
+          },
+          creator: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(projects)
+        .where(
+          or(
+            eq(projects.userId, req.user.id),
+            eq(projectCollaborators.userId, req.user.id)
+          )
+        )
+        .leftJoin(charts, eq(projects.chartId, charts.id))
+        .leftJoin(users, eq(projects.userId, users.id))
+        .leftJoin(projectCollaborators, eq(projects.id, projectCollaborators.projectId));
+
+      res.json(projects);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      res.status(500).json({ error: 'Failed to fetch projects' });
+    }
+  });
 
   app.post("/api/saved-charts", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });

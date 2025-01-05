@@ -156,12 +156,34 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Projects table
+export const projects = pgTable("projects", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  chartId: integer("chart_id").references(() => charts.id),
+  userId: integer("user_id").references(() => users.id),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Project collaborators table
+export const projectCollaborators = pgTable("project_collaborators", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").references(() => projects.id),
+  userId: integer("user_id").references(() => users.id),
+  accessLevel: text("access_level").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const userRelations = relations(users, ({ many }) => ({
   charts: many(charts),
   posts: many(forumPosts),
   friends: many(friends),
   collaborationRequests: many(collaborationRequests),
+  projects: many(projects),
+  projectCollaborations: many(projectCollaborators),
   sentMessages: many(messages, {
     relationName: "sentMessages"
   }),
@@ -195,6 +217,30 @@ export const messageRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+export const projectRelations = relations(projects, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [projects.userId],
+    references: [users.id],
+  }),
+  chart: one(charts, {
+    fields: [projects.chartId],
+    references: [charts.id],
+  }),
+  collaborators: many(projectCollaborators),
+}));
+
+export const projectCollaboratorRelations = relations(projectCollaborators, ({ one }) => ({
+  project: one(projects, {
+    fields: [projectCollaborators.projectId],
+    references: [projects.id],
+  }),
+  user: one(users, {
+    fields: [projectCollaborators.userId],
+    references: [users.id],
+  }),
+}));
+
+
 // Schemas
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
@@ -217,3 +263,5 @@ export type Message = typeof messages.$inferSelect;
 export type SavedChart = typeof savedCharts.$inferSelect;
 export type ChartLike = typeof chartLikes.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
+export type Project = typeof projects.$inferSelect;
+export type ProjectCollaborator = typeof projectCollaborators.$inferSelect;

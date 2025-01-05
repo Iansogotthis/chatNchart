@@ -176,6 +176,41 @@ export const projectCollaborators = pgTable("project_collaborators", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Chat Messages table
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").references(() => projects.id),
+  senderId: integer("sender_id").references(() => users.id),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Update project relations to include chat messages
+export const projectRelations = relations(projects, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [projects.userId],
+    references: [users.id],
+  }),
+  chart: one(charts, {
+    fields: [projects.chartId],
+    references: [charts.id],
+  }),
+  collaborators: many(projectCollaborators),
+  messages: many(chatMessages),
+}));
+
+// Add chat messages relations
+export const chatMessageRelations = relations(chatMessages, ({ one }) => ({
+  project: one(projects, {
+    fields: [chatMessages.projectId],
+    references: [projects.id],
+  }),
+  sender: one(users, {
+    fields: [chatMessages.senderId],
+    references: [users.id],
+  }),
+}));
+
 // Relations
 export const userRelations = relations(users, ({ many }) => ({
   charts: many(charts),
@@ -217,17 +252,6 @@ export const messageRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
-export const projectRelations = relations(projects, ({ one, many }) => ({
-  creator: one(users, {
-    fields: [projects.userId],
-    references: [users.id],
-  }),
-  chart: one(charts, {
-    fields: [projects.chartId],
-    references: [charts.id],
-  }),
-  collaborators: many(projectCollaborators),
-}));
 
 export const projectCollaboratorRelations = relations(projectCollaborators, ({ one }) => ({
   project: one(projects, {
@@ -254,6 +278,9 @@ export const selectPostSchema = createSelectSchema(forumPosts);
 export const insertMessageSchema = createInsertSchema(messages);
 export const selectMessageSchema = createSelectSchema(messages);
 
+export const insertChatMessageSchema = createInsertSchema(chatMessages);
+export const selectChatMessageSchema = createSelectSchema(chatMessages);
+
 export type User = typeof users.$inferSelect;
 export type Chart = typeof charts.$inferSelect;
 export type ForumPost = typeof forumPosts.$inferSelect;
@@ -265,3 +292,4 @@ export type ChartLike = typeof chartLikes.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type ProjectCollaborator = typeof projectCollaborators.$inferSelect;
+export type ChatMessage = typeof chatMessages.$inferSelect;

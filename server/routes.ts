@@ -26,16 +26,170 @@ interface Collaborator {
   accessLevel: string;
 }
 
+interface ProjectWithDetails {
+  id: number;
+  name: string;
+  status: string;
+  createdAt: Date;
+  chart: {
+    id: number;
+    title: string;
+    data: any;
+  } | null;
+  creator: {
+    id: number;
+    username: string;
+  } | null;
+}
+
 export function registerRoutes(app: Express) {
   setupAuth(app);
   const httpServer = createServer(app);
 
-  // Register routes as middleware with proper error handling
   app.use("/api/messages", messageRoutes);
   app.use("/api/users", userRoutes);
 
-
   // Project routes
+  app.get("/api/projects", async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+
+    try {
+      // First get user's own projects
+      const ownProjects = await db
+        .select({
+          id: projects.id,
+          name: projects.name,
+          status: projects.status,
+          createdAt: projects.createdAt,
+          chart: {
+            id: charts.id,
+            title: charts.title,
+            data: charts.data,
+          },
+          creator: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(projects)
+        .where(eq(projects.userId, req.user.id))
+        .leftJoin(charts, eq(projects.chartId, charts.id))
+        .leftJoin(users, eq(projects.userId, users.id));
+
+      // Then get projects where user is a collaborator
+      const collaborativeProjects = await db
+        .select({
+          id: projects.id,
+          name: projects.name,
+          status: projects.status,
+          createdAt: projects.createdAt,
+          chart: {
+            id: charts.id,
+            title: charts.title,
+            data: charts.data,
+          },
+          creator: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(projectCollaborators)
+        .where(eq(projectCollaborators.userId, req.user.id))
+        .innerJoin(projects, eq(projectCollaborators.projectId, projects.id))
+        .leftJoin(charts, eq(projects.chartId, charts.id))
+        .leftJoin(users, eq(projects.userId, users.id));
+
+      // Combine and format both sets of projects
+      const allProjects = [...ownProjects, ...collaborativeProjects].map(project => ({
+        ...project,
+        chart: project.chart?.id ? project.chart : null,
+        creator: project.creator?.id ? project.creator : null
+      }));
+
+      console.log(`Found ${allProjects.length} projects for user ${req.user.id}`);
+      res.json(allProjects);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      res.status(500).json({ error: 'Failed to fetch projects' });
+    }
+  });
+
+  app.get("/api/projects/:id", async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+
+    try {
+      // First try to find project where user is owner
+      let project = await db
+        .select({
+          id: projects.id,
+          name: projects.name,
+          status: projects.status,
+          createdAt: projects.createdAt,
+          chart: {
+            id: charts.id,
+            title: charts.title,
+            data: charts.data,
+          },
+          creator: {
+            id: users.id,
+            username: users.username,
+          },
+        })
+        .from(projects)
+        .where(and(
+          eq(projects.id, parseInt(req.params.id)),
+          eq(projects.userId, req.user.id)
+        ))
+        .leftJoin(charts, eq(projects.chartId, charts.id))
+        .leftJoin(users, eq(projects.userId, users.id))
+        .limit(1);
+
+      // If not found as owner, check if user is a collaborator
+      if (!project.length) {
+        project = await db
+          .select({
+            id: projects.id,
+            name: projects.name,
+            status: projects.status,
+            createdAt: projects.createdAt,
+            chart: {
+              id: charts.id,
+              title: charts.title,
+              data: charts.data,
+            },
+            creator: {
+              id: users.id,
+              username: users.username,
+            },
+          })
+          .from(projectCollaborators)
+          .where(and(
+            eq(projectCollaborators.projectId, parseInt(req.params.id)),
+            eq(projectCollaborators.userId, req.user.id)
+          ))
+          .innerJoin(projects, eq(projectCollaborators.projectId, projects.id))
+          .leftJoin(charts, eq(projects.chartId, charts.id))
+          .leftJoin(users, eq(projects.userId, users.id))
+          .limit(1);
+      }
+
+      if (!project.length) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+
+      const formattedProject = {
+        ...project[0],
+        chart: project[0].chart?.id ? project[0].chart : null,
+        creator: project[0].creator?.id ? project[0].creator : null
+      };
+
+      res.json(formattedProject);
+    } catch (error) {
+      console.error('Error fetching project:', error);
+      res.status(500).json({ error: 'Failed to fetch project' });
+    }
+  });
+
   app.post("/api/projects", async (req, res) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
 
@@ -78,45 +232,6 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error creating project:', error);
       res.status(500).json({ error: 'Failed to create project' });
-    }
-  });
-
-  // Get user's projects
-  app.get("/api/projects", async (req, res) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-
-    try {
-      const projects = await db
-        .select({
-          id: projects.id,
-          name: projects.name,
-          status: projects.status,
-          createdAt: projects.createdAt,
-          chart: {
-            id: charts.id,
-            title: charts.title,
-            data: charts.data,
-          },
-          creator: {
-            id: users.id,
-            username: users.username,
-          },
-        })
-        .from(projects)
-        .where(
-          or(
-            eq(projects.userId, req.user.id),
-            eq(projectCollaborators.userId, req.user.id)
-          )
-        )
-        .leftJoin(charts, eq(projects.chartId, charts.id))
-        .leftJoin(users, eq(projects.userId, users.id))
-        .leftJoin(projectCollaborators, eq(projects.id, projectCollaborators.projectId));
-
-      res.json(projects);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      res.status(500).json({ error: 'Failed to fetch projects' });
     }
   });
 

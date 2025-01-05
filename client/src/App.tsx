@@ -2,7 +2,7 @@ import { Switch, Route } from "wouter";
 import { Loader2 } from "lucide-react";
 import { useUser } from "./hooks/use-user";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, lazy, Suspense, startTransition } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import type { Chart } from "@db/schema";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
@@ -11,6 +11,7 @@ import MessagesPage from "./pages/MessagesPage";
 import FriendsPage from "./pages/FriendsPage";
 import AuthPage from "./pages/AuthPage";
 import DemoPage from "./pages/DemoPage";
+import { CollaborationProjectView } from "./components/CollaborationProjectView";
 const FormView = lazy(() => import('./pages/ChartPages/FormView'));
 const IncludeBuildView = lazy(() => import('./pages/ChartPages/IncludeBuildView'));
 const ScaledView = lazy(() => import('./pages/ChartPages/ScaledView'));
@@ -34,6 +35,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from "wouter";
 import CollaborationsPage from "./pages/CollaborationsPage";
+
 
 function App() {
   const { user, isLoading, logout } = useUser();
@@ -190,6 +192,11 @@ function App() {
                       {(params) => <ProfilePage params={params} />}
                     </Route>
                     <Route path="/collaborations" component={CollaborationsPage} />
+                    <Route path="/collaborations/:id">
+                      {(params) => (
+                        <CollaborationProjectView id={parseInt(params.id)} />
+                      )}
+                    </Route>
                     <Route path="/forum" component={ForumPage} />
                     <Route path="/messages" component={MessagesPage} />
                     <Route path="/friends" component={FriendsPage} />

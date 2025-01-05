@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Chart } from "@db/schema";
 import type { Friend, CollaboratorAccessLevel } from "@/types/collaboration";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, User } from "lucide-react";
 
 interface ProjectCreationWizardProps {
   isOpen: boolean;
@@ -30,9 +30,9 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useUser();
   const { toast } = useToast();
-  const { friends, isLoading: isLoadingFriends } = useFriends();
+  const { friends = [], isLoading: isLoadingFriends } = useFriends();
 
-  const { data: charts, isLoading: isLoadingCharts } = useQuery<Chart[]>({
+  const { data: charts = [], isLoading: isLoadingCharts } = useQuery<Chart[]>({
     queryKey: ["charts"],
     queryFn: async () => {
       const response = await fetch("/api/charts", {
@@ -42,6 +42,16 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
       return response.json();
     },
   });
+
+  const handleAccessLevelChange = (friendId: number, accessLevel: CollaboratorAccessLevel) => {
+    setSelectedCollaborators(prev => 
+      prev.map(collab => 
+        collab.id === friendId 
+          ? { ...collab, selectedAccessLevel: accessLevel }
+          : collab
+      )
+    );
+  };
 
   const handleCreateProject = async () => {
     try {
@@ -56,7 +66,6 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
         throw new Error("Please enter a project name");
       }
 
-      // Filter out invalid collaborators and format the data
       const collaborators = selectedCollaborators
         .filter(c => c.friend && c.friend.id)
         .map(c => ({
@@ -102,16 +111,6 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleAccessLevelChange = (friendId: number, accessLevel: CollaboratorAccessLevel) => {
-    setSelectedCollaborators(prev => 
-      prev.map(collab => 
-        collab.id === friendId 
-          ? { ...collab, selectedAccessLevel: accessLevel }
-          : collab
-      )
-    );
   };
 
   const renderStep = () => {
@@ -177,7 +176,7 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
               ) : (
                 <div className="space-y-2">
                   {friends.map((friend) => {
-                    if (!friend.friend) return null;
+                    if (!friend?.friend) return null;
                     const isSelected = selectedCollaborators.some(c => c.id === friend.id);
 
                     return (
@@ -206,7 +205,9 @@ export function ProjectCreationWizard({ isOpen, onClose }: ProjectCreationWizard
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              <div className="w-8 h-8 rounded-full bg-primary/10" />
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="h-4 w-4" />
+                              </div>
                               <div>
                                 <p className="font-medium">{friend.friend.username || 'Unknown User'}</p>
                                 {friend.friend.bio && (

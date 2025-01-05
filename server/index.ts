@@ -49,12 +49,21 @@ async function startServer() {
     // Create HTTP server first
     const port = process.env.PORT || 5000;
     app.set('port', port);
-    app.set('host', '0.0.0.0');
     const server = registerRoutes(app);
     
-    server.listen(port, '0.0.0.0', () => {
-      log(`Server running on port ${port}`);
-    });
+    // Kill any existing processes on the port
+    try {
+      await new Promise((resolve) => {
+        const tester = server.listen(port, '0.0.0.0', () => {
+          tester.close(resolve);
+        });
+        tester.on('error', () => {
+          resolve();
+        });
+      });
+    } catch (err) {
+      console.error('Port cleanup error:', err);
+    }
     
     // Setup WebSocket server with existing HTTP server and session
     try {

@@ -11,6 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Loader2, UserPlus, UserMinus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
+import type { RouteComponentProps } from "wouter";
 
 interface Friend {
   id: number;
@@ -23,13 +24,12 @@ interface Friend {
   } | null;
 }
 
-interface ProfilePageProps {
-  username?: string;
-}
+type ProfileRouteParams = {
+  username: string;
+};
 
-export default function ProfilePage({ username: propUsername }: ProfilePageProps) {
-  const params = useParams();
-  const pageUsername = propUsername || params.username;
+export default function ProfilePage({ params }: RouteComponentProps<ProfileRouteParams>) {
+  const pageUsername = params?.username;
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();

@@ -12,17 +12,7 @@ import { Loader2, UserPlus, UserMinus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import type { RouteComponentProps } from "wouter";
-
-interface Friend {
-  id: number;
-  status: "accepted";
-  createdAt: string;
-  friend: {
-    id: number;
-    username: string;
-    bio?: string | null;
-  } | null;
-}
+import type { Friend } from "@/types";
 
 type ProfileRouteParams = {
   username: string;
@@ -126,7 +116,7 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
   }
 
   const isOwnProfile = user?.username === pageUsername;
-  const isFriend = friends?.some((friend) => friend.friend?.username === user?.username);
+  const isFriend = friends?.some((friend) => friend.username === user?.username);
 
   if (editSection) {
     return (
@@ -161,8 +151,8 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
 
           <div className="md:col-span-2 space-y-6">
             {!isOwnProfile && (
-              <Card className="p-4">
-                <div className="space-y-4">
+              <Card>
+                <CardContent className="p-4">
                   <Button
                     className="w-full"
                     variant={isFriend ? "destructive" : "default"}
@@ -183,31 +173,31 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
                       </>
                     )}
                   </Button>
-                </div>
+                </CardContent>
               </Card>
             )}
 
-            <Card className="p-4">
+            <Card>
               <CardHeader>
                 <CardTitle>Friends ({friends?.length || 0})</CardTitle>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px]">
                   <div className="space-y-4">
-                    {friends?.map((friendship) => (
-                      <Card key={friendship.id} className="p-4">
+                    {friends?.map((friend) => (
+                      <Card key={friend.id} className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <Avatar>
-                              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${friendship.friend?.username}`} />
-                              <AvatarFallback>{friendship.friend?.username?.[0]?.toUpperCase()}</AvatarFallback>
+                              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${friend.username}`} />
+                              <AvatarFallback>{friend.username[0].toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <Link href={`/profile/${friendship.friend?.username}`}>
-                                <h3 className="font-medium hover:underline">{friendship.friend?.username}</h3>
+                              <Link href={`/profile/${friend.username}`}>
+                                <h3 className="font-medium hover:underline">{friend.username}</h3>
                               </Link>
-                              {friendship.friend?.bio && (
-                                <p className="text-sm text-muted-foreground">{friendship.friend.bio}</p>
+                              {friend.bio && (
+                                <p className="text-sm text-muted-foreground">{friend.bio}</p>
                               )}
                             </div>
                           </div>
@@ -215,7 +205,7 @@ export default function ProfilePage({ params }: RouteComponentProps<ProfileRoute
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => removeFriendMutation.mutate(friendship.id)}
+                              onClick={() => removeFriendMutation.mutate(friend.id)}
                             >
                               <UserMinus className="h-4 w-4" />
                             </Button>

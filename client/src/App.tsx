@@ -189,9 +189,7 @@ function App() {
                     <Route path="/profile/:username">
                       {(params) => <ProfilePage params={params} />}
                     </Route>
-                    <Route path="/collaborations">
-                      {(params) => <CollaborationsPage params={params} />}
-                    </Route>
+                    <Route path="/collaborations" component={CollaborationsPage} />
                     <Route path="/forum" component={ForumPage} />
                     <Route path="/messages" component={MessagesPage} />
                     <Route path="/friends" component={FriendsPage} />

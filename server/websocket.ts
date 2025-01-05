@@ -50,11 +50,11 @@ export function setupWebSocket(server: Server) {
         return;
       }
 
-      const cookies = Object.fromEntries(
-        cookieString.split(';')
-          .map(cookie => cookie.trim().split('='))
-          .map(([key, value]) => [key, decodeURIComponent(value)])
-      );
+      const cookies = cookieString.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = decodeURIComponent(value);
+        return acc;
+      }, {} as Record<string, string>);
 
       const connectSid = cookies['connect.sid'];
       if (!connectSid) {
@@ -62,7 +62,7 @@ export function setupWebSocket(server: Server) {
         return;
       }
 
-      const sessionId = connectSid.split('.')[0].replace('s:', '');
+      const sessionId = connectSid.replace('s:', '').split('.')[0];
       
       sessionStore.get(sessionId, (err, session) => {
         if (err || !session) {
@@ -78,9 +78,10 @@ export function setupWebSocket(server: Server) {
           return;
         }
 
-        wss.handleUpgrade(request, socket, head, (ws) => {
-          wss.emit('connection', ws, request);
-        });
+        const ws = new WebSocket(request, socket, head);
+        (ws as ExtendedWebSocket).userId = userId;
+        wss.emit('connection', ws);
+        console.log(`WebSocket connected for user ${userId}`);
       });
     } catch (error) {
       console.error('WebSocket upgrade error:', error);

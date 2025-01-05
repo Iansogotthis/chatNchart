@@ -39,7 +39,13 @@ export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
     noServer: true,
     clientTracking: true,
-    perMessageDeflate: false
+    perMessageDeflate: {
+      zlibDeflateOptions: {
+        chunkSize: 1024,
+        memLevel: 7,
+        level: 3
+      }
+    }
   });
 
   server.on('upgrade', async (request, socket, head) => {

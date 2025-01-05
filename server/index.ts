@@ -120,9 +120,12 @@ async function startServer() {
     });
 
   } catch (error) {
-    log("Failed to start server:", error instanceof Error ? error.message : String(error));
-    throw error;
-  }
+      const errorDetails = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { message: String(error) };
+      console.error("Server initialization failed:", JSON.stringify(errorDetails, null, 2));
+      throw error;
+    }
 }
 
 // Start the server with error handling

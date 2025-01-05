@@ -32,10 +32,12 @@ export default function AuthPage() {
         description: isLogin ? "Logged in successfully" : "Registered successfully",
       });
     } catch (error: any) {
+      console.error("Authentication error:", error);
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
+        duration: 5000,
       });
     }
   };

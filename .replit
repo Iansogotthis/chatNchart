@@ -15,27 +15,17 @@ run = ["sh", "-c", "PORT=5000 npm run dev"]
 localPort = 5000
 externalPort = 80
 
-[workflows]
-[workflows.workflow]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow]]
+[workflow]
 name = "Start application"
 author = "agent"
 
-[workflows.workflow.metadata]
+[workflow.metadata]
 agentRequireRestartOnSave = false
 
-[[workflows.workflow.tasks]]
+[[workflow.tasks]]
 task = "packager.installForAll"
 
-[[workflows.workflow.tasks]]
+[[workflow.tasks]]
 task = "shell.exec"
 args = "PORT=5000 npm run dev"
 waitForPort = 5000
